@@ -95,6 +95,7 @@
     codon: ["密码子", "mRNA 上连续的三个核苷酸，指定氨基酸或翻译终止信号。"],
     anticodon: ["反密码子", "tRNA 上与密码子互补的三个碱基，按 A–U、C–G 配对识别密码子，保证递送正确的氨基酸。"],
     startCodon: ["起始密码子 · AUG", "翻译通常从 AUG 开始，编码甲硫氨酸（Met）；核糖体在此组装并开启肽链合成。"],
+    exocytosis: ["胞吐", "运输囊泡与细胞膜融合，把内容物释放到细胞外——这是分泌蛋白出胞的主要方式。"],
     aminoAcid: ["氨基酸", "核糖体根据密码子顺序连接氨基酸，形成多肽链。"]
   };
 
@@ -354,7 +355,7 @@
       else if (p.ribosome) setOutcome("核糖体到位", "开始读取密码子", "核糖体定位到起始密码子 AUG（编码甲硫氨酸）；拖动 tRNA 开始翻译。", "密码子配对");
       else setOutcome("准备开始", "组装翻译复合体", "将核糖体放到 mRNA 上，结合起始密码子 AUG，开启密码子读取。", "等待翻译");
     } else {
-      if (p.delivered) setOutcome("运输完成", "蛋白到达细胞膜并释放", "成熟 mRNA 先从细胞核输出；信号肽随后在细胞质中随新生蛋白合成，帮助其进入内质网—高尔基体分泌通路。", "膜融合与释放");
+      if (p.delivered) setOutcome("运输完成", "蛋白到达细胞膜并释放", "运输囊泡与细胞膜融合（胞吐），分泌蛋白释放到细胞外。胰岛素、抗体等分泌蛋白正是沿这条通路运输。", "膜融合与胞吐释放");
       else if (p.atGolgi) setOutcome("高尔基体加工", "蛋白已分拣并包装", "将运输囊泡移动到细胞膜，完成这一条分泌路径。", "囊泡待送达");
       else if (p.inER) setOutcome("内质网定位", "蛋白进入分泌通路", "信号肽引导新生蛋白进入粗面内质网，之后由囊泡运输。", "货物进入内质网");
       else setOutcome("准备开始", "先输出 mRNA，再进入分泌通路", "信号肽不是从细胞核出来的；它由细胞质核糖体翻译为新生蛋白的一部分，再引导蛋白进入粗面内质网。", "等待 mRNA 出核");
@@ -380,8 +381,8 @@
     translate: { title: "tRNA 递送氨基酸，肽链连续延伸", caption: "tRNA 以反密码子与密码子互补配对（A–U、C–G），递送对应氨基酸；肽键连接使多肽链从 N 端向 C 端延伸。", focus: [510, 300, 2.0], duration: 7800 },
     fold: { title: "分子伴侣协助新生蛋白折叠", caption: "新生多肽链进入分子伴侣的保护腔，疏水残基内埋，逐步折叠成稳定的三维结构。", focus: [800, 235, 1.9], duration: 4200 },
     exportMessage: { title: "mRNA 离开细胞核", caption: "先由成熟 mRNA 经嵌在核膜上的核孔进入细胞质；信号肽不是从细胞核输出的。", focus: [233, 280, 1.75], duration: 2300 },
-    targetER: { title: "信号肽引导新生蛋白进入粗面内质网", caption: "信号肽由细胞质中的核糖体翻译出来，并将新生蛋白导入分泌通路。", focus: [430, 282, 1.9], duration: 3100 },
-    transport: { title: "囊泡运送蛋白并与细胞膜融合", caption: "蛋白依次经过内质网、高尔基体和运输囊泡，最后到达细胞膜并释放。", focus: [670, 285, 1.55], duration: 5600 }
+    targetER: { title: "信号肽引导新生蛋白进入粗面内质网", caption: "信号肽引导新生蛋白进入粗面内质网腔；进入后信号肽被切除，蛋白在腔内折叠并初步加工。", focus: [430, 282, 1.9], duration: 3600 },
+    transport: { title: "内质网—高尔基体—细胞膜连续运输", caption: "蛋白依次经内质网加工、高尔基体糖基化与分拣，由囊泡运至细胞膜；SNARE 介导膜融合，经胞吐释放。", focus: [670, 285, 1.55], duration: 9200 }
   };
 
   function sequenceForLayer(layer) {
@@ -1177,6 +1178,7 @@
 
   function drawLayerFiveAnimated(c,t){
     const p=state.parts;
+    state.inset=null;
     c.save();c.beginPath();c.ellipse(500,302,424,222,-.04,0,TAU);c.fillStyle="rgba(31,71,86,.12)";c.fill();c.strokeStyle="rgba(127,201,213,.56)";c.lineWidth=2;c.stroke();c.restore();
     label(c,"细胞膜",500,88,"#8fc8d0",10);hit("cell",500,114,35,"真核细胞");hit("membrane",903,286,48,"细胞膜");
     c.save();c.beginPath();c.ellipse(155,280,78,99,0,0,TAU);c.fillStyle="rgba(117,98,150,.18)";c.fill();c.strokeStyle="rgba(183,162,228,.57)";c.lineWidth=2;c.beginPath();c.ellipse(155,280,78,99,0,.34,TAU-.34);c.stroke();c.restore();
@@ -1189,34 +1191,91 @@
       const pos=mp<.42?bezierPoint(mp/.42,{x:194,y:300},{x:208,y:297},{x:220,y:288},{x:233,y:280}):bezierPoint((mp-.42)/.58,{x:233,y:280},{x:255,y:268},{x:285,y:270},{x:315,y:270});
       for(let i=0;i<5;i++){c.beginPath();c.arc(pos.x+i*8,pos.y+Math.sin(i)*4,4,0,TAU);c.fillStyle="#91d0ae";c.fill();}
       drawPill(c,255,342,"mRNA 出核","#91d0ae");hit("rna",pos.x,pos.y,28,"成熟 mRNA · 经核孔输出");
+      if(mp<1)state.inset={kind:"pore",title:"核孔复合体 · 特写",lines:["核膜上的选择性通道，核内成熟 mRNA 由此出核","mRNP 复合体经转运蛋白协助通过通道"]};
     }
     for(let i=0;i<4;i++){const y=210+i*43;c.strokeStyle="rgba(127,201,213,.72)";c.lineWidth=8;c.lineCap="round";c.beginPath();c.moveTo(315,y);c.bezierCurveTo(365,y-20,407,y+20,465,y);c.stroke();for(let j=0;j<3;j++){c.beginPath();c.arc(345+j*32,y-8,3,0,TAU);c.fillStyle="#c6d9e0";c.fill();}}
     drawPill(c,390,442,"粗面内质网","#9cd6df");hit("er",390,286,59,"粗面内质网 · 分泌蛋白入口");
     if(mp>.6||p.signalProgress!==undefined||p.inER){drawMolecule(c,"ribosome",354,270,.48,t);hit("ribosome",354,270,34,"核糖体 · 翻译信号肽");}
     if(p.signalProgress!==undefined||p.signal||p.inER){
       const sp=p.inER?1:(p.signalProgress||0),sx=350+105*sp,sy=249+7*Math.sin(sp*Math.PI);
-      drawMolecule(c,"signal",sx,sy,.72,t);drawMolecule(c,"other",sx+22,sy+27,.25,t);hit("signal",sx,sy,30,"信号肽 · 新生蛋白的定位标记");hit("protein",sx+22,sy+27,22,"新生蛋白链");
+      if(sp<.92){drawMolecule(c,"signal",sx,sy,.72,t);}else{c.save();c.globalAlpha=Math.max(0,1-(sp-.92)/.08);drawMolecule(c,"signal",sx,sy,.72,t);c.restore();}
+      drawMolecule(c,"other",sx+22,sy+27,.25,t);hit("signal",sx,sy,30,"信号肽 · 新生蛋白的定位标记");hit("protein",sx+22,sy+27,22,"新生蛋白链");
       if(sp>.25)strokeCurve(c,[{x:360,y:282},{x:390,y:305},{x:420,y:292},{x:sx,y:sy+20}],"#e8b875",4,.9);
+      if(sp>.85)drawPill(c,sx-26,sy+46,"信号肽被切除 · 蛋白进入腔内","#e8b875");
+      const tr0=p.transportProgress||0;
+      if((p.signalProgress!==undefined)||(p.inER&&!p.delivered&&tr0<=0))state.inset={kind:"er",title:"粗面内质网 · 特写",lines:["表面附着核糖体；带信号肽的新生蛋白被送入腔内","腔内完成折叠、二硫键形成与初步糖基化"]};
     }
     for(let i=0;i<5;i++){const y=215+i*30;c.beginPath();c.ellipse(635,y,56-i*2,8,-.1,0,TAU);c.fillStyle=`rgba(183,162,228,${.18+i*.025})`;c.fill();c.strokeStyle="rgba(183,162,228,.55)";c.lineWidth=1.4;c.stroke();}
     drawPill(c,635,397,"高尔基体","#c7b5e8");hit("golgi",635,278,56,"高尔基体 · 加工与分拣");
     c.save();c.setLineDash([5,6]);c.strokeStyle="rgba(232,184,117,.42)";c.lineWidth=2;c.beginPath();c.moveTo(465,280);c.bezierCurveTo(520,222,568,334,618,280);c.bezierCurveTo(720,212,768,315,894,280);c.stroke();c.restore();
-    let transport= p.delivered?1:(p.transportProgress||0),vesiclePos=null;
+    let transport=p.delivered?1:(p.transportProgress||0),vesiclePos=null;
     if(transport>0){
-      if(transport<.42){const u=transport/.42;vesiclePos=bezierPoint(u,{x:470,y:280},{x:520,y:222},{x:566,y:335},{x:630,y:280});}
-      else{const u=(transport-.42)/.58;vesiclePos=bezierPoint(u,{x:630,y:280},{x:710,y:212},{x:770,y:326},{x:894,y:280});}
-      drawMolecule(c,"vesicle",vesiclePos.x,vesiclePos.y,.82,t);drawMolecule(c,"amino",vesiclePos.x,vesiclePos.y,.34,t);hit("vesicle",vesiclePos.x,vesiclePos.y,43,"运输囊泡");hit("protein",vesiclePos.x,vesiclePos.y,18,"囊泡中的蛋白质货物");
+      if(transport<.34){const u=transport/.34;vesiclePos=bezierPoint(u,{x:470,y:280},{x:520,y:222},{x:566,y:335},{x:630,y:280});}
+      else if(transport<.6){vesiclePos=null;}
+      else{const u=(transport-.6)/.4;vesiclePos=bezierPoint(u,{x:660,y:284},{x:720,y:214},{x:782,y:332},{x:894,y:280});}
+      if(transport>=.34&&transport<.6){
+        drawProtein(c,640,262,"other",.3,true);hit("protein",640,262,20,"蛋白质货物 · 正在加工");
+        for(let i=0;i<2;i++){c.save();c.strokeStyle="#e8b875";c.lineWidth=1.6;c.shadowColor="#e8b875";c.shadowBlur=6;c.beginPath();c.moveTo(656,246);c.lineTo(664,246+Math.sin(t/150+i*2)*5);c.lineTo(672,246);c.stroke();c.restore();}
+        drawPill(c,662,322,"糖基化修饰 · 分拣包装","#c7b5e8");
+        state.inset={kind:"golgi",title:"高尔基体 · 特写",lines:["扁平膜囊堆（cis 面 → trans 面），蛋白进一步糖基化","trans 面将蛋白分拣、包装进运输囊泡"]};
+      }
+      if(vesiclePos){
+        const fusing=transport>=.9?(transport-.9)/.1:0;
+        if(fusing>0){
+          const ry=35*(1-fusing*.72);
+          c.save();c.beginPath();c.ellipse(vesiclePos.x,vesiclePos.y,36,ry,0,0,TAU);c.fillStyle="rgba(232,184,117,.12)";c.fill();c.strokeStyle="#e8b875";c.lineWidth=4;c.stroke();c.restore();
+          c.beginPath();c.arc(vesiclePos.x+4,vesiclePos.y,7,0,TAU);c.fillStyle="#9bd0ac";c.fill();
+          drawPill(c,vesiclePos.x,vesiclePos.y+52,"囊泡膜与细胞膜融合 · SNARE 介导","#a5d9b7");
+        }else{
+          drawMolecule(c,"vesicle",vesiclePos.x,vesiclePos.y,.82,t);
+          drawMolecule(c,"amino",vesiclePos.x,vesiclePos.y,.3,t);
+        }
+        hit("vesicle",vesiclePos.x,vesiclePos.y,43,"运输囊泡");hit("protein",vesiclePos.x,vesiclePos.y,18,"囊泡中的蛋白质货物");
+        if(transport>=.6)state.inset={kind:"membrane",title:"囊泡融合 · 胞吐 · 特写",lines:["囊泡膜与细胞膜融合，由 SNARE 蛋白介导","货物蛋白释放到细胞外——胞吐"]};
+      }
     }
     if(p.delivered){
       c.strokeStyle="#91d0ae";c.lineWidth=3;c.beginPath();c.moveTo(895,280);c.lineTo(946,280);c.lineTo(934,270);c.moveTo(946,280);c.lineTo(934,290);c.stroke();
-      c.beginPath();c.arc(955,280,9,0,TAU);c.fillStyle="#e8b875";c.fill();drawPill(c,893,346,"膜融合 · 蛋白释放","#a5d9b7");hit("protein",955,280,20,"已释放的分泌蛋白");
+      c.beginPath();c.arc(955,280,9,0,TAU);c.fillStyle="#e8b875";c.fill();
+      for(let i=0;i<6;i++){const a=i*TAU/6+t/320;c.beginPath();c.arc(955+Math.cos(a)*20,280+Math.sin(a)*20,2.5,0,TAU);c.fillStyle="rgba(232,184,117,.75)";c.fill();}
+      drawPill(c,893,346,"胞吐 · 蛋白释放到细胞外","#a5d9b7");hit("protein",955,280,20,"已释放的分泌蛋白");hit("exocytosis",930,280,45,"胞吐 · 囊泡与膜融合释放内容物");
     }
     drawPill(c,777,403,p.delivered?"已到达细胞膜":"连续分泌运输路径","#e8bf83");
   }
 
+  function drawInset(c, spec) {
+    const x=30,y=H-198,w=252,h=178;
+    c.save();
+    roundedRect(c,x,y,w,h,12,"rgba(9,22,33,.92)","rgba(127,201,213,.35)");
+    c.fillStyle="#9dd6dc";c.font="600 12px Inter, 'Microsoft YaHei UI', sans-serif";c.textAlign="left";c.textBaseline="middle";
+    c.fillText(spec.title,x+16,y+22);
+    c.strokeStyle="rgba(127,201,213,.25)";c.lineWidth=1;c.beginPath();c.moveTo(x+16,y+34);c.lineTo(x+w-16,y+34);c.stroke();
+    c.fillStyle="#a9c8bd";c.font="500 10.5px Inter, 'Microsoft YaHei UI', sans-serif";
+    spec.lines.forEach((line,i)=>c.fillText(line,x+16,y+52+i*15));
+    const cx=x+92,cy=y+130;
+    if(spec.kind==="er"){
+      c.strokeStyle="#79c4d0";c.lineWidth=4;
+      for(let i=0;i<3;i++){const yy=cy-16+i*14;c.beginPath();c.moveTo(cx-44,yy);c.bezierCurveTo(cx-20,yy-10,cx+18,yy+10,cx+44,yy);c.stroke();}
+      c.fillStyle="#d9e8ed";for(let i=0;i<5;i++){c.beginPath();c.arc(cx-30+i*15,cy-24+(i%2)*4,2.5,0,TAU);c.fill();}
+    }else if(spec.kind==="golgi"){
+      c.strokeStyle="#b7a2e4";c.lineWidth=4;
+      for(let i=0;i<4;i++){c.beginPath();c.ellipse(cx,cy-18+i*11,38-i*4,5,-.1,Math.PI,TAU);c.stroke();}
+      c.fillStyle="#e7d9ff";for(let i=0;i<2;i++){c.beginPath();c.arc(cx+42+i*8,cy-14+i*13,3,0,TAU);c.fill();}
+    }else if(spec.kind==="membrane"){
+      c.strokeStyle="#91d0ae";c.lineWidth=3.5;c.beginPath();c.moveTo(cx-40,cy-20);c.bezierCurveTo(cx-14,cy-4,cx-30,cy+8,cx-18,cy+22);c.moveTo(cx-24,cy-20);c.bezierCurveTo(cx+2,cy-4,cx-14,cy+8,cx-2,cy+22);c.stroke();
+      c.beginPath();c.ellipse(cx+26,cy,18,10,0,0,TAU);c.fillStyle="rgba(232,184,117,.14)";c.fill();c.strokeStyle="#e8b875";c.lineWidth=2.5;c.stroke();
+      c.fillStyle="#e8b875";c.beginPath();c.arc(cx+48,cy-10,4,0,TAU);c.fill();
+    }else{ // pore
+      c.strokeStyle="#e6bd7e";c.lineWidth=7;c.beginPath();c.ellipse(cx,cy,26,34,0,0,TAU);c.stroke();
+      c.fillStyle="#273f4c";c.beginPath();c.ellipse(cx,cy,13,24,0,0,TAU);c.fill();
+      c.fillStyle="#f0d295";for(let i=0;i<8;i++){const a=i*TAU/8;c.beginPath();c.arc(cx+Math.cos(a)*31,cy+Math.sin(a)*39,3,0,TAU);c.fill();}
+    }
+    c.restore();
+  }
+
   function drawScene(t) {
     if (!state.layer || !resizeCanvas(canvas, ctx)) return;
-    drawBackdrop(ctx, t); state.hits = [];
+    drawBackdrop(ctx, t); state.hits = []; state.inset = null;
     state.camera.x += (state.cameraTarget.x - state.camera.x) * .09;
     state.camera.y += (state.cameraTarget.y - state.camera.y) * .09;
     state.camera.zoom += (state.cameraTarget.zoom - state.camera.zoom) * .09;
@@ -1230,6 +1289,7 @@
     else if (state.layer === 4) drawLayerFourAnimated(ctx,t);
     else drawLayerFiveAnimated(ctx,t);
     ctx.restore();
+    if (state.inset) drawInset(ctx, state.inset);
     const p = state.parts;
     const stageState = state.layer === 1 ? p.sealed ? "repaired" : p.opened ? "bound" : "idle"
       : state.layer === 2 ? p.hdr || p.nhej ? "repaired" : p.cut ? "cut" : p.bound ? "bound" : "idle"
