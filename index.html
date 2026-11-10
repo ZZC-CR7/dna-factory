@@ -18,6 +18,8 @@
       <div class="top-actions">
         <span class="online"><i></i>互动演示</span>
         <a class="reference-link" href="https://www.bilibili.com/video/BV15x411Z7kf/" target="_blank" rel="noreferrer">参考动画 <span>↗</span></a>
+        <button class="icon-button" id="soundButton" title="音效开关" aria-label="音效开关">♪</button>
+        <button class="icon-button" id="tourButton" title="自动演示全部五层" aria-label="自动演示全部五层">▶</button>
         <button class="icon-button" id="resetButton" title="重置当前层" aria-label="重置当前层">↺</button>
       </div>
     </header>
@@ -77,6 +79,7 @@
           <div class="camera-label" id="cameraLabel" hidden><span>动态特写</span><b id="cameraLabelText">分子结合</b></div>
           <div class="motion-progress" id="motionProgress" hidden><b id="motionLabel">正在演示</b><span class="motion-track"><i id="motionFill"></i></span></div>
           <div class="canvas-callout" id="canvasCallout"><span class="callout-line"></span><span id="calloutText">选择一个结构，查看它的功能</span></div>
+          <div class="tour-banner" id="tourBanner" hidden><span class="tour-banner-dot"></span><b id="tourBannerTitle">自动演示</b><span id="tourBannerText">第 1 / 5 层</span></div>
           <div class="canvas-instruction" id="canvasInstruction"><span class="instruction-icon">⌖</span><span>拖动 <b id="instructionTool">解旋酶</b> 至 DNA 双链</span></div>
           <div class="canvas-status" id="canvasStatus"><span class="status-led"></span><span>等待操作</span></div>
           <div class="zoom-badge" id="zoomBadge">视野放大 <b>× 1.20</b></div>
@@ -107,6 +110,7 @@
           <div class="card-eyebrow">过程进度 <span class="result-state" id="resultState">准备开始</span></div>
           <h3 id="outcomeTitle">完成本层互动</h3>
           <p id="outcomeText">按照场景提示放置分子工具，逐步推进遗传信息流程。</p>
+          <p class="meaning-note" id="layerMeaning"></p>
           <div class="result-visual" id="resultVisual"><span class="result-bar"><i></i><i></i><i></i><i></i></span><span class="result-caption">等待分子事件</span></div>
           <div class="repair-actions" id="repairActions" hidden>
             <button type="button" data-repair="nhej"><b>NHEJ</b><small>敲除模拟 · 结果不定</small></button>
