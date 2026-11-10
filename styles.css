@@ -275,6 +275,15 @@ body.in-lab .home-screen { display: none; }
 .footer-sep { color: #354956; }
 .toast { position: fixed; z-index: 20; left: 50%; bottom: 78px; padding: 9px 15px; border: 1px solid rgba(127,201,213,.3); border-radius: 8px; color: #d7e9ee; background: rgba(13,27,38,.94); box-shadow: 0 9px 28px rgba(0,0,0,.35); font-size: 11px; opacity: 0; pointer-events: none; transform: translate(-50%,8px); transition: .2s; }
 .toast.show { opacity: 1; transform: translate(-50%,0); }
+#soundButton.muted { opacity: .45; }
+#tourButton { color: #e8b875; border-color: rgba(232,184,117,.42); }
+#tourButton.running { color: #ffd9a0; border-color: rgba(232,184,117,.6); box-shadow: 0 0 10px rgba(232,184,117,.25); }
+@keyframes blink { 50% { opacity: .25; } }
+.tour-banner { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; background: rgba(9,22,33,.9); border: 1px solid rgba(232,184,117,.45); color: #e9d7b8; font-size: 12px; z-index: 6; pointer-events: none; white-space: nowrap; }
+.tour-banner b { font-weight: 600; color: #ffd9a0; }
+.tour-banner-dot { width: 7px; height: 7px; border-radius: 50%; background: #e8b875; box-shadow: 0 0 8px #e8b875; animation: blink 1s infinite; }
+.meaning-note { margin: 10px 0 0; padding: 8px 10px 8px 12px; border-left: 2px solid rgba(145,208,174,.55); background: rgba(145,208,174,.07); color: #a9c8bd; font-size: 12px; line-height: 1.55; border-radius: 0 8px 8px 0; }
+.meaning-note:empty { display: none; }
 
 @media (max-width: 1370px) {
   .app-shell { padding: 0 23px; }
