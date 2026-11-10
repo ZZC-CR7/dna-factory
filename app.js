@@ -48,7 +48,7 @@
     1: { title: "DNA 解旋与复制", subtitle: "打开双链，沿模板合成互补 DNA", mode: "DNA 复制", toolIds: ["helicase", "polymerase", "ligase"], sequence: "ATGCCGTAGCTA", bottom: "TACGGCATCGAT", note: "点击 A、T、C、G 碱基，或查看糖—磷酸骨架。", scene: "复制叉形成", link: "复制出的新链携带完整遗传信息，其中的任何一段基因位点，都可以被下一层的 CRISPR 系统精确找到。", meaning: "DNA 半保留复制是细胞分裂与遗传信息代代相传的基础；许多抗癌药物也作用于 DNA 复制过程。" },
     2: { title: "DNA 靶向编辑与调控", subtitle: "以 CRISPR-Cas9 演示靶向识别、切割、修复与表达调控", mode: "CRISPR · Cas9", toolIds: ["cas9", "donor", "activator", "repressor", "marker"], sequence: TARGET, bottom: [...TARGET].map(c => complement[c]).join(""), note: "向导 RNA 与靶序列配对；Cas9 还需识别邻近 PAM。", scene: "靶向编辑", link: "编辑后的基因序列将作为模板被转录成 RNA——遗传信息开始向外传递。", meaning: "基因编辑正在改变医学与农业：CRISPR 基因疗法已获批治疗镰刀型细胞贫血等遗传病，也被用于抗病育种与合成生物学。" },
     3: { title: "转录与 RNA 剪接", subtitle: "将 DNA 信息转录为 RNA，再加工成熟", mode: "RNA 加工", toolIds: ["rnaPol", "spliceosome", "nuclearPore"], sequence: "ATGCCGTAGCTA", bottom: "AUGCCGUAGCUA", note: "前体 mRNA 包含外显子与内含子；剪接后形成成熟 mRNA。", scene: "从基因到成熟 mRNA", link: "成熟 mRNA 携带编辑后的信息进入细胞质，交给核糖体翻译成蛋白质。", meaning: "同一基因因剪接方式不同可产生多种蛋白质；剪接异常与多种遗传病相关，剪接调控也是药物研发热点。" },
-    4: { title: "翻译与蛋白质合成", subtitle: "核糖体读取密码子，tRNA 递送氨基酸", mode: "蛋白质翻译", toolIds: ["ribosome", "trna", "amino", "chaperone"], sequence: "AUGCCGGUAGCU", bottom: "UACGGCCAUCGA", note: "每三个 RNA 碱基组成一个密码子。", scene: "读取遗传密码", link: "新生多肽链需要折叠成正确构象，并在信号肽指引下被送往细胞各处发挥作用。", meaning: "遗传密码的解读是中心法则的核心；许多抗生素正是通过干扰细菌核糖体的翻译来杀菌。" },
+    4: { title: "翻译与蛋白质合成", subtitle: "核糖体读取密码子，tRNA 递送氨基酸", mode: "蛋白质翻译", toolIds: ["ribosome", "trna", "amino", "chaperone"], sequence: "AUGCCGGUAGCU", bottom: "UACGGCCAUCGA", note: "每三个 RNA 碱基组成一个密码子；tRNA 以互补的反密码子与之配对（A–U、C–G）。", scene: "读取遗传密码", link: "新生多肽链需要折叠成正确构象，并在信号肽指引下被送往细胞各处发挥作用。", meaning: "遗传密码的解读是中心法则的核心；许多抗生素正是通过干扰细菌核糖体的翻译来杀菌。" },
     5: { title: "细胞内蛋白质转运", subtitle: "观察分泌蛋白从内质网到细胞外的路径", mode: "蛋白质转运", toolIds: ["signal", "er", "vesicle", "golgi", "membrane"], sequence: "", bottom: "", note: "信号肽、囊泡和细胞器共同决定蛋白质去向。", scene: "细胞层级的运输路径", link: "至此，一段 DNA 上的信息经过解旋、编辑、转录、翻译与运输，最终变成细胞外的蛋白质——生命就是这样运作的。", meaning: "分泌蛋白是胰岛素、抗体等生物药的基础；理解转运机制，才能工程化生产重组蛋白药物。" }
   };
 
@@ -93,6 +93,8 @@
     exon: ["外显子", "RNA 剪接过程中保留并连接到成熟 mRNA 的片段。"],
     intron: ["内含子", "pre-mRNA 中通常被剪接体移除的片段。"],
     codon: ["密码子", "mRNA 上连续的三个核苷酸，指定氨基酸或翻译终止信号。"],
+    anticodon: ["反密码子", "tRNA 上与密码子互补的三个碱基，按 A–U、C–G 配对识别密码子，保证递送正确的氨基酸。"],
+    startCodon: ["起始密码子 · AUG", "翻译通常从 AUG 开始，编码甲硫氨酸（Met）；核糖体在此组装并开启肽链合成。"],
     aminoAcid: ["氨基酸", "核糖体根据密码子顺序连接氨基酸，形成多肽链。"]
   };
 
@@ -347,10 +349,10 @@
       else if (p.transcribed) setOutcome("转录完成", "pre-mRNA 已生成", "转录本包含外显子和内含子；将剪接体拖到内含子区域。", "pre-mRNA");
       else setOutcome("准备开始", "启动转录", "把 RNA 聚合酶拖到 DNA 模板上，生成前体 RNA。", "等待转录");
     } else if (state.layer === 4) {
-      if (p.folded) setOutcome("蛋白质形成", "多肽已折叠", "氨基酸顺序由 mRNA 密码子决定；后续结构折叠形成具有功能的蛋白质。", "折叠蛋白");
-      else if (p.translated) setOutcome("肽链延伸", "氨基酸正在连接", "tRNA 依据反密码子匹配密码子，并将对应氨基酸带至核糖体。", "多肽链增长");
-      else if (p.ribosome) setOutcome("核糖体到位", "开始读取密码子", "拖动 tRNA 到核糖体 A 位点，再推进翻译。", "密码子配对");
-      else setOutcome("准备开始", "组装翻译复合体", "将核糖体放到 mRNA 上，开启密码子读取。", "等待翻译");
+      if (p.folded) setOutcome("蛋白质形成", "多肽已折叠", "多肽链在分子伴侣协助下折叠成稳定三维结构，形成有功能的蛋白质。", "折叠蛋白");
+      else if (p.translated) setOutcome("肽链延伸", "氨基酸正在连接", "tRNA 依据反密码子与密码子互补配对（A–U、C–G），依次递送氨基酸；多肽链按 N 端→C 端延伸。", "多肽链增长");
+      else if (p.ribosome) setOutcome("核糖体到位", "开始读取密码子", "核糖体定位到起始密码子 AUG（编码甲硫氨酸）；拖动 tRNA 开始翻译。", "密码子配对");
+      else setOutcome("准备开始", "组装翻译复合体", "将核糖体放到 mRNA 上，结合起始密码子 AUG，开启密码子读取。", "等待翻译");
     } else {
       if (p.delivered) setOutcome("运输完成", "蛋白到达细胞膜并释放", "成熟 mRNA 先从细胞核输出；信号肽随后在细胞质中随新生蛋白合成，帮助其进入内质网—高尔基体分泌通路。", "膜融合与释放");
       else if (p.atGolgi) setOutcome("高尔基体加工", "蛋白已分拣并包装", "将运输囊泡移动到细胞膜，完成这一条分泌路径。", "囊泡待送达");
@@ -371,12 +373,12 @@
     activate: { title: "dCas9·VP64 招募转录激活因子", caption: "激活结构域招募转录机器，目标基因表达上调；DNA 双链保持完整。", focus: [220, 300, 2.05], duration: 2600 },
     repress: { title: "dCas9·KRAB 抑制转录", caption: "抑制结构域占据调控区，转录减弱、基因被沉默；DNA 双链保持完整。", focus: [220, 300, 2.05], duration: 2600 },
     mark: { title: "荧光 dCas9 标记基因位点", caption: "荧光蛋白被招募到目标位点，持续脉冲显示基因的精确位置。", focus: [500, 338, 2.15], duration: 2100 },
-    transcribe: { title: "RNA 聚合酶读取 DNA 并延伸 RNA", caption: "RNA 聚合酶沿模板移动，核苷酸逐个加入，形成前体 mRNA。", focus: [470, 265, 1.85], duration: 3400 },
-    splice: { title: "剪接体识别并移除内含子", caption: "剪接体包围内含子，形成套索样结构；两侧外显子随后接合。", focus: [500, 380, 2.0], duration: 3100 },
-    export: { title: "成熟 mRNA 通过核孔输出", caption: "核孔复合体嵌在核膜上，成熟 mRNA 沿通道从细胞核进入细胞质。", focus: [665, 300, 1.95], duration: 2800 },
-    assemble: { title: "核糖体大小亚基结合 mRNA", caption: "核糖体定位到起始密码子，准备逐个读取密码子。", focus: [500, 280, 1.8], duration: 1900 },
-    translate: { title: "tRNA 递送氨基酸，肽链连续延伸", caption: "反密码子与密码子配对，氨基酸进入核糖体并连接到多肽链。", focus: [510, 244, 2.0], duration: 4700 },
-    fold: { title: "分子伴侣协助新生蛋白折叠", caption: "多肽链进入伴侣蛋白的保护腔，逐步形成稳定的空间构象。", focus: [710, 220, 1.9], duration: 3000 },
+    transcribe: { title: "RNA 聚合酶读取 DNA 并延伸 RNA", caption: "聚合酶读取模板链，按 A–U、C–G 配对逐个加入核苷酸；新生 RNA 从出口伸出，贴近模板延伸。", focus: [470, 265, 1.85], duration: 4200 },
+    splice: { title: "剪接体识别并移除内含子", caption: "剪接体包围内含子，形成套索样结构；两侧外显子随后接合，形成成熟 mRNA。", focus: [500, 340, 2.0], duration: 3600 },
+    export: { title: "成熟 mRNA 通过核孔输出", caption: "成熟 mRNA 与蛋白质组成 mRNP 复合体，经嵌在核膜上的核孔复合体通道进入细胞质。", focus: [665, 300, 1.95], duration: 3200 },
+    assemble: { title: "核糖体大小亚基结合 mRNA", caption: "核糖体在 mRNA 上组装，定位到起始密码子 AUG（编码甲硫氨酸），准备开始翻译。", focus: [231, 310, 1.8], duration: 2600 },
+    translate: { title: "tRNA 递送氨基酸，肽链连续延伸", caption: "tRNA 以反密码子与密码子互补配对（A–U、C–G），递送对应氨基酸；肽键连接使多肽链从 N 端向 C 端延伸。", focus: [510, 300, 2.0], duration: 7800 },
+    fold: { title: "分子伴侣协助新生蛋白折叠", caption: "新生多肽链进入分子伴侣的保护腔，疏水残基内埋，逐步折叠成稳定的三维结构。", focus: [800, 235, 1.9], duration: 4200 },
     exportMessage: { title: "mRNA 离开细胞核", caption: "先由成熟 mRNA 经嵌在核膜上的核孔进入细胞质；信号肽不是从细胞核输出的。", focus: [233, 280, 1.75], duration: 2300 },
     targetER: { title: "信号肽引导新生蛋白进入粗面内质网", caption: "信号肽由细胞质中的核糖体翻译出来，并将新生蛋白导入分泌通路。", focus: [430, 282, 1.9], duration: 3100 },
     transport: { title: "囊泡运送蛋白并与细胞膜融合", caption: "蛋白依次经过内质网、高尔基体和运输囊泡，最后到达细胞膜并释放。", focus: [670, 285, 1.55], duration: 5600 }
@@ -589,9 +591,9 @@
       else if (tool === "nuclearPore" && p.spliced && near(790, 286, 170)) run(["export"]);
       else fail(tool === "spliceosome" && !p.transcribed ? "先转录生成 pre-mRNA" : "将工具放到当前步骤对应结构");
     } else if (state.layer === 4) {
-      if (tool === "ribosome" && near(500, 300, 250)) run(["assemble"]);
-      else if ((tool === "trna" || tool === "amino") && p.ribosome && near(510, 244, 190)) run(["translate"]);
-      else if (tool === "chaperone" && p.translated && near(710, 220, 200)) run(["fold"]);
+      if (tool === "ribosome" && near(231, 318, 190)) run(["assemble"]);
+      else if ((tool === "trna" || tool === "amino") && p.ribosome && near(420, 330, 330)) run(["translate"]);
+      else if (tool === "chaperone" && p.translated && near(800, 235, 190)) run(["fold"]);
       else fail(tool === "trna" && !p.ribosome ? "先将核糖体放到 mRNA 上" : "将部件放到核糖体或新生多肽附近");
     } else {
       if (tool === "signal" && near(300, 290, 220)) run(p.exported ? ["targetER"] : ["exportMessage", "targetER"]);
@@ -1014,36 +1016,54 @@
     const p=state.parts;
     c.save();c.lineWidth=2;c.strokeStyle="rgba(127,201,213,.34)";c.fillStyle="rgba(58,101,123,.09)";c.beginPath();c.ellipse(385,300,280,195,0,0,TAU);c.fill();c.beginPath();c.ellipse(385,300,280,195,0,.2,TAU-.2);c.stroke();c.restore();
     label(c,"细胞核",164,165,"#8fcbd1",10,"left");hit("nucleus",217,190,33,"细胞核");
-    drawDNA(c,{count:13,y:252,amp:28,phase:t/2100,x0:165,x1:640,sequence:"ATGCCGTAGCTAG"});
+    const dnaRef=drawDNA(c,{count:13,y:252,amp:28,phase:t/2100,x0:165,x1:640,sequence:"ATGCCGTAGCTAG"});
     label(c,"DNA 模板链",172,207,"#90a5b2",9,"left");
-    const tp=p.transcribed?(p.transcriptionProgress??1):0,polX=408+95*tp,polY=245-10*Math.sin(t/220);
+    const tp=p.transcribed?(p.transcriptionProgress??1):0,polX=408+152*tp,polY=245-10*Math.sin(t/220);
+    const fiveP={x:392,y:297}, exit={x:polX-16,y:polY+52};
+    const rnaAt=u=>bezierPoint(u,fiveP,{x:fiveP.x+30,y:fiveP.y+16},{x:exit.x-30,y:exit.y+16},exit);
     drawMolecule(c,"rnaPol",polX,polY,.72,t);drawPill(c,polX,177,"RNA 聚合酶","#9dd6dc");hit("rnaPolymerase",polX,polY,47,"RNA 聚合酶 · 延伸位点");
     if(p.transcribed){
       const sp=p.splicing?(p.splicingProgress||0):p.spliced?1:0;
-      const rnaAt=u=>bezierPoint(u,{x:155,y:374},{x:270,y:332},{x:480,y:427},{x:670,y:354});
-      const strand=Array.from({length:Math.max(2,Math.ceil(tp*30))},(_,i)=>rnaAt(tp*i/Math.max(1,Math.ceil(tp*30)-1)));
+      const strand=Array.from({length:Math.max(2,Math.ceil(tp*26))},(_,i)=>rnaAt(tp*i/Math.max(1,Math.ceil(tp*26)-1)));
       if(strand.length>1)strokeCurve(c,strand,"#91d2ae",5,.9);
-      if(!p.spliced&&tp>.5){const intron=Array.from({length:9},(_,i)=>rnaAt(.52+i*.027));strokeCurve(c,intron,"#b7a2e4",6,sp>.88?.3:.92);}
-      if(p.splicing){const joinA=rnaAt(.52),joinB=rnaAt(.75),joinX=joinB.x+(joinA.x-joinB.x)*sp,joinY=joinB.y+(joinA.y-joinB.y)*sp;c.strokeStyle=`rgba(177,224,188,${.25+.7*sp})`;c.lineWidth=3+2*sp;c.beginPath();c.moveTo(joinA.x,joinA.y);c.lineTo(joinX,joinY);c.stroke();}
       const count=Math.floor(tp*13);
       for(let i=0;i<count;i++){const pos=rnaAt((i+.5)/13),x=pos.x,y=pos.y,isIntron=!p.spliced&&i>=7&&i<=9;if(isIntron&&sp>.88)continue;c.beginPath();c.arc(x,y,5,0,TAU);c.fillStyle=isIntron?"#b7a2e4":"#91d0ae";c.fill();if(i%3===0)label(c,"AUGC"[i%4],x,y-11,isIntron?"#d7c9ef":"#d3ead9",7);}
-      label(c,p.spliced?"成熟 mRNA":"前体 mRNA · 外显子 + 内含子",204,424,"#9fd2b4",9,"left");
-      hit("preMrna",385,372,32,"前体 mRNA");hit("exon",257,355,22,"外显子");hit("ribose",187,370,12,"RNA 核糖");
+      // 转录中：模板碱基被读取 + NTP 在出口逐个加入
+      if(tp>0&&tp<1){
+        const readIdx=Math.min(12,Math.floor(tp*13)),rb=dnaRef.a[readIdx];
+        c.save();c.strokeStyle="rgba(232,184,117,.8)";c.lineWidth=2;c.setLineDash([3,3]);c.beginPath();c.arc(rb.x,rb.y,13,0,TAU);c.stroke();c.restore();
+        const ntp=1+.35*Math.sin(t/90);c.save();c.shadowColor="#91d0ae";c.shadowBlur=10;c.fillStyle="#b9e8c6";c.beginPath();c.arc(exit.x,exit.y,5*ntp,0,TAU);c.fill();c.restore();
+        drawPill(c,exit.x,exit.y+30,"NTP 按 A–U / C–G 逐个加入","#9ad2b0");
+      }
+      label(c,p.spliced?"成熟 mRNA":"前体 mRNA · 外显子 + 内含子",204,345,"#9fd2b4",9,"left");
+      hit("preMrna",(fiveP.x+exit.x)/2,318,40,"前体 mRNA");hit("exon",430,300,22,"外显子");hit("ribose",fiveP.x+14,305,12,"RNA 核糖");
+      const sx=rnaAt(.69).x,sy=rnaAt(.69).y;
       if(!p.spliced){
-        const loopScale=1-.72*sp,lx=500+76*sp,ly=389-42*sp;
-        c.beginPath();c.ellipse(lx,ly,32*loopScale,24*loopScale,0,0,TAU);c.strokeStyle="#ba9de0";c.lineWidth=2.5;c.setLineDash([4,3]);c.stroke();c.setLineDash([]);
-        drawPill(c,lx,ly+43,"内含子套索","#c8b0e4");drawMolecule(c,"spliceosome",500,341,.64,t);hit("intron",lx,ly,27,"内含子");hit("spliceosome",500,341,46,"剪接体 · 催化 RNA 剪接");
-        if(p.splicing){c.strokeStyle="#e3d4ff";c.lineWidth=3;c.beginPath();c.moveTo(454,370);c.lineTo(476+14*sp,362-8*sp);c.moveTo(548-14*sp,362-8*sp);c.lineTo(565,370);c.stroke();}
-      }else drawPill(c,505,401,"外显子已连接","#91d0ae");
-    }else drawPill(c,502,382,"拖动 RNA 聚合酶至 DNA","#9dd6dc");
-    drawMolecule(c,"nuclearPore",665,300,.82,t);drawPill(c,707,354,"核孔复合体 · 核膜通道","#e8b875");hit("pore",665,300,47,"核孔复合体 · 嵌在核膜上的选择性通道");
+        const loopScale=1-.72*sp,lx=sx+26*sp,ly=sy+18-22*sp;
+        c.beginPath();c.ellipse(lx,ly,30*loopScale,22*loopScale,0,0,TAU);c.strokeStyle="#ba9de0";c.lineWidth=2.5;c.setLineDash([4,3]);c.stroke();c.setLineDash([]);
+        drawPill(c,lx,ly+40,"内含子套索","#c8b0e4");drawMolecule(c,"spliceosome",sx+4,sy+32,.64,t);hit("intron",lx,ly,27,"内含子");hit("spliceosome",sx+4,sy+32,46,"剪接体 · 催化 RNA 剪接");
+        if(p.splicing){const ja=rnaAt(.58),jb=rnaAt(.78),jx=jb.x+(ja.x-jb.x)*sp,jy=jb.y+(ja.y-jb.y)*sp;c.strokeStyle=`rgba(177,224,188,${.25+.7*sp})`;c.lineWidth=3+2*sp;c.beginPath();c.moveTo(ja.x,ja.y);c.lineTo(jx,jy);c.stroke();}
+      }else drawPill(c,sx+6,sy+52,"外显子已连接 · 成熟 mRNA","#91d0ae");
+      if(tp===1){
+        const threeP=rnaAt(1);
+        c.strokeStyle="rgba(145,208,174,.6)";c.lineWidth=2;c.beginPath();c.moveTo(threeP.x,threeP.y);c.lineTo(600,threeP.y+2);c.stroke();
+        label(c,"3′ 端",threeP.x+10,threeP.y+14,"#9fd2b4",8,"left");
+      }
+    }else drawPill(c,470,332,"拖动 RNA 聚合酶至 DNA 模板","#9dd6dc");
+    drawMolecule(c,"nuclearPore",665,300,.82,t);drawPill(c,712,354,"核孔复合体 · 核膜通道","#e8b875");hit("pore",665,300,47,"核孔复合体 · 嵌在核膜上的选择性通道");
     if(p.exported||p.exportProgress>0){
-      strokeCurve(c,[{x:640,y:370},{x:653,y:346},{x:661,y:322},{x:665,y:300}],"#91d0ae",3,.9,[5,5]);
-      strokeCurve(c,[{x:665,y:300},{x:706,y:292},{x:784,y:302},{x:866,y:315}],"#91d0ae",3,.9,[5,5]);
-      const ep=p.exported?1:(p.exportProgress||0);
-      for(let i=0;i<4;i++){
-        const u=Math.max(0,ep-i*.13),pos=u<.4?bezierPoint(u/.4,{x:640,y:370},{x:653,y:346},{x:661,y:322},{x:665,y:300}):bezierPoint((u-.4)/.6,{x:665,y:300},{x:706,y:292},{x:784,y:302},{x:866,y:315});
+      const ep=p.exported?1:(p.exportProgress||0),start={x:544,y:297};
+      strokeCurve(c,[{x:start.x,y:start.y},{x:604,y:298},{x:665,y:300}],"#91d0ae",4,.95,[6,4]);
+      strokeCurve(c,[{x:665,y:300},{x:706,y:292},{x:784,y:302},{x:866,y:315}],"#91d0ae",4,.95,[6,4]);
+      c.save();c.strokeStyle=`rgba(232,184,117,${.3+.5*ep})`;c.lineWidth=2;c.beginPath();c.ellipse(665,300,31*ep+6,39*ep+6,0,0,TAU);c.stroke();c.restore();
+      for(let i=0;i<5;i++){
+        const u=Math.max(0,ep-i*.12),pos=u<.45?bezierPoint(u/.45,{x:544,y:297},{x:604,y:298},{x:665,y:300},{x:665,y:300}):bezierPoint((u-.45)/.55,{x:665,y:300},{x:706,y:292},{x:784,y:302},{x:866,y:315});
         c.beginPath();c.arc(pos.x,pos.y,5,0,TAU);c.fillStyle="#a5d9b7";c.fill();
+      }
+      if(ep>.5){
+        const capU=Math.max(0,ep-.5)/.5,cap=bezierPoint(Math.min(1,capU),{x:665,y:300},{x:706,y:292},{x:784,y:302},{x:866,y:315});
+        c.save();c.shadowColor="#e8b875";c.shadowBlur=8;c.fillStyle="#e8b875";c.beginPath();c.arc(cap.x,cap.y,6,0,TAU);c.fill();c.restore();
+        drawPill(c,cap.x,cap.y-18,"mRNP 复合体","#e8bf83");
       }
       drawPill(c,864,279,"细胞质","#91d0ae");
     }
@@ -1081,33 +1101,60 @@
     const p=state.parts;
     label(c,"细胞质",106,105,"#8096a4",10,"left");
     c.save();c.strokeStyle="rgba(127,201,213,.65)";c.lineWidth=8;c.lineCap="round";c.beginPath();c.moveTo(116,330);c.bezierCurveTo(288,297,448,349,860,312);c.stroke();c.restore();
-    const codons=["AUG","CCG","GUA","GCU"],read=Math.min(4,p.codonIndex||0);
-    codons.forEach((codon,i)=>{const x=185+i*156,active=i===read&&p.translated;roundedRect(c,x,344,93,27,7,active?"rgba(145,208,174,.2)":"rgba(127,201,213,.1)",active?"rgba(145,208,174,.62)":"rgba(127,201,213,.25)");label(c,codon,x+46,357,active?"#d8f0df":"#c0e1e5",11);hit("codon",x+46,357,25,`密码子 ${codon}`);});
-    label(c,"mRNA · 5′ → 3′",143,390,"#91cbd0",9,"left");hit("rna",277,330,24,"信使 RNA · mRNA");
+    const codons=["AUG","CCG","GUA","GCU"],antis=["UAC","GGC","CAU","CGA"],aaNames=["甲硫氨酸","脯氨酸","缬氨酸","丙氨酸"],aaShort=["Met","Pro","Val","Ala"];
+    const progress=p.translated?(p.translationProgress??1):0;
+    const read=Math.min(3,Math.floor(progress*4)),phase=(progress*4)%1;
+    const rx=p.translated?231+156*read:231,ry=318;
+    codons.forEach((codon,i)=>{const x=185+i*156,done=p.translated&&(i<read||(progress>=1&&i<=read)),active=i===read&&p.translated&&phase<1;
+      roundedRect(c,x,344,93,27,7,active?"rgba(145,208,174,.22)":"rgba(127,201,213,.1)",active?"rgba(145,208,174,.62)":"rgba(127,201,213,.25)");
+      label(c,codon,x+46,357,active?"#d8f0df":"#c0e1e5",11);hit("codon",x+46,357,25,`密码子 ${codon} · ${aaShort[i]}（${aaNames[i]}）`);
+      if(done)label(c,"✓",x+90,349,"#91d0ae",9);
+      if(p.translated&&i<=read&&i<4)label(c,`${aaShort[i]} · ${aaNames[i]}`,x+46,393,"#c9dfd2",8.5);
+      if(active)label(c,`↔ 反密码子 ${antis[i]}`,x+46,412,"#b7a2e4",9);
+    });
+    label(c,"mRNA · 5′ → 3′",102,394,"#91cbd0",9,"left");hit("rna",277,330,24,"信使 RNA · mRNA");
+    if(p.ribosome)hit("startCodon",231,357,28,"起始密码子 AUG · 编码甲硫氨酸");
     if(p.ribosome||state.selectedTool==="ribosome"){
-      drawMolecule(c,"ribosome",492,275,.98,t);drawPill(c,492,169,"核糖体大小亚基","#b9e0e6");hit("ribosome",492,275,82,"核糖体 · 翻译场所");
+      const ap=p.assemblingProgress??1,rs=.5+.48*Math.min(1,ap*1.4);
+      drawMolecule(c,"ribosome",rx,ry,rs,t);
+      drawPill(c,rx,p.translated?212:240,p.translated?"核糖体沿 mRNA 移位":"核糖体 · 结合起始密码子 AUG","#b9e0e6");
+      hit("ribosome",rx,ry,82,"核糖体 · 翻译场所");
     }
-    const progress=p.translated?(p.translationProgress??1):0,aaCount=Math.floor(progress*4);
+    // 多肽链：从核糖体出口长出；折叠时收拢进伴侣腔
+    const aaCount=p.translated?Math.max(1,Math.ceil(progress*4)):0;
+    const fp=p.folded?1:(p.foldingProgress??0);
+    const beads=[];
     for(let i=0;i<aaCount;i++){
-      const x=565+i*33,y=211+Math.sin(i*.78)*21;
-      c.beginPath();c.arc(x,y,8,0,TAU);c.fillStyle=["#e8b875","#91d0ae","#b7a2e4","#7fc9d5"][i%4];c.fill();
-      if(i>0){c.strokeStyle="#f1d9ad";c.lineWidth=2;c.beginPath();c.moveTo(x-12,y-3);c.lineTo(x-5,y-1);c.stroke();}
+      const exX=rx+40+i*15,exY=232-i*11,fx=800+(i-1.5)*11,fy=235+Math.sin(i*1.9)*13*(1-fp*.9);
+      const x=exX+(fx-exX)*fp,y=exY+(fy-exY)*fp;
+      beads.push({x,y});
+      const join=i===aaCount-1&&p.translated&&phase<1;
+      c.save();if(join){c.shadowColor="#ffd9a0";c.shadowBlur=10+6*(1-phase);}c.fillStyle=["#e8b875","#91d0ae","#b7a2e4","#7fc9d5"][i%4];c.beginPath();c.arc(x,y,8,0,TAU);c.fill();c.restore();
+      if(i>0){c.strokeStyle="#f1d9ad";c.lineWidth=2;c.beginPath();c.moveTo(beads[i-1].x,beads[i-1].y);c.lineTo(x,y);c.stroke();}
       hit("aminoAcid",x,y,14,"氨基酸 · 肽链组成单元");
     }
-    if(p.ribosome){
-      const phase=progress>=1?0:(progress*4)%1,tx=548-42*phase,ty=196+21*Math.sin(phase*Math.PI);
-      drawMolecule(c,"trna",tx,ty,.62,t);hit("trna",tx,ty,38,"tRNA · 反密码子配对");
-      drawMolecule(c,"amino",tx+2,ty-49,.42,t);hit("aminoAcid",tx+2,ty-49,18,"被 tRNA 携带的氨基酸");
-      drawPill(c,tx,ty+57,"反密码子配对","#9bd7b0");
-    }
     if(p.translated){
-      strokeCurve(c,Array.from({length:Math.max(2,aaCount+1)},(_,i)=>({x:575+i*29,y:212+Math.sin(i*.78)*20})),"#e8b875",6,.9);
-      drawPill(c,700,160,p.folded?"折叠完成":"新生多肽链","#e8c38a");hit("peptide",686,214,36,"新生多肽链");
+      drawPill(c,Math.min(rx+130,772),168,p.folded?"折叠完成":"新生多肽链 · " + aaShort.slice(0,Math.max(1,read+1)).join("—"),"#e8c38a");
+      if(beads.length)hit("peptide",beads[0].x,beads[0].y,36,"多肽链");
     }
+    // tRNA 对接：反密码子 ↔ 密码子互补配对
+    if(p.ribosome&&p.translated&&phase<1){
+      const tx=rx,ty=320-6*Math.sin(phase*Math.PI);
+      drawMolecule(c,"trna",tx,ty,.62,t);hit("trna",tx,ty,38,`tRNA · 反密码子 ${antis[read]} ↔ 密码子 ${codons[read]}`);
+      drawMolecule(c,"amino",tx+2,ty-47,.42,t);hit("aminoAcid",tx+2,ty-47,18,`递送 ${aaNames[read]}`);
+      c.strokeStyle="rgba(183,162,228,.75)";c.lineWidth=2;c.setLineDash([3,3]);c.beginPath();c.moveTo(tx,ty+22);c.lineTo(tx,344);c.stroke();c.setLineDash([]);
+      drawPill(c,tx+64,ty+10,`${antis[read]} ↔ ${codons[read]} 互补配对`,"#c9b8ea");
+    }
+    // 分子伴侣折叠
     if(p.foldingProgress!==undefined||p.folded){
-      const fp=p.folded?1:(p.foldingProgress||0);drawMolecule(c,"chaperone",760,235,.75,t);hit("chaperone",760,235,49,"分子伴侣 · 折叠辅助");
-      const coil=1-.45*fp;for(let i=0;i<5;i++){c.beginPath();c.arc(748+i*6,235+Math.sin(i*1.6)*16*coil,4+fp*1.2,0,TAU);c.fillStyle="#f0c982";c.fill();}
-      drawPill(c,760,294,"折叠辅助","#c6b5ea");
+      drawMolecule(c,"chaperone",800,235,.78,t);hit("chaperone",800,235,49,"分子伴侣 · 折叠辅助");
+      c.save();c.strokeStyle=`rgba(198,181,234,${.3+.5*fp})`;c.lineWidth=2;c.beginPath();c.ellipse(800,235,44,36,0,0,TAU);c.stroke();c.restore();
+      drawPill(c,800,300,fp<1?"多肽链进入伴侣腔 · 逐步折叠":"折叠完成 · 稳定三维结构","#c6b5ea");
+      if(fp>.88){
+        const pop=Math.min(1,(fp-.88)/.12);
+        drawProtein(c,868,238,"marker",.42*pop,true);drawPill(c,868,192,"有功能的蛋白质","#a0d7b5");
+        hit("protein",868,238,42,"折叠蛋白质 · 具有生物活性");
+      }
     }
     hit("codon",340,348,28,"密码子");
   }
