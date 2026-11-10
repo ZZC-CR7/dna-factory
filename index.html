@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07111c">
+  <title>分子编辑实验室 · DNA 到蛋白质</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#home" id="homeBrand" aria-label="返回首页">
+        <span class="brand-mark"><i></i><i></i><i></i></span>
+        <span class="brand-word">分子<br><b>实验室</b></span>
+      </a>
+      <div class="breadcrumb"><span>互动分子实验室</span><span class="slash">/</span><b id="crumbTitle">从 DNA 到蛋白质</b></div>
+      <div class="top-actions">
+        <span class="online"><i></i>互动演示</span>
+        <a class="reference-link" href="https://www.bilibili.com/video/BV15x411Z7kf/" target="_blank" rel="noreferrer">参考动画 <span>↗</span></a>
+        <button class="icon-button" id="resetButton" title="重置当前层" aria-label="重置当前层">↺</button>
+      </div>
+    </header>
+
+    <section class="home-screen" id="homeScreen">
+      <div class="hero-stage">
+        <canvas id="heroCanvas" aria-label="动态 DNA 双螺旋首页动画"></canvas>
+        <div class="hero-vignette"></div>
+        <div class="hero-copy">
+          <div class="hero-kicker"><span class="pulse-dot"></span> 生命工程 · 01—05</div>
+          <h1>从一段 DNA，<br><em>看见生命如何运作</em></h1>
+          <p>沿着遗传信息的路径逐层探索：解旋、编辑、转录、翻译，再到蛋白质在细胞中的运输。</p>
+          <button id="enterLayerOne" class="hero-cta" type="button"><span>进入第 1 层</span><b>→</b></button>
+          <div class="hero-footnote"><span>可点击结构查看说明</span><i></i><span>拖拽分子工具完成互动</span></div>
+        </div>
+        <div class="hero-annotation annotation-top"><span>5′</span><i></i><b>双螺旋结构</b></div>
+        <div class="hero-annotation annotation-bottom"><b>互补碱基</b><i></i><span>3′</span></div>
+        <div class="hero-counter"><b>01</b><span>/</span><span>05</span></div>
+      </div>
+      <div class="layer-overview">
+        <div class="overview-heading"><div><span class="section-kicker">学习路径 / 五层探索</span><h2>从分子机制，走进细胞</h2></div><span class="overview-note">选择任一层级开始探索</span></div>
+        <div class="layer-cards" id="homeLayerCards">
+          <button class="layer-card" data-layer="1" type="button"><span class="layer-number">01</span><span class="layer-card-copy"><b>DNA 解旋与复制</b><small>碱基配对 · 半保留复制</small></span><i>↗</i></button>
+          <button class="layer-card" data-layer="2" type="button"><span class="layer-number">02</span><span class="layer-card-copy"><b>DNA 靶向编辑与调控</b><small>CRISPR-Cas9 · DNA 修复</small></span><i>↗</i></button>
+          <button class="layer-card" data-layer="3" type="button"><span class="layer-number">03</span><span class="layer-card-copy"><b>转录与 RNA 剪接</b><small>pre-mRNA · 外显子连接</small></span><i>↗</i></button>
+          <button class="layer-card" data-layer="4" type="button"><span class="layer-number">04</span><span class="layer-card-copy"><b>翻译与蛋白质合成</b><small>密码子 · tRNA · 多肽链</small></span><i>↗</i></button>
+          <button class="layer-card" data-layer="5" type="button"><span class="layer-number">05</span><span class="layer-card-copy"><b>细胞内蛋白质转运</b><small>内质网 · 高尔基体 · 囊泡</small></span><i>↗</i></button>
+        </div>
+      </div>
+    </section>
+
+    <div class="workspace" id="workspace" hidden>
+      <aside class="left-rail">
+        <div class="section-kicker">学习路径 <span>·</span> 05 个层级</div>
+        <nav class="layer-nav" id="layerNav" aria-label="学习层级">
+          <button data-layer="1" type="button"><span>01</span><b>DNA 解旋与复制</b><i>›</i></button>
+          <button data-layer="2" type="button"><span>02</span><b>DNA 靶向编辑与调控</b><i>›</i></button>
+          <button data-layer="3" type="button"><span>03</span><b>转录与 RNA 剪接</b><i>›</i></button>
+          <button data-layer="4" type="button"><span>04</span><b>翻译与蛋白质合成</b><i>›</i></button>
+          <button data-layer="5" type="button"><span>05</span><b>细胞内蛋白质转运</b><i>›</i></button>
+        </nav>
+        <div class="module-intro"><span class="section-kicker" id="moduleKicker">层级 01 / DNA</span><h1 id="moduleHeading">DNA 解旋与复制</h1><p id="moduleIntro">点击或移动结构，观察双链打开、碱基配对和新链延伸。</p></div>
+        <div class="tool-header"><div><span class="section-kicker">分子工具 / 部件</span><p>拖到场景中，或点击后选择结构</p></div><span class="tool-count" id="toolCount">03</span></div>
+        <div class="tool-list" id="toolList"></div>
+        <div class="drag-tip"><span class="mouse-icon">↗</span><span>拖拽工具触发实验步骤</span></div>
+        <button class="back-home" id="backHome" type="button"><span>←</span> 返回分子总览</button>
+      </aside>
+
+      <main class="main-stage">
+        <div class="stage-heading">
+          <div><div class="section-kicker">分子视野 <span>·</span> <b id="levelIndicator">01 / 05</b></div><h2 id="sceneTitle">双链打开与复制叉形成</h2></div>
+          <div class="stage-legend" id="stageLegend"></div>
+        </div>
+        <section class="molecule-card" id="moleculeCard" aria-label="可交互的细胞与分子场景">
+          <canvas id="moleculeCanvas" aria-label="点击分子结构查看说明，也可拖动工具进行互动"></canvas>
+          <div class="canvas-topline"><span><i class="pulse-dot"></i> 实时分子视野</span><span id="canvasMode">DNA 复制 <b>·</b> 示意模型</span></div>
+          <div class="camera-label" id="cameraLabel" hidden><span>动态特写</span><b id="cameraLabelText">分子结合</b></div>
+          <div class="motion-progress" id="motionProgress" hidden><b id="motionLabel">正在演示</b><span class="motion-track"><i id="motionFill"></i></span></div>
+          <div class="canvas-callout" id="canvasCallout"><span class="callout-line"></span><span id="calloutText">选择一个结构，查看它的功能</span></div>
+          <div class="canvas-instruction" id="canvasInstruction"><span class="instruction-icon">⌖</span><span>拖动 <b id="instructionTool">解旋酶</b> 至 DNA 双链</span></div>
+          <div class="canvas-status" id="canvasStatus"><span class="status-led"></span><span>等待操作</span></div>
+          <div class="zoom-badge" id="zoomBadge">视野放大 <b>× 1.20</b></div>
+        </section>
+
+        <section class="sequence-card" id="sequencePanel" aria-label="目标序列">
+          <div class="sequence-head"><div><span class="section-kicker" id="sequenceLabel">碱基序列</span><span class="sequence-caption" id="sequenceCaption">点击任一碱基查看结构说明</span></div><span class="sequence-direction" id="sequenceDirection">反向平行 <b>↕</b></span></div>
+          <div class="sequence-row"><span class="strand-label" id="topStart">5′</span><div id="topSequence" class="sequence-bases"></div><span class="strand-label" id="topEnd">3′</span></div>
+          <div class="sequence-row complement-row"><span class="strand-label" id="bottomStart">3′</span><div id="bottomSequence" class="sequence-bases"></div><span class="strand-label" id="bottomEnd">5′</span></div>
+          <div class="sequence-foot" id="sequenceFoot"><span><i class="sequence-underline"></i>互补配对区域</span><span><i class="pam-underline"></i>结构标注</span><span id="matchReadout" class="match-readout">等待分子识别</span></div>
+        </section>
+        <div class="action-row">
+          <div class="action-note" id="actionNote"><span class="note-icon">i</span><span>每个层级都可点击结构，右侧查看定义与作用。</span></div>
+          <button class="primary-action" id="primaryAction" type="button"><span>▶</span><span id="primaryActionLabel">播放解旋</span><b>→</b></button>
+        </div>
+      </main>
+
+      <aside class="right-rail">
+        <div class="inspector-head"><div><span class="section-kicker">结构检查器</span><h2 id="inspectorTitle">分子说明</h2></div><span class="record-dot">实时</span></div>
+        <section class="info-card structure-card" id="structureInfo">
+          <div class="card-eyebrow"><span id="structureCategory">点击场景中的结构</span><span class="tool-tag" id="structureTag">结构说明</span></div>
+          <h3 id="structureTitle">选择一个部件</h3>
+          <p id="structureText">点击碱基、蛋白质或细胞器，查看它在当前过程中的作用。</p>
+          <div class="mini-sequence" id="structureMeta"><span>当前层级</span><code id="metaValue">01 / DNA</code></div>
+        </section>
+
+        <section class="info-card outcome-card">
+          <div class="card-eyebrow">过程进度 <span class="result-state" id="resultState">准备开始</span></div>
+          <h3 id="outcomeTitle">完成本层互动</h3>
+          <p id="outcomeText">按照场景提示放置分子工具，逐步推进遗传信息流程。</p>
+          <div class="result-visual" id="resultVisual"><span class="result-bar"><i></i><i></i><i></i><i></i></span><span class="result-caption">等待分子事件</span></div>
+          <div class="repair-actions" id="repairActions" hidden>
+            <button type="button" data-repair="nhej"><b>NHEJ</b><small>敲除模拟 · 结果不定</small></button>
+            <button type="button" data-repair="hdr"><b>HDR</b><small>精准替换 · 需供体模板</small></button>
+          </div>
+        </section>
+
+        <section class="achievement-card">
+          <div class="achievement-header"><span class="section-kicker">学习成就</span><span id="achievementCount">0 / 5</span></div>
+          <div class="achievement-list" id="achievementList">
+            <div class="achievement" data-achievement="helix"><span class="achievement-icon">〰</span><span><b>双链解旋</b><small>打开复制叉</small></span><i>○</i></div>
+            <div class="achievement" data-achievement="copy"><span class="achievement-icon">⧉</span><span><b>互补复制</b><small>生成新生链</small></span><i>○</i></div>
+            <div class="achievement" data-achievement="edit"><span class="achievement-icon">✂</span><span><b>精准识别</b><small>找到目标位点</small></span><i>○</i></div>
+            <div class="achievement" data-achievement="protein"><span class="achievement-icon">⌁</span><span><b>蛋白质合成</b><small>读取遗传密码</small></span><i>○</i></div>
+            <div class="achievement" data-achievement="transport"><span class="achievement-icon">⇢</span><span><b>正确转运</b><small>抵达目的地</small></span><i>○</i></div>
+          </div>
+        </section>
+        <div class="safety-note"><span>i</span><p>动画用于解释生物学原理。模型不提供实验参数，实际结果需结合具体细胞与修复机制验证。</p></div>
+      </aside>
+    </div>
+
+    <footer class="footer-bar" id="footerBar">
+      <div class="footer-brand"><span class="footer-mark">M</span><span>分子编辑实验室 <small>工程场景数字化 · 互动演示</small></span></div>
+      <div class="progress-track"><span class="progress-label">五层路径</span><div class="progress-line"><i id="progressFill"></i></div><span id="progressText">首页</span></div>
+      <div class="footer-meta"><span>从基因到蛋白</span><span class="footer-sep">/</span><span>互动演示</span></div>
+    </footer>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
