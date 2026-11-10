@@ -12,12 +12,44 @@
   const complement = { A: "T", T: "A", C: "G", G: "C", U: "A" };
   const baseColors = { A: "#65c1c9", T: "#dfa860", C: "#729bca", G: "#b27daf", U: "#91cba9" };
 
+  // ── 音效模块：纯 WebAudio 合成，无外部资源 ─────────────────────────
+  const AudioFX = (() => {
+    let ctx = null, enabled = true;
+    try { enabled = localStorage.getItem("crispr.sound") !== "off"; } catch {}
+    const ensure = () => {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      if (!ctx) ctx = new AC();
+      if (ctx.state === "suspended") ctx.resume().catch(() => {});
+      return ctx;
+    };
+    const tone = (freq, dur, type = "sine", gain = .05, delay = 0) => {
+      const c = ensure(); if (!c || !enabled) return;
+      const t = c.currentTime + delay, o = c.createOscillator(), g = c.createGain();
+      o.type = type; o.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + .05);
+    };
+    return {
+      isEnabled: () => enabled,
+      setEnabled(v) { enabled = v; try { localStorage.setItem("crispr.sound", v ? "on" : "off"); } catch {} },
+      click() { tone(880, .05, "sine", .035); },
+      error() { tone(196, .14, "sawtooth", .04); tone(147, .18, "sawtooth", .03, .08); },
+      step() { tone(466, .08, "sine", .035); },
+      success() { tone(523, .1, "sine", .045); tone(659, .1, "sine", .045, .09); tone(784, .16, "sine", .045, .18); },
+      cut() { tone(240, .1, "sawtooth", .05); tone(180, .16, "sawtooth", .05, .09); },
+      achievement() { tone(587, .09, "triangle", .05); tone(740, .09, "triangle", .05, .09); tone(880, .14, "triangle", .05, .18); },
+      complete() { [523, 659, 784, 1047].forEach((f, i) => tone(f, .18, "sine", .05, i * .13)); },
+      transition() { tone(392, .12, "sine", .04); tone(587, .16, "sine", .04, .1); }
+    };
+  })();
+
   const layerData = {
-    1: { title: "DNA 解旋与复制", subtitle: "打开双链，沿模板合成互补 DNA", mode: "DNA 复制", toolIds: ["helicase", "polymerase", "ligase"], sequence: "ATGCCGTAGCTA", bottom: "TACGGCATCGAT", note: "点击 A、T、C、G 碱基，或查看糖—磷酸骨架。", scene: "复制叉形成" },
-    2: { title: "DNA 靶向编辑与调控", subtitle: "以 CRISPR-Cas9 演示靶向识别、切割、修复与表达调控", mode: "CRISPR · Cas9", toolIds: ["cas9", "donor", "activator", "repressor", "marker"], sequence: TARGET, bottom: [...TARGET].map(c => complement[c]).join(""), note: "向导 RNA 与靶序列配对；Cas9 还需识别邻近 PAM。", scene: "靶向编辑" },
-    3: { title: "转录与 RNA 剪接", subtitle: "将 DNA 信息转录为 RNA，再加工成熟", mode: "RNA 加工", toolIds: ["rnaPol", "spliceosome", "nuclearPore"], sequence: "ATGCCGTAGCTA", bottom: "AUGCCGUAGCUA", note: "前体 mRNA 包含外显子与内含子；剪接后形成成熟 mRNA。", scene: "从基因到成熟 mRNA" },
-    4: { title: "翻译与蛋白质合成", subtitle: "核糖体读取密码子，tRNA 递送氨基酸", mode: "蛋白质翻译", toolIds: ["ribosome", "trna", "amino", "chaperone"], sequence: "AUGCCGGUAGCU", bottom: "UACGGCCAUCGA", note: "每三个 RNA 碱基组成一个密码子。", scene: "读取遗传密码" },
-    5: { title: "细胞内蛋白质转运", subtitle: "观察分泌蛋白从内质网到细胞外的路径", mode: "蛋白质转运", toolIds: ["signal", "er", "vesicle", "golgi", "membrane"], sequence: "", bottom: "", note: "信号肽、囊泡和细胞器共同决定蛋白质去向。", scene: "细胞层级的运输路径" }
+    1: { title: "DNA 解旋与复制", subtitle: "打开双链，沿模板合成互补 DNA", mode: "DNA 复制", toolIds: ["helicase", "polymerase", "ligase"], sequence: "ATGCCGTAGCTA", bottom: "TACGGCATCGAT", note: "点击 A、T、C、G 碱基，或查看糖—磷酸骨架。", scene: "复制叉形成", link: "复制出的新链携带完整遗传信息，其中的任何一段基因位点，都可以被下一层的 CRISPR 系统精确找到。", meaning: "DNA 半保留复制是细胞分裂与遗传信息代代相传的基础；许多抗癌药物也作用于 DNA 复制过程。" },
+    2: { title: "DNA 靶向编辑与调控", subtitle: "以 CRISPR-Cas9 演示靶向识别、切割、修复与表达调控", mode: "CRISPR · Cas9", toolIds: ["cas9", "donor", "activator", "repressor", "marker"], sequence: TARGET, bottom: [...TARGET].map(c => complement[c]).join(""), note: "向导 RNA 与靶序列配对；Cas9 还需识别邻近 PAM。", scene: "靶向编辑", link: "编辑后的基因序列将作为模板被转录成 RNA——遗传信息开始向外传递。", meaning: "基因编辑正在改变医学与农业：CRISPR 基因疗法已获批治疗镰刀型细胞贫血等遗传病，也被用于抗病育种与合成生物学。" },
+    3: { title: "转录与 RNA 剪接", subtitle: "将 DNA 信息转录为 RNA，再加工成熟", mode: "RNA 加工", toolIds: ["rnaPol", "spliceosome", "nuclearPore"], sequence: "ATGCCGTAGCTA", bottom: "AUGCCGUAGCUA", note: "前体 mRNA 包含外显子与内含子；剪接后形成成熟 mRNA。", scene: "从基因到成熟 mRNA", link: "成熟 mRNA 携带编辑后的信息进入细胞质，交给核糖体翻译成蛋白质。", meaning: "同一基因因剪接方式不同可产生多种蛋白质；剪接异常与多种遗传病相关，剪接调控也是药物研发热点。" },
+    4: { title: "翻译与蛋白质合成", subtitle: "核糖体读取密码子，tRNA 递送氨基酸", mode: "蛋白质翻译", toolIds: ["ribosome", "trna", "amino", "chaperone"], sequence: "AUGCCGGUAGCU", bottom: "UACGGCCAUCGA", note: "每三个 RNA 碱基组成一个密码子。", scene: "读取遗传密码", link: "新生多肽链需要折叠成正确构象，并在信号肽指引下被送往细胞各处发挥作用。", meaning: "遗传密码的解读是中心法则的核心；许多抗生素正是通过干扰细菌核糖体的翻译来杀菌。" },
+    5: { title: "细胞内蛋白质转运", subtitle: "观察分泌蛋白从内质网到细胞外的路径", mode: "蛋白质转运", toolIds: ["signal", "er", "vesicle", "golgi", "membrane"], sequence: "", bottom: "", note: "信号肽、囊泡和细胞器共同决定蛋白质去向。", scene: "细胞层级的运输路径", link: "至此，一段 DNA 上的信息经过解旋、编辑、转录、翻译与运输，最终变成细胞外的蛋白质——生命就是这样运作的。", meaning: "分泌蛋白是胰岛素、抗体等生物药的基础；理解转运机制，才能工程化生产重组蛋白药物。" }
   };
 
   const toolData = {
@@ -141,6 +173,7 @@
     if (!trackedAchievements.has(id)) { if (message) showToast(message); return; }
     if (state.achieved.has(id)) return;
     state.achieved.add(id);
+    AudioFX.achievement();
     const row = $(`[data-achievement="${id}"]`);
     if (row) { row.classList.add("unlocked"); row.querySelector("i").textContent = "✓"; }
     $("#achievementCount").textContent = `${state.achieved.size} / 5`;
@@ -164,6 +197,7 @@
 
   function selectTool(id) {
     state.selectedTool = id;
+    AudioFX.click();
     $$(".tool-card").forEach(card => {
       const active = card.dataset.tool === id;
       card.classList.toggle("selected", active);
@@ -209,6 +243,9 @@
   }
 
   function switchLayer(layer) {
+    if (state.tour?.running && !state.tour.autoSwitch) stopTour();
+    AudioFX.transition();
+    $("#layerMeaning").textContent = "";
     state.layer = Number(layer);
     state.parts = {};
     state.uncoil = state.layer === 1 ? 0 : 1;
@@ -252,6 +289,7 @@
   }
 
   function goHome() {
+    if (state.tour?.running) stopTour();
     state.motion = null;
     document.body.classList.remove("in-lab");
     $("#workspace").hidden = true;
@@ -296,11 +334,11 @@
       else if (p.opened) setOutcome("复制叉形成", "双链已打开", "亲代链作为模板；按 A–T、C–G 配对加入互补核苷酸。", "解旋酶到位");
       else setOutcome("准备开始", "选择解旋酶", "把解旋酶拖到双链中央，打开复制叉。", "DNA 双链待解开");
     } else if (state.layer === 2) {
-      if (p.expression) setOutcome(p.expression === "up" ? "表达上调" : "表达抑制", p.expression === "up" ? "CRISPRa · 转录激活" : "CRISPRi · 转录抑制", "失活 dCas9 定位到调控区域并改变转录信号；DNA 双链保持完整。", p.expression === "up" ? "转录本增加" : "转录信号减弱");
-      else if (p.imaged) setOutcome("位点已标记", "目标基因位点可视化", "荧光 dCas9 标出编辑或调控发生的位置，帮助判断该位点对应哪段遗传信息。", "荧光标记持续脉冲");
-      else if (p.hdr) setOutcome("HDR 完成", "目标序列已按模板替换", "该动画展示供体模板参与同源定向修复的概念；真实修复结果需要验证。", "模板介导修复");
-      else if (p.nhej) setOutcome("NHEJ 情景", "可能出现插入或缺失", "非同源末端连接的结果并不固定；本情景用一个示意性 indel 展示功能可能受影响。", "indel 示意");
-      else if (p.cut) setOutcome("DNA 双链断裂", "选择修复路径", "可查看 NHEJ 造成 indel 的示意，或用供体 DNA 演示 HDR。", "切口已形成");
+      if (p.expression) setOutcome(p.expression === "up" ? "表达上调" : "表达抑制", p.expression === "up" ? "CRISPRa · 转录激活" : "CRISPRi · 转录抑制", p.expression === "up" ? "激活结构域招募转录机器，目标基因表达上调；DNA 保持完整。应用：激活抑癌基因、增强作物抗逆基因表达。" : "抑制结构域占据调控区，转录减弱、基因被沉默；DNA 保持完整。应用：抑制致病基因、研究基因功能。", p.expression === "up" ? "转录本增加" : "转录信号减弱");
+      else if (p.imaged) setOutcome("位点已标记", "目标基因位点可视化", "荧光 dCas9 标记目标位点并持续脉冲。应用：染色体定位成像、突变位点诊断。", "荧光标记持续脉冲");
+      else if (p.hdr) setOutcome("HDR 完成", "目标序列已按模板替换", "供体 DNA 经同源臂配对引导精准替换。应用：修正致病突变——镰刀型细胞贫血的基因疗法正是这一思路。", "模板介导修复");
+      else if (p.nhej) setOutcome("NHEJ 情景", "可能出现插入或缺失", "断裂末端直接连接，常产生小片段插入/缺失（indel），可能造成移码敲除。应用：快速敲除基因、研究基因功能。", "indel 示意");
+      else if (p.cut) setOutcome("DNA 双链断裂", "选择修复路径", "剪刀已合拢、双链已断开。可点右侧按钮看 NHEJ 敲除示意，或拖入供体 DNA 演示 HDR 精准修复。", "切口已形成");
       else if (p.bound) setOutcome("PAM 识别成功", "Cas9 · sgRNA 已定位", "向导区与目标互补配对，且邻近 PAM 匹配；现在可以切割双链。", "目标匹配");
       else setOutcome("准备开始", "拖动 Cas9 · sgRNA", "将复合体放到 PAM 邻近区域，观察序列识别。", "等待 PAM 识别");
     } else if (state.layer === 3) {
@@ -327,12 +365,12 @@
     copy: { title: "DNA 聚合酶沿模板逐位配对", caption: "聚合酶在单链模板旁读取碱基，逐个加入互补核苷酸。", focus: [650, 205, 1.95], duration: 3600 },
     seal: { title: "DNA 连接酶封合新链缺口", caption: "聚合酶逐位加入互补核苷酸；连接酶随后封合冈崎片段之间的糖—磷酸骨架缺口。", focus: [730, 370, 2.2], duration: 2600 },
     bind: { title: "Cas9·向导 RNA 搜索并结合靶位点", caption: "向导 RNA 与目标互补配对，Cas9 同时检查邻近 PAM。", focus: [500, 330, 1.85], duration: 2100 },
-    cut: { title: "Cas9 两个核酸酶结构域切开 DNA", caption: "特写显示 Cas9 定位后切开两条 DNA 链；切口位于 PAM 邻近靶区。", focus: [710, 338, 2.25], duration: 2300 },
-    nhej: { title: "非同源末端连接修复", caption: "断裂末端被重新连接；结果可能出现小片段插入或缺失。", focus: [710, 338, 1.95], duration: 2100 },
-    hdr: { title: "供体模板引导 HDR 修复", caption: "供体 DNA 与断裂两侧同源区域配对，示意模板介导的序列修复。", focus: [710, 338, 2.05], duration: 2600 },
-    activate: { title: "dCas9·VP64 招募转录激活因子", caption: "目标位点被醒目标记；激活结构域增加转录起始信号，DNA 不被切开。", focus: [220, 300, 2.05], duration: 2600 },
-    repress: { title: "dCas9·KRAB 抑制转录", caption: "抑制复合体占据调控位点，转录信号逐渐减弱；DNA 不被切开。", focus: [220, 300, 2.05], duration: 2600 },
-    mark: { title: "荧光 dCas9 标记基因位点", caption: "荧光环锁定目标区域，提示该位点的定位与调控意义。", focus: [500, 338, 2.15], duration: 2100 },
+    cut: { title: "Cas9 像剪刀一样切开 DNA", caption: "HNH 与 RuvC 两个核酸酶结构域合拢，在 PAM 邻近位点切断两条 DNA 链。", focus: [710, 338, 2.25], duration: 2300 },
+    nhej: { title: "非同源末端连接修复", caption: "断裂末端被直接拉近并连接；常伴随小片段插入或缺失（indel），可能造成移码。", focus: [710, 338, 1.95], duration: 2100 },
+    hdr: { title: "供体模板引导 HDR 修复", caption: "供体 DNA 与断裂两侧同源臂配对，引导模板介导的精准序列替换。", focus: [710, 338, 2.05], duration: 2600 },
+    activate: { title: "dCas9·VP64 招募转录激活因子", caption: "激活结构域招募转录机器，目标基因表达上调；DNA 双链保持完整。", focus: [220, 300, 2.05], duration: 2600 },
+    repress: { title: "dCas9·KRAB 抑制转录", caption: "抑制结构域占据调控区，转录减弱、基因被沉默；DNA 双链保持完整。", focus: [220, 300, 2.05], duration: 2600 },
+    mark: { title: "荧光 dCas9 标记基因位点", caption: "荧光蛋白被招募到目标位点，持续脉冲显示基因的精确位置。", focus: [500, 338, 2.15], duration: 2100 },
     transcribe: { title: "RNA 聚合酶读取 DNA 并延伸 RNA", caption: "RNA 聚合酶沿模板移动，核苷酸逐个加入，形成前体 mRNA。", focus: [470, 265, 1.85], duration: 3400 },
     splice: { title: "剪接体识别并移除内含子", caption: "剪接体包围内含子，形成套索样结构；两侧外显子随后接合。", focus: [500, 380, 2.0], duration: 3100 },
     export: { title: "成熟 mRNA 通过核孔输出", caption: "核孔复合体嵌在核膜上，成熟 mRNA 沿通道从细胞核进入细胞质。", focus: [665, 300, 1.95], duration: 2800 },
@@ -350,6 +388,7 @@
 
   function beginStep(key, now) {
     const spec = stepSpecs[key], p = state.parts;
+    AudioFX.step();
     state.motion = { keys: state.motion.keys, index: state.motion.index, full: state.motion.full, stepStart: now, key };
     state.cameraTarget = { x: spec.focus[0], y: spec.focus[1], zoom: spec.focus[2] };
     $("#cameraLabelText").textContent = spec.title;
@@ -401,7 +440,7 @@
       const readout = $("#matchReadout");
       if (readout) { readout.textContent = "向导区配对 ✓ · PAM 匹配 ✓"; readout.classList.add("success"); }
     }
-    if (key === "cut") { p.cutting = false; p.cut = true; award("edit", "目标识别成功，DNA 双链已切开"); $("#repairActions").hidden = false; }
+    if (key === "cut") { p.cutting = false; p.cut = true; AudioFX.cut(); award("edit", "目标识别成功，DNA 双链已切开"); $("#repairActions").hidden = false; }
     if (key === "nhej") { p.nhej = true; p.cut = false; }
     if (key === "hdr") { p.hdr = true; p.cut = false; award("repair", "供体模板修复示意完成"); }
     if (key === "transcribe") p.transcribed = true;
@@ -452,6 +491,8 @@
       $("#cameraLabel").hidden = true;
       state.cameraTarget = { x: 500, y: 280, zoom: state.layer === 1 ? 1.2 : 1 };
       showOutcomeForState();
+      $("#layerMeaning").textContent = layerData[state.layer]?.meaning || "";
+      AudioFX.success();
       updateActionLabel();
       return;
     }
@@ -464,41 +505,99 @@
     startMotion(sequenceForLayer(state.layer), { full: true, reset: true });
   }
 
+  // ── 自动演示：依次播放全部五层，层与层之间显示衔接说明 ───────────
+  function startTour() {
+    if (state.tour?.running) { stopTour(); return; }
+    state.tour = { running: true, layer: 0, phase: "idle", waitUntil: 0, autoSwitch: false };
+    $("#tourButton").classList.add("running");
+    $("#tourButton").textContent = "⏹";
+    $("#tourBanner").hidden = false;
+    AudioFX.transition();
+    goToTourLayer(1);
+  }
+  function goToTourLayer(n) {
+    state.tour.layer = n;
+    state.tour.autoSwitch = true;
+    switchLayer(n);
+    state.tour.autoSwitch = false;
+    $("#tourBannerTitle").textContent = "自动演示 · 五层旅程";
+    $("#tourBannerText").textContent = `第 ${n} / 5 层 · ${layerData[n].title}`;
+    startMotion(sequenceForLayer(n), { full: true, reset: true });
+    state.tour.phase = "playing";
+  }
+  function updateTour(t) {
+    const tour = state.tour;
+    if (!tour || !tour.running) return;
+    if (tour.phase === "playing" && !state.motion && state.parts.completed) {
+      if (tour.layer >= 5) { tour.phase = "done"; finishTour(); return; }
+      const d = layerData[tour.layer];
+      $("#tourBannerText").textContent = `✓ ${d.title} 完成 → 下一层`;
+      showToast(`${d.title}完成：${d.link}`);
+      AudioFX.transition();
+      tour.phase = "waiting";
+      tour.waitUntil = t + 2600;
+    } else if (tour.phase === "waiting" && t >= tour.waitUntil) {
+      goToTourLayer(tour.layer + 1);
+    }
+  }
+  function stopTour() {
+    if (!state.tour) return;
+    state.tour = null;
+    state.motion = null;
+    $("#tourButton").classList.remove("running");
+    $("#tourButton").textContent = "▶";
+    $("#tourBanner").hidden = true;
+    $("#cameraLabel").hidden = true;
+    $("#motionProgress").hidden = true;
+    showToast("已停止自动演示");
+  }
+  function finishTour() {
+    state.tour = null;
+    $("#tourButton").classList.remove("running");
+    $("#tourButton").textContent = "▶";
+    $("#tourBanner").hidden = true;
+    AudioFX.complete();
+    showToast("五层旅程完成：从一段 DNA，到细胞外的蛋白质 🎉");
+    setOutcome("旅程完成", "从 DNA 到蛋白质", "五层路径演示完毕：解旋—编辑—转录—翻译—转运。基因编辑技术正在改变医学、农业与合成生物学。", "5 / 5");
+    $("#layerMeaning").textContent = "一段 DNA 的信息，经过复制、编辑、转录、翻译与运输，最终变成执行功能的蛋白质——这就是生命运作的方式。";
+  }
+
   function applyTool(tool, point) {
     const p = state.parts;
     const x = point.x, y = point.y;
     const near = (cx, cy, r = 125) => Math.hypot(x - cx, y - cy) < r;
-    const run = keys => { p.completed = false; startMotion(keys); };
+    const run = keys => { p.completed = false; AudioFX.click(); startMotion(keys); };
+    const fail = msg => { AudioFX.error(); showToast(msg); };
     if (state.motion) { showToast("等当前特写动画结束后，再放置下一个工具"); return; }
     if (state.layer === 1) {
       if (tool === "helicase" && near(470, 294, 190) && !p.opened) run(["fork"]);
       else if (tool === "polymerase" && p.opened && near(650, 292, 240)) run(["copy"]);
       else if (tool === "ligase" && p.copied && near(760, 322, 200)) run(["seal"]);
-      else showToast(tool === "polymerase" && !p.opened ? "先打开 DNA 双链，再放置聚合酶" : "把工具放在复制叉附近");
+      else fail(tool === "polymerase" && !p.opened ? "先打开 DNA 双链，再放置聚合酶" : "把工具放在复制叉附近");
     } else if (state.layer === 2) {
       if (tool === "cas9" && near(520, 300, 235)) run(p.bound && !p.cut && !p.nhej && !p.hdr ? ["cut"] : ["bind", "cut"]);
       else if (tool === "donor" && p.cut && near(710, 338, 210)) run(["hdr"]);
-      else if (tool === "donor" && !p.cut) showToast("供体模板在 DNA 切口形成后参与 HDR 修复");
+      else if (tool === "donor" && !p.cut) fail("供体模板在 DNA 切口形成后参与 HDR 修复");
       else if (tool === "activator" && near(205, 300, 220)) run(["activate"]);
       else if (tool === "repressor" && near(205, 300, 220)) run(["repress"]);
       else if (tool === "marker" && near(520, 330, 245)) run(["mark"]);
-      else if (tool === "cas9") showToast("将 Cas9 放到靶序列附近；需要同时匹配 PAM");
-      else showToast("将所选工具放在对应 DNA 或启动子区域");
+      else if (tool === "cas9") fail("将 Cas9 放到靶序列附近；需要同时匹配 PAM");
+      else fail("将所选工具放在对应 DNA 或启动子区域");
     } else if (state.layer === 3) {
       if (tool === "rnaPol" && near(475, 235, 260)) run(["transcribe"]);
       else if (tool === "spliceosome" && p.transcribed && near(500, 370, 220)) run(["splice"]);
       else if (tool === "nuclearPore" && p.spliced && near(790, 286, 170)) run(["export"]);
-      else showToast(tool === "spliceosome" && !p.transcribed ? "先转录生成 pre-mRNA" : "将工具放到当前步骤对应结构");
+      else fail(tool === "spliceosome" && !p.transcribed ? "先转录生成 pre-mRNA" : "将工具放到当前步骤对应结构");
     } else if (state.layer === 4) {
       if (tool === "ribosome" && near(500, 300, 250)) run(["assemble"]);
       else if ((tool === "trna" || tool === "amino") && p.ribosome && near(510, 244, 190)) run(["translate"]);
       else if (tool === "chaperone" && p.translated && near(710, 220, 200)) run(["fold"]);
-      else showToast(tool === "trna" && !p.ribosome ? "先将核糖体放到 mRNA 上" : "将部件放到核糖体或新生多肽附近");
+      else fail(tool === "trna" && !p.ribosome ? "先将核糖体放到 mRNA 上" : "将部件放到核糖体或新生多肽附近");
     } else {
       if (tool === "signal" && near(300, 290, 220)) run(p.exported ? ["targetER"] : ["exportMessage", "targetER"]);
       else if (tool === "er" && p.exported && near(485, 300, 230)) run(["targetER"]);
       else if (["vesicle", "golgi", "membrane"].includes(tool) && p.inER) run(["transport"]);
-      else showToast("依次将货物从信号肽送往内质网、囊泡、高尔基体与膜");
+      else fail("依次将货物从信号肽送往内质网、囊泡、高尔基体与膜");
     }
     drawScene(performance.now());
   }
@@ -727,7 +826,7 @@
   }
 
   function forkArmPoint(u, side, forkX, offset = 0, opening = 1) {
-    const p0={x:forkX,y:294}, p1={x:forkX+66,y:294+side*63*opening}, p2={x:forkX+218,y:294+side*128*opening}, p3={x:890,y:294+side*138*opening};
+    const p0={x:forkX-8,y:294}, p1={x:forkX+66,y:294+side*63*opening}, p2={x:forkX+218,y:294+side*128*opening}, p3={x:890,y:294+side*138*opening};
     const point=bezierPoint(u,p0,p1,p2,p3); point.y += offset*opening; return point;
   }
 
@@ -774,10 +873,11 @@
       drawMolecule(c,"helicase",500,294,.65,t); hit("helicase",500,294,48,"解旋酶");
       drawPill(c, 500, 203, "拖动解旋酶，打开双链", "#9dd6dc");
     } else {
-      drawDNA(c,{count:13,y:294,amp:34,phase:t/1750,x0:105,x1:forkX});
+      drawDNA(c,{count:13,y:294,amp:34,phase:-12*TAU/10.5,x0:105,x1:forkX});
       drawForkArm(c,-1,forkX,p.copyProgress||0,t,false,0);
       drawForkArm(c,1,forkX,p.copyProgress||0,t,true,p.sealProgress||0);
-      drawMolecule(c,"helicase",forkX,294,.66,t); hit("helicase",forkX,294,45,"解旋酶"); hit("replicationFork",forkX+30,294,32,"复制叉");
+      drawMolecule(c,"helicase",forkX+4,294,.74,t); hit("helicase",forkX+4,294,50,"解旋酶"); hit("replicationFork",forkX+30,294,32,"复制叉");
+      c.save(); c.strokeStyle="rgba(127,201,213,.35)"; c.lineWidth=2; c.setLineDash([3,4]); c.beginPath(); c.arc(forkX+4,294,46,0,TAU); c.stroke(); c.restore();
       label(c,"解开的模板链",forkX+130,124,"#91bfca",9);
       drawPill(c, 235, 448, "亲代链", "#91a7b4"); drawPill(c, 602, 460, "逐位合成的互补链", "#9ad2b0");
        if(p.copied && (((p.copyProgress||0)>.72)||p.sealProgress!==undefined) && !p.sealed){
@@ -827,35 +927,59 @@
     }
     if (p.cutting || p.cut) {
       const q=p.cutting?p.cutProgress||0:1, spread=3+14*q;
+      // 两片剪刀刃沿对角线向切点合拢并交叉
+      const off = 2 + 16 * (1 - q), dirA = Math.atan2(54, 2 * Math.max(spread, 8));
+      for (const [dx0, dy0, ang] of [[-1, -1, dirA], [1, 1, dirA + Math.PI]]) {
+        c.save(); c.translate(cutX + off * dx0, 338 + off * dy0); c.rotate(ang);
+        c.fillStyle = "rgba(228,238,242,.95)"; c.beginPath(); c.moveTo(0, 0); c.lineTo(-52, -7); c.lineTo(-52, 7); c.closePath(); c.fill();
+        c.fillStyle = "rgba(190,120,92,.9)"; c.beginPath(); c.moveTo(-52, -7); c.lineTo(-72, -11); c.lineTo(-52, 7); c.lineTo(-72, 11); c.closePath(); c.fill();
+        c.restore();
+      }
       c.save();c.strokeStyle=`rgba(255,132,105,${.35+.55*q})`;c.lineWidth=2+2*q;c.shadowColor="#ff8068";c.shadowBlur=8+14*q;
       c.beginPath();c.moveTo(cutX-spread,311);c.lineTo(cutX+spread,365);c.moveTo(cutX-spread,365);c.lineTo(cutX+spread,311);c.stroke();
       c.beginPath();c.arc(cutX,338,9+14*q,0,TAU);c.stroke();c.restore();
-      if(p.cut){drawPill(c, cutX, 418, "DNA 双链断裂", "#ff9c83");hit("repair",cutX,338,42,"DNA 双链断裂");}
+      if(p.cutting&&q>.35){drawPill(c,cutX,386,"HNH · RuvC 核酸酶结构域合拢","#ffb39d");}
+      if(p.cut){drawPill(c, cutX, 418, "DNA 双链断裂 · 两端已分离", "#ff9c83");hit("repair",cutX,338,42,"DNA 双链断裂");}
+      if(p.cut&&!p.nhej&&!p.hdr&&!p.cutting)drawPill(c,cutX,449,"右侧选择：NHEJ 直接连接 / HDR 精准修复","#ffd9c4");
     }
     if(p.nhejProgress!==undefined||p.nhej){
       const rp=p.nhej?1:(p.nhejProgress||0),gap=19*(1-rp);
       c.strokeStyle="#f0b17c";c.lineWidth=6;c.beginPath();c.moveTo(cutX-36,338);c.lineTo(cutX-gap,338);c.moveTo(cutX+gap,338);c.lineTo(cutX+36,338);c.stroke();
-      if(rp>.72){c.fillStyle="#f08d76";c.beginPath();c.arc(cutX,338,4+5*rp,0,TAU);c.fill();label(c,"indel 示意",cutX,383,"#f0b49a",9);}
+      if(rp>.62){
+        c.fillStyle="#f08d76";c.beginPath();c.arc(cutX,338,4+5*rp,0,TAU);c.fill();
+        label(c,"indel 示意",cutX,368,"#f0b49a",9);
+        if(rp>.88){drawPill(c,cutX+4,452,"小片段插入 / 缺失 → 可能移码（基因敲除）","#f0b17c");}
+      }
     }
     if(p.hdrProgress!==undefined||p.hdr){
       const rp=p.hdr?1:(p.hdrProgress||0),dx=(1-rp)*106;
       drawMolecule(c,"donor",cutX+115-dx,298,.64,t);hit("donor",cutX+115-dx,298,38,"供体 DNA · HDR 模板");
       c.strokeStyle=`rgba(232,184,117,${.25+.65*rp})`;c.lineWidth=2;c.setLineDash([4,4]);c.beginPath();c.moveTo(cutX+75-dx,298);c.lineTo(cutX+18,326);c.moveTo(cutX+75-dx,311);c.lineTo(cutX+18,350);c.stroke();c.setLineDash([]);
+      if(rp>.6)label(c,"同源臂配对",cutX+52,283,"#e8b875",9);
+      if(rp>.85){
+        c.save();c.strokeStyle="rgba(145,208,174,.9)";c.lineWidth=3;c.shadowColor="#91d0ae";c.shadowBlur=10;
+        c.beginPath();c.moveTo(a[14].x,a[14].y-13);c.lineTo(a[19].x,a[19].y-13);c.stroke();c.restore();
+        drawPill(c,cutX+14,452,"修复后的目标序列 ✓（模板介导）","#a0d7b5");
+      }
     }
-    if (p.hdr) drawPill(c, targetX + 10, 452, "HDR · 供体模板修复", "#e8b875");
-    if (p.nhej) drawPill(c, targetX + 10, 452, "NHEJ · 插入或缺失示意", "#e8b875");
     if (p.expression) {
       const up = p.expression === "up";
       const ep=p.expressionProgress??1;
       drawMolecule(c,up?"activator":"repressor",213,300,.68,t);
       for (let i = 0; i < (up ? 6 : 2); i++) { c.strokeStyle = up ? `rgba(145,208,174,${.16+.68*ep})` : `rgba(217,155,145,${.2+.5*(1-ep)})`; c.lineWidth = 2; c.beginPath(); c.moveTo(270 + i * 18, 274); c.lineTo(270 + i * 18, up ? 214 - i * 4 : 243 + i * 5); c.stroke(); }
       const mrnaCount=Math.floor(ep*(up?9:2));
-      for(let i=0;i<mrnaCount;i++){const px=314+(i%5)*18,py=228+Math.floor(i/5)*17+Math.sin(t/140+i)*3;c.beginPath();c.arc(px,py,4,0,TAU);c.fillStyle=up?"#91d0ae":"#c17f79";c.fill();}
+      for(let i=0;i<mrnaCount;i++){const flow=(t/34)%46,px=314+(i%5)*18+flow*((i%2)?0:1),py=228+Math.floor(i/5)*17+Math.sin(t/140+i)*3;c.beginPath();c.arc(px,py,4,0,TAU);c.fillStyle=up?"#91d0ae":"#c17f79";c.fill();}
+      if(up&&mrnaCount>2){c.strokeStyle="rgba(145,208,174,.55)";c.lineWidth=2;c.beginPath();c.moveTo(402,229);c.lineTo(464,229);c.stroke();label(c,"→ 翻译为蛋白质",498,229,"#a7dabb",9,"left");}
       drawPill(c, 235, 394, up ? "CRISPRa · 转录增强 ↑" : "CRISPRi · 转录减弱 ↓", up ? "#91d0ae" : "#d99b91");
+      drawPill(c, 272, 436, up ? "应用：激活抑癌基因 / 增强抗逆基因表达" : "应用：沉默致病基因 / 研究基因功能", "#c7dce1");
       hit("promoter", 208, 300, 55, "启动子 · 基因调控区");
     }
     if (p.imaged) {
-      const pulse = 1 + .18 * Math.sin(t / 180); c.beginPath(); c.arc(targetX, 337, 44 * pulse, 0, TAU); c.strokeStyle = "rgba(183,162,228,.96)"; c.lineWidth = 3; c.shadowColor = "#b7a2e4"; c.shadowBlur = 22; c.stroke(); c.shadowBlur = 0; drawMolecule(c,"marker",targetX,337,.48,t);drawPill(c, targetX, 405, "基因位点已标记", "#d0c0f1");
+      const pulse = 1 + .18 * Math.sin(t / 180); c.beginPath(); c.arc(targetX, 337, 44 * pulse, 0, TAU); c.strokeStyle = "rgba(183,162,228,.96)"; c.lineWidth = 3; c.shadowColor = "#b7a2e4"; c.shadowBlur = 22; c.stroke(); c.shadowBlur = 0;
+      for(let i=0;i<6;i++){const a0=t/420+i*TAU/6;c.beginPath();c.arc(targetX+Math.cos(a0)*52,337+Math.sin(a0)*52,2.5,0,TAU);c.fillStyle="rgba(224,212,255,.9)";c.fill();}
+      drawMolecule(c,"marker",targetX,337,.48,t);
+      drawPill(c, targetX, 405, "基因位点已标记 · 荧光持续脉冲", "#d0c0f1");
+      drawPill(c, targetX, 436, "应用：染色体定位成像 / 突变位点诊断", "#c7dce1");
     }
     hit("backbone", 143, 350, 21); hit("promoter", 160, 289, 22, "启动子区域");
     if (p.cut) hit("donor", 545, 339, 55, "供体模板 / HDR");
@@ -1148,8 +1272,16 @@
   });
   canvas.addEventListener("pointercancel", () => { pointer=null;state.dragging=null;drawScene(performance.now()); });
 
-  $("#primaryAction").addEventListener("click", advanceAction);
-  $("#resetButton").addEventListener("click", () => state.layer ? resetLayer() : goHome());
+  $("#primaryAction").addEventListener("click", () => { AudioFX.click(); advanceAction(); });
+  $("#resetButton").addEventListener("click", () => { if (state.tour?.running) stopTour(); state.layer ? resetLayer() : goHome(); });
+  $("#soundButton").addEventListener("click", () => {
+    const next = !AudioFX.isEnabled();
+    AudioFX.setEnabled(next);
+    $("#soundButton").classList.toggle("muted", !next);
+    AudioFX.click();
+  });
+  if (!AudioFX.isEnabled()) $("#soundButton").classList.add("muted");
+  $("#tourButton").addEventListener("click", startTour);
   $("#backHome").addEventListener("click", goHome);
   $("#homeBrand").addEventListener("click", e => { e.preventDefault(); goHome(); });
   $("#enterLayerOne").addEventListener("click", () => switchLayer(1));
@@ -1164,6 +1296,7 @@
 
   function loop(t) {
     updateMotion(t);
+    if (state.tour?.running) updateTour(t);
     if (!document.body.classList.contains("in-lab")) drawHero(t);
     else drawScene(t);
     requestAnimationFrame(loop);
