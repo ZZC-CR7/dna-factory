@@ -18,8 +18,9 @@
       <div class="top-actions">
         <span class="online"><i></i>互动演示</span>
         <a class="reference-link" href="https://www.bilibili.com/video/BV15x411Z7kf/" target="_blank" rel="noreferrer">参考动画 <span>↗</span></a>
-        <button class="icon-button" id="soundButton" title="音效开关" aria-label="音效开关">♪</button>
+        <button class="icon-button" id="soundButton" title="音效开关（M）" aria-label="音效开关">♪</button>
         <button class="icon-button" id="tourButton" title="自动演示全部五层" aria-label="自动演示全部五层">▶</button>
+        <button class="icon-button" id="fullscreenButton" title="全屏展示（F）" aria-label="全屏展示">⛶</button>
         <button class="icon-button" id="resetButton" title="重置当前层" aria-label="重置当前层">↺</button>
       </div>
     </header>
@@ -76,6 +77,7 @@
         <div class="tool-header"><div><span class="section-kicker">分子工具 / 部件</span><p>拖到场景中，或点击后选择结构</p></div><span class="tool-count" id="toolCount">03</span></div>
         <div class="tool-list" id="toolList"></div>
         <div class="drag-tip"><span class="mouse-icon">↗</span><span>拖拽工具触发实验步骤</span></div>
+        <div class="key-hint" id="keyHint">快捷键：空格 播放 · ←→ 切层 · R 重置 · M 静音 · F 全屏</div>
         <button class="back-home" id="backHome" type="button"><span>←</span> 返回分子总览</button>
       </aside>
 
@@ -148,6 +150,25 @@
       <div class="progress-track"><span class="progress-label">五层路径</span><div class="progress-line"><i id="progressFill"></i></div><span id="progressText">首页</span></div>
       <div class="footer-meta"><span>从基因到蛋白</span><span class="footer-sep">/</span><span>互动演示</span></div>
     </footer>
+  </div>
+  <div class="journey-overlay" id="journeyOverlay" hidden>
+    <div class="journey-modal" role="dialog" aria-modal="true" aria-labelledby="journeyTitle">
+      <button class="journey-close" id="journeyClose" type="button" aria-label="关闭">✕</button>
+      <span class="section-kicker">五层旅程 · 总结</span>
+      <h2 id="journeyTitle">从一段 DNA，到细胞外的蛋白质</h2>
+      <div class="journey-path">
+        <div><span class="jp-icon">〰</span><b>解旋复制</b><small>半保留复制</small></div><i>→</i>
+        <div><span class="jp-icon">✂</span><b>靶向编辑</b><small>CRISPR-Cas9</small></div><i>→</i>
+        <div><span class="jp-icon">◉</span><b>转录剪接</b><small>成熟 mRNA</small></div><i>→</i>
+        <div><span class="jp-icon">⌁</span><b>翻译折叠</b><small>遗传密码</small></div><i>→</i>
+        <div><span class="jp-icon">⇢</span><b>蛋白转运</b><small>胞吐释放</small></div>
+      </div>
+      <p class="journey-summary">这条路径的每一步都有诺贝尔奖的足迹；2020 年诺奖之后，基因编辑正加速走进临床与田野——2023 年首款 CRISPR 疗法获批上市，2025 年体内编辑进入 III 期临床。</p>
+      <div class="journey-actions">
+        <button id="journeyReplay" type="button">↺ 重新演示</button>
+        <button id="journeyHome" type="button">返回首页</button>
+      </div>
+    </div>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="app.js"></script>
