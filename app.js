@@ -1,4 +1,5 @@
 (() => {
+  // 分子编辑实验室 · 从 DNA 到蛋白质 · v1.5.0（2026-11-16）
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const canvas = $("#moleculeCanvas");
