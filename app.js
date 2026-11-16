@@ -515,6 +515,7 @@
     $("#tourButton").classList.add("running");
     $("#tourButton").textContent = "⏹";
     $("#tourBanner").hidden = false;
+    document.body.classList.add("tour-mode");
     AudioFX.transition();
     goToTourLayer(1);
   }
@@ -550,6 +551,7 @@
     $("#tourButton").classList.remove("running");
     $("#tourButton").textContent = "▶";
     $("#tourBanner").hidden = true;
+    document.body.classList.remove("tour-mode");
     $("#cameraLabel").hidden = true;
     $("#motionProgress").hidden = true;
     showToast("已停止自动演示");
@@ -559,6 +561,7 @@
     $("#tourButton").classList.remove("running");
     $("#tourButton").textContent = "▶";
     $("#tourBanner").hidden = true;
+    document.body.classList.remove("tour-mode");
     AudioFX.complete();
     showToast("五层旅程完成：从一段 DNA，到细胞外的蛋白质 🎉");
     setOutcome("旅程完成", "从 DNA 到蛋白质", "五层路径演示完毕：解旋—编辑—转录—翻译—转运。从 2020 年诺奖到 2023 年首款 CRISPR 疗法上市、再到 2025 年体内编辑进入 III 期临床——基因编辑正加速改变医学、农业与合成生物学。", "5 / 5");
