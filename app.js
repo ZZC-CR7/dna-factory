@@ -1,5 +1,5 @@
 (() => {
-  // 分子编辑实验室 · 从 DNA 到蛋白质 · v1.5.2（2026-11-16）
+  // 分子编辑实验室 · 从 DNA 到蛋白质 · v1.5.3（2026-11-16）
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const canvas = $("#moleculeCanvas");
@@ -172,11 +172,13 @@
     $(".result-caption").textContent = visual || status;
   }
 
+  const TRACKED_ACHIEVEMENTS = new Set(["helix", "copy", "edit", "protein", "transport"]);
+  function saveAchievements() { try { localStorage.setItem("crispr.achievements", JSON.stringify([...state.achieved])); } catch {} }
   function award(id, message) {
-    const trackedAchievements = new Set(["helix", "copy", "edit", "protein", "transport"]);
-    if (!trackedAchievements.has(id)) { if (message) showToast(message); return; }
+    if (!TRACKED_ACHIEVEMENTS.has(id)) { if (message) showToast(message); return; }
     if (state.achieved.has(id)) return;
     state.achieved.add(id);
+    saveAchievements();
     AudioFX.achievement();
     const row = $(`[data-achievement="${id}"]`);
     if (row) { row.classList.add("unlocked"); row.querySelector("i").textContent = "✓"; }
@@ -298,8 +300,8 @@
     document.body.classList.remove("in-lab");
     $("#workspace").hidden = true;
     $("#crumbTitle").textContent = "从 DNA 到蛋白质";
-    $("#progressFill").style.width = "0%";
-    $("#progressText").textContent = "首页";
+    $("#progressFill").style.width = state.achieved.size ? `${state.achieved.size * 20}%` : "0%";
+    $("#progressText").textContent = state.achieved.size ? `${state.achieved.size} / 5` : "首页";
     state.layer = 0;
     drawHero(performance.now());
   }
@@ -1479,5 +1481,20 @@
   window.addEventListener("resize", () => { drawHero(performance.now()); drawScene(performance.now()); });
   switchLayer(1);
   goHome();
+  // 恢复已保存的学习成就（刷新不丢）
+  try {
+    const saved = JSON.parse(localStorage.getItem("crispr.achievements") || "[]");
+    saved.forEach(id => {
+      if (!TRACKED_ACHIEVEMENTS.has(id) || state.achieved.has(id)) return;
+      state.achieved.add(id);
+      const row = $(`[data-achievement="${id}"]`);
+      if (row) { row.classList.add("unlocked"); row.querySelector("i").textContent = "✓"; }
+    });
+    if (state.achieved.size) {
+      $("#achievementCount").textContent = `${state.achieved.size} / 5`;
+      $("#progressFill").style.width = `${state.achieved.size * 20}%`;
+      $("#progressText").textContent = `${state.achieved.size} / 5`;
+    }
+  } catch {}
   requestAnimationFrame(loop);
 })();
