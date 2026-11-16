@@ -48,8 +48,13 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-
 .icon-button { height: 33px; width: 36px; border: 1px solid var(--line-strong); border-radius: 8px; color: #b7c6d1; background: rgba(255,255,255,.025); cursor: pointer; font-size: 20px; line-height: 1; transition: .2s; }
 .icon-button:hover { border-color: var(--cyan); color: var(--cyan); transform: rotate(-25deg); }
 
-.workspace { display: none; grid-template-columns: 258px minmax(540px, 1fr) 300px; gap: 25px; padding: 28px 0 24px; flex: 1; }
+.workspace { display: none; grid-template-columns: 258px minmax(540px, 1fr) 300px; gap: 25px; padding: 28px 0 24px; flex: 1; transition: grid-template-columns .6s ease, gap .6s ease; }
 body.in-lab .workspace { display: grid; }
+/* 演示模式：自动演示时侧栏淡出，画布独占舞台 */
+body.tour-mode .workspace { grid-template-columns: 0 minmax(0, 1fr) 0; gap: 0; }
+body.tour-mode .left-rail, body.tour-mode .right-rail { opacity: 0; pointer-events: none; overflow: hidden; }
+body.tour-mode .sequence-card, body.tour-mode .action-row { opacity: 0; pointer-events: none; }
+.left-rail, .right-rail, .sequence-card, .action-row { transition: opacity .5s ease; }
 body.in-lab .home-screen { display: none; }
 .home-screen { flex: 1; padding: 20px 0 25px; }
 .hero-stage { position: relative; min-height: 410px; height: min(54vh, 560px); overflow: hidden; border: 1px solid rgba(166,193,211,.15); border-radius: 15px; background: radial-gradient(ellipse at 57% 49%, #1b3342 0, #0c1924 54%, #09131d 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 22px 55px rgba(0,0,0,.18); }
@@ -344,6 +349,7 @@ body.in-lab .home-screen { display: none; }
   .reference-link { font-size: 9px; }
   .workspace { display: flex; flex-direction: column; gap: 18px; padding: 18px 0; }
   body.in-lab .workspace { display: flex; }
+  body.tour-mode .left-rail, body.tour-mode .right-rail { display: none; }
   .left-rail { order: 1; }
   .left-rail h1 { margin-top: 9px; font-size: 19px; }
   .intro { max-width: none; }
