@@ -1,5 +1,5 @@
 (() => {
-  // 分子编辑实验室 · 从 DNA 到蛋白质 · v1.5.1（2026-11-16）
+  // 分子编辑实验室 · 从 DNA 到蛋白质 · v1.5.2（2026-11-16）
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const canvas = $("#moleculeCanvas");
@@ -608,6 +608,34 @@
       else fail("依次将货物从信号肽送往内质网、囊泡、高尔基体与膜");
     }
     drawScene(performance.now());
+  }
+
+  function toolDropCheck(tool, point) {
+    const p = state.parts;
+    const near = (cx, cy, r = 125) => Math.hypot(point.x - cx, point.y - cy) < r;
+    if (state.layer === 1) {
+      if (tool === "helicase") return near(470, 294, 190) && !p.opened;
+      if (tool === "polymerase") return !!p.opened && near(650, 292, 240);
+      if (tool === "ligase") return !!p.copied && near(760, 322, 200);
+    } else if (state.layer === 2) {
+      if (tool === "cas9") return near(520, 300, 235);
+      if (tool === "donor") return !!p.cut && near(710, 338, 210);
+      if (tool === "activator" || tool === "repressor") return near(205, 300, 220);
+      if (tool === "marker") return near(520, 330, 245);
+    } else if (state.layer === 3) {
+      if (tool === "rnaPol") return near(475, 235, 260);
+      if (tool === "spliceosome") return !!p.transcribed && near(500, 370, 220);
+      if (tool === "nuclearPore") return !!p.spliced && near(790, 286, 170);
+    } else if (state.layer === 4) {
+      if (tool === "ribosome") return near(231, 318, 190);
+      if (tool === "trna" || tool === "amino") return !!p.ribosome && near(420, 330, 330);
+      if (tool === "chaperone") return !!p.translated && near(800, 235, 190);
+    } else {
+      if (tool === "signal") return near(300, 290, 220);
+      if (tool === "er") return !!p.exported && near(485, 300, 230);
+      if (["vesicle", "golgi", "membrane"].includes(tool)) return !!p.inER;
+    }
+    return false;
   }
 
   function resizeCanvas(el, context) {
@@ -1345,13 +1373,13 @@
   window.addEventListener("pointerdown", e => {
     const card = e.target.closest(".tool-card");
     if (card && state.layer) {
-      pointer = { fromTool: true, tool: card.dataset.tool, id: e.pointerId, x: e.clientX, y: e.clientY, moved: false };
+      pointer = { fromTool: true, tool: card.dataset.tool, id: e.pointerId, x: e.clientX, y: e.clientY, moved: false, pointerType: e.pointerType };
       state.dragging = { tool: card.dataset.tool, point: { x: 500, y: 280 }, over: false };
       try { card.setPointerCapture(e.pointerId); } catch {}
       return;
     }
     if (e.target === canvas && state.layer) {
-      pointer = { fromTool: false, tool: state.selectedTool, id: e.pointerId, x: e.clientX, y: e.clientY, moved: false };
+      pointer = { fromTool: false, tool: state.selectedTool, id: e.pointerId, x: e.clientX, y: e.clientY, moved: false, pointerType: e.pointerType };
       try { canvas.setPointerCapture(e.pointerId); } catch {}
     }
   });
@@ -1375,10 +1403,12 @@
     }
     const point = scenePoint(e);
     if (current.moved && inside) applyTool(current.tool, point);
-    else {
+    else if (inside) {
       const selected = findHit(point);
-      if (selected) showStructure(selected.name, selected.label);
-      else if (inside) applyTool(current.tool, point);
+      // 触屏点按放置：点选工具后轻点有效落点即触发实验步骤
+      if (current.pointerType === "touch" && toolDropCheck(current.tool, point)) applyTool(current.tool, point);
+      else if (selected) showStructure(selected.name, selected.label);
+      else applyTool(current.tool, point);
     }
     state.dragging = null; drawScene(performance.now());
   });
