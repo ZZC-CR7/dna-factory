@@ -25,6 +25,10 @@ body { margin: 0; min-width: 320px; color: var(--text); background: radial-gradi
 button, a { font: inherit; }
 button { color: inherit; }
 button:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+/* 触屏可靠性：拖动工具/画布时不触发页面滚动，按钮消除双击缩放延迟 */
+button { touch-action: manipulation; }
+.tool-card { touch-action: none; }
+.molecule-card { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 
 .app-shell { max-width: 1760px; min-height: 100vh; margin: 0 auto; padding: 0 34px; display: flex; flex-direction: column; }
 .topbar { height: 76px; flex: 0 0 76px; display: flex; align-items: center; gap: 32px; border-bottom: 1px solid var(--line); }
@@ -359,7 +363,7 @@ body.in-lab .home-screen { display: none; }
   .step-index { width: 22px; height: 22px; font-size: 8px; }
   .workflow-item b { font-size: 9px; }
   .tool-header { margin: 13px 0 8px; }
-  .tool-list { grid-template-columns: repeat(5,minmax(122px,1fr)); overflow-x: auto; padding-bottom: 4px; }
+  .tool-list { grid-template-columns: repeat(5,minmax(122px,1fr)); overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
   .tool-card { grid-template-columns: 27px 1fr; min-height: 48px; padding: 6px; gap: 6px; }
   .tool-symbol { width: 26px; height: 26px; }
   .tool-grip { display: none; }
@@ -415,4 +419,18 @@ body.in-lab .home-screen { display: none; }
   .layer-nav button b { width: 100%; font-size: 6px; }
   .layer-nav button > i { display: none; }
   .module-intro { padding-top: 11px; }
+}
+/* 超小屏：进一步收紧顶栏，避免溢出 */
+@media (max-width: 480px) {
+  .topbar { gap: 8px; }
+  .breadcrumb { display: none; }
+  .reference-link { display: none; }
+  .top-actions { gap: 6px; }
+  .icon-button { height: 30px; width: 32px; font-size: 17px; }
+  .hero-stage { min-height: 430px; height: 56vh; }
+  .hero-copy h1 { font-size: 26px; }
+  .hero-copy { top: 40%; }
+  .hero-counter { display: none; }
+  .footer-bar { padding-bottom: env(safe-area-inset-bottom, 0); }
+  .footer-brand small { display: none; }
 }
