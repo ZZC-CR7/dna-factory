@@ -46,9 +46,9 @@
 
   const layerData = {
     1: { title: "DNA 解旋与复制", subtitle: "打开双链，沿模板合成互补 DNA", mode: "DNA 复制", toolIds: ["helicase", "polymerase", "ligase"], sequence: "ATGCCGTAGCTA", bottom: "TACGGCATCGAT", note: "点击 A、T、C、G 碱基，或查看糖—磷酸骨架。", scene: "复制叉形成", link: "复制出的新链携带完整遗传信息，其中的任何一段基因位点，都可以被下一层的 CRISPR 系统精确找到。", meaning: "DNA 半保留复制是细胞分裂与遗传信息代代相传的基础；许多抗癌药物也作用于 DNA 复制过程。" },
-    2: { title: "DNA 靶向编辑与调控", subtitle: "以 CRISPR-Cas9 演示靶向识别、切割、修复与表达调控", mode: "CRISPR · Cas9", toolIds: ["cas9", "donor", "activator", "repressor", "marker"], sequence: TARGET, bottom: [...TARGET].map(c => complement[c]).join(""), note: "向导 RNA 与靶序列配对；Cas9 还需识别邻近 PAM。", scene: "靶向编辑", link: "编辑后的基因序列将作为模板被转录成 RNA——遗传信息开始向外传递。", meaning: "基因编辑正在改变医学与农业：CRISPR 基因疗法已获批治疗镰刀型细胞贫血等遗传病，也被用于抗病育种与合成生物学。" },
+    2: { title: "DNA 靶向编辑与调控", subtitle: "以 CRISPR-Cas9 演示靶向识别、切割、修复与表达调控", mode: "CRISPR · Cas9", toolIds: ["cas9", "donor", "activator", "repressor", "marker"], sequence: TARGET, bottom: [...TARGET].map(c => complement[c]).join(""), note: "向导 RNA 与靶序列配对；Cas9 还需识别邻近 PAM。", scene: "靶向编辑", link: "编辑后的基因序列将作为模板被转录成 RNA——遗传信息开始向外传递。", meaning: "2020 年诺奖之后，基因编辑进入应用爆发期：2023 年底全球首款 CRISPR 疗法 Casgevy 在英美获批，治疗镰刀型细胞贫血与 β 地中海贫血；2025 年体内直接编辑进入全球 III 期临床；中国在体内编辑药物与基因编辑作物上也在同步推进。" },
     3: { title: "转录与 RNA 剪接", subtitle: "将 DNA 信息转录为 RNA，再加工成熟", mode: "RNA 加工", toolIds: ["rnaPol", "spliceosome", "nuclearPore"], sequence: "ATGCCGTAGCTA", bottom: "AUGCCGUAGCUA", note: "前体 mRNA 包含外显子与内含子；剪接后形成成熟 mRNA。", scene: "从基因到成熟 mRNA", link: "成熟 mRNA 携带编辑后的信息进入细胞质，交给核糖体翻译成蛋白质。", meaning: "同一基因因剪接方式不同可产生多种蛋白质；剪接异常与多种遗传病相关，剪接调控也是药物研发热点。" },
-    4: { title: "翻译与蛋白质合成", subtitle: "核糖体读取密码子，tRNA 递送氨基酸", mode: "蛋白质翻译", toolIds: ["ribosome", "trna", "amino", "chaperone"], sequence: "AUGCCGGUAGCU", bottom: "UACGGCCAUCGA", note: "每三个 RNA 碱基组成一个密码子；tRNA 以互补的反密码子与之配对（A–U、C–G）。", scene: "读取遗传密码", link: "新生多肽链需要折叠成正确构象，并在信号肽指引下被送往细胞各处发挥作用。", meaning: "遗传密码的解读是中心法则的核心；许多抗生素正是通过干扰细菌核糖体的翻译来杀菌。" },
+    4: { title: "翻译与蛋白质合成", subtitle: "核糖体读取密码子，tRNA 递送氨基酸", mode: "蛋白质翻译", toolIds: ["ribosome", "trna", "amino", "chaperone"], sequence: "AUGCCGGUAGCU", bottom: "UACGGCCAUCGA", note: "每三个 RNA 碱基组成一个密码子；tRNA 以互补的反密码子与之配对（A–U、C–G）。", scene: "读取遗传密码", link: "新生多肽链需要折叠成正确构象，并在信号肽指引下被送往细胞各处发挥作用。", meaning: "遗传密码的解读是中心法则的核心；许多抗生素正是通过干扰细菌核糖体的翻译来杀菌。2024 年诺贝尔化学奖授予蛋白质设计与 AlphaFold2 结构预测——从氨基酸序列到三维结构，正是本层折叠过程的科学前沿。" },
     5: { title: "细胞内蛋白质转运", subtitle: "观察分泌蛋白从内质网到细胞外的路径", mode: "蛋白质转运", toolIds: ["signal", "er", "vesicle", "golgi", "membrane"], sequence: "", bottom: "", note: "信号肽、囊泡和细胞器共同决定蛋白质去向。", scene: "细胞层级的运输路径", link: "至此，一段 DNA 上的信息经过解旋、编辑、转录、翻译与运输，最终变成细胞外的蛋白质——生命就是这样运作的。", meaning: "分泌蛋白是胰岛素、抗体等生物药的基础；理解转运机制，才能工程化生产重组蛋白药物。" }
   };
 
@@ -561,7 +561,7 @@
     $("#tourBanner").hidden = true;
     AudioFX.complete();
     showToast("五层旅程完成：从一段 DNA，到细胞外的蛋白质 🎉");
-    setOutcome("旅程完成", "从 DNA 到蛋白质", "五层路径演示完毕：解旋—编辑—转录—翻译—转运。基因编辑技术正在改变医学、农业与合成生物学。", "5 / 5");
+    setOutcome("旅程完成", "从 DNA 到蛋白质", "五层路径演示完毕：解旋—编辑—转录—翻译—转运。从 2020 年诺奖到 2023 年首款 CRISPR 疗法上市、再到 2025 年体内编辑进入 III 期临床——基因编辑正加速改变医学、农业与合成生物学。", "5 / 5");
     $("#layerMeaning").textContent = "一段 DNA 的信息，经过复制、编辑、转录、翻译与运输，最终变成执行功能的蛋白质——这就是生命运作的方式。";
   }
 
