@@ -563,6 +563,7 @@
     showToast("五层旅程完成：从一段 DNA，到细胞外的蛋白质 🎉");
     setOutcome("旅程完成", "从 DNA 到蛋白质", "五层路径演示完毕：解旋—编辑—转录—翻译—转运。从 2020 年诺奖到 2023 年首款 CRISPR 疗法上市、再到 2025 年体内编辑进入 III 期临床——基因编辑正加速改变医学、农业与合成生物学。", "5 / 5");
     $("#layerMeaning").textContent = "一段 DNA 的信息，经过复制、编辑、转录、翻译与运输，最终变成执行功能的蛋白质——这就是生命运作的方式。";
+    setTimeout(showJourney, 1100);
   }
 
   function applyTool(tool, point) {
@@ -1381,14 +1382,47 @@
 
   $("#primaryAction").addEventListener("click", () => { AudioFX.click(); advanceAction(); });
   $("#resetButton").addEventListener("click", () => { if (state.tour?.running) stopTour(); state.layer ? resetLayer() : goHome(); });
-  $("#soundButton").addEventListener("click", () => {
+  function toggleSound() {
     const next = !AudioFX.isEnabled();
     AudioFX.setEnabled(next);
     $("#soundButton").classList.toggle("muted", !next);
     AudioFX.click();
-  });
+  }
+  $("#soundButton").addEventListener("click", toggleSound);
   if (!AudioFX.isEnabled()) $("#soundButton").classList.add("muted");
   $("#tourButton").addEventListener("click", startTour);
+  function toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else document.documentElement.requestFullscreen?.().catch(() => showToast("当前浏览器不允许全屏"));
+  }
+  $("#fullscreenButton").addEventListener("click", toggleFullscreen);
+  // 键盘快捷键
+  window.addEventListener("keydown", e => {
+    if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+    const k = e.key.toLowerCase();
+    if (k === "escape" && !$("#journeyOverlay").hidden) { hideJourney(); return; }
+    if (k === "m") { toggleSound(); return; }
+    if (k === "f") { toggleFullscreen(); return; }
+    if (!state.layer) {
+      if (k === "enter" || k === " ") { e.preventDefault(); switchLayer(1); }
+      return;
+    }
+    if (k === " " || k === "enter") { e.preventDefault(); advanceAction(); }
+    else if (k === "arrowright") switchLayer(Math.min(5, state.layer + 1));
+    else if (k === "arrowleft") switchLayer(Math.max(1, state.layer - 1));
+    else if (k === "r") { if (state.tour?.running) stopTour(); resetLayer(); }
+  });
+  // 旅程总结页
+  function showJourney() {
+    if (document.fullscreenElement || !state.layer || state.tour?.running) return;
+    $("#journeyOverlay").hidden = false;
+    AudioFX.complete();
+  }
+  function hideJourney() { $("#journeyOverlay").hidden = true; }
+  $("#journeyClose").addEventListener("click", hideJourney);
+  $("#journeyHome").addEventListener("click", () => { hideJourney(); goHome(); });
+  $("#journeyReplay").addEventListener("click", () => { hideJourney(); startTour(); });
+  $("#journeyOverlay").addEventListener("click", e => { if (e.target === $("#journeyOverlay")) hideJourney(); });
   $("#backHome").addEventListener("click", goHome);
   $("#homeBrand").addEventListener("click", e => { e.preventDefault(); goHome(); });
   $("#enterLayerOne").addEventListener("click", () => switchLayer(1));
