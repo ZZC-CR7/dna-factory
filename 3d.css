@@ -47,6 +47,8 @@ button { touch-action: manipulation; }
 .d3-info-head b { color: var(--amber); font-size: 10px; font-weight: 600; }
 .d3-info h3 { margin: 7px 0 0; color: #dbe7ee; font-size: 14px; font-weight: 600; }
 .d3-info p { margin: 5px 0 0; color: #94a9b5; font-size: 11px; line-height: 1.7; }
+.d3-plain { margin-top: 6px !important; padding-left: 8px; border-left: 2px solid rgba(232,184,117,.55); color: #d8b98a !important; font-size: 11px !important; }
+.d3-plain:empty { display: none; }
 .d3-foot { position: fixed; bottom: 0; left: 0; right: 0; z-index: 19; display: none; }
 @media (max-width: 640px) {
   .d3-brand small { display: none; }
