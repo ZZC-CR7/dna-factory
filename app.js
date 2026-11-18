@@ -1,5 +1,5 @@
 (() => {
-  // 分子编辑实验室 · 从 DNA 到蛋白质 · v1.7.2（2026-11-18）
+  // 分子编辑实验室 · 从 DNA 到蛋白质 · v1.8.0（2026-11-18）
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const canvas = $("#moleculeCanvas");
@@ -595,7 +595,61 @@
     showToast("五层旅程完成：从一段 DNA，到细胞外的蛋白质 🎉");
     setOutcome("旅程完成", "从 DNA 到蛋白质", "五层路径演示完毕：解旋—编辑—转录—翻译—转运。从 2020 年诺奖到 2023 年首款 CRISPR 疗法上市、再到 2025 年体内编辑进入 III 期临床——基因编辑正加速改变医学、农业与合成生物学。", "5 / 5");
     $("#layerMeaning").textContent = "一段 DNA 的信息，经过复制、编辑、转录、翻译与运输，最终变成执行功能的蛋白质——这就是生命运作的方式。";
-    setTimeout(showJourney, 1100);
+    if (routeState.active) { setTimeout(() => runRouteStep(2), 2200); }
+    else setTimeout(showJourney, 1100);
+  }
+
+  // ── 答辩演示路线（按讲解脚本串联全部亮点） ──
+  const routeState = { active: false, step: 0 };
+  const routeLabels = ["首页概览 · 作品定位", "五层原理演示", "技术前沿时间线", "3D 分子动画（新页）", "应用场景实验室（新页）"];
+  function renderRoute() {
+    const box = $("#routeList");
+    box.innerHTML = routeLabels.map((label, i) => {
+      const cls = i < routeState.step ? "done" : i === routeState.step ? "now" : "";
+      return '<div class="route-item ' + cls + '"><b>' + (i + 1) + '</b><span>' + label + '</span><i>' + (i < routeState.step ? "✓" : i === routeState.step ? "▶" : "") + '</i></div>';
+    }).join("");
+    $("#routeStatus").textContent = routeState.active ? "进行中 · 第 " + (routeState.step + 1) + " / 5 步" : "答辩演示路线 · 按讲解脚本顺序自动演示";
+  }
+  function startDefenseRoute() {
+    routeState.active = true;
+    $("#defenseOverlay").hidden = false;
+    renderRoute();
+    runRouteStep(0);
+  }
+  function stopDefenseRoute(silent) {
+    routeState.active = false;
+    if (state.tour?.running) stopTour();
+    $("#defenseOverlay").hidden = true;
+    if (!silent) showToast("已退出答辩模式");
+  }
+  function runRouteStep(s) {
+    if (!routeState.active) return;
+    routeState.step = s;
+    renderRoute();
+    if (s === 0) {
+      showToast("答辩路线 · ① 首页概览");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      setTimeout(() => { if (!routeState.active) return; document.querySelector(".layer-overview").scrollIntoView({ behavior: "smooth", block: "center" }); }, 800);
+      setTimeout(() => { if (!routeState.active) return; runRouteStep(1); }, 6500);
+    } else if (s === 1) {
+      $("#defenseOverlay").hidden = true;
+      showToast("② 五层自动演示开始（约 50 秒）");
+      startTour();
+    } else if (s === 2) {
+      $("#defenseOverlay").hidden = false;
+      document.querySelector(".frontier-overview").scrollIntoView({ behavior: "smooth", block: "center" });
+      showToast("③ 技术前沿时间线");
+      setTimeout(() => {
+        if (!routeState.active) return;
+        routeState.step = 3; renderRoute();
+        setTimeout(() => {
+          if (!routeState.active) return;
+          routeState.step = 4; renderRoute();
+          showToast("正在打开 3D 分子动画…");
+          location.href = "3d.html?guide=1";
+        }, 2600);
+      }, 7000);
+    }
   }
 
   function applyTool(tool, point) {
@@ -1520,6 +1574,11 @@
   $("#journeyReplay").addEventListener("click", () => { hideJourney(); startTour(); });
   $("#journeyOverlay").addEventListener("click", e => { if (e.target === $("#journeyOverlay")) hideJourney(); });
   $("#designButton").addEventListener("click", () => { $("#designOverlay").hidden = false; });
+  $("#defenseButton").addEventListener("click", startDefenseRoute);
+  $("#heroDefenseButton").addEventListener("click", startDefenseRoute);
+  $("#defensePause").addEventListener("click", () => stopDefenseRoute(false));
+  $("#defenseClose").addEventListener("click", () => stopDefenseRoute(true));
+  $("#defenseClose2").addEventListener("click", () => stopDefenseRoute(true));
   $("#heroDesignButton").addEventListener("click", () => { $("#designOverlay").hidden = false; });
   $("#designClose").addEventListener("click", () => { $("#designOverlay").hidden = true; });
   $("#designOverlay").addEventListener("click", e => { if (e.target === $("#designOverlay")) $("#designOverlay").hidden = true; });
