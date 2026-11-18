@@ -1,5 +1,5 @@
 (() => {
-  // 分子编辑实验室 · 从 DNA 到蛋白质 · v1.5.4（2026-11-18）
+  // 分子编辑实验室 · 从 DNA 到蛋白质 · v1.5.5（2026-11-18）
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const canvas = $("#moleculeCanvas");
@@ -102,7 +102,7 @@
 
   const state = {
     layer: 0, selectedTool: "helicase", hits: [], dragging: null,
-    achieved: new Set(), parts: {},
+    achieved: new Set(), parts: {}, stats: { places: 0, views: 0, layersDone: 0, tours: 0 },
     hover: null,
     zoom: 0,
     uncoil: 1,
@@ -154,6 +154,7 @@
     $("#structureText").textContent = text;
     $("#metaValue").textContent = `${String(state.layer).padStart(2, "0")} / ${layerData[state.layer]?.mode || "DNA"}`;
     state.selectedPart = key;
+    state.stats.views++; updateStats();
     drawScene(performance.now());
   }
 
@@ -163,6 +164,12 @@
     toast.classList.add("show");
     clearTimeout(state.toastTimer);
     state.toastTimer = setTimeout(() => toast.classList.remove("show"), 2100);
+  }
+
+  function updateStats() {
+    const s = state.stats || {};
+    const ids = { places: "statPlaces", views: "statViews", layersDone: "statLayers", tours: "statTours" };
+    for (const [k, id] of Object.entries(ids)) { const el = $("#" + id); if (el) el.textContent = s[k] || 0; }
   }
 
   function setOutcome(status, title, text, visual) {
@@ -493,6 +500,7 @@
       const wasFull = motion.full;
       state.motion = null;
       p.completed = wasFull;
+      if (wasFull) { state.stats.layersDone++; updateStats(); }
       $("#motionProgress").hidden = true;
       $("#cameraLabel").hidden = true;
       state.cameraTarget = { x: 500, y: 280, zoom: state.layer === 1 ? 1.2 : 1 };
@@ -520,6 +528,7 @@
     $("#tourButton").textContent = "⏹";
     $("#tourBanner").hidden = false;
     document.body.classList.add("tour-mode");
+    state.stats.tours++; updateStats();
     AudioFX.transition();
     goToTourLayer(1);
   }
@@ -577,7 +586,7 @@
     const p = state.parts;
     const x = point.x, y = point.y;
     const near = (cx, cy, r = 125) => Math.hypot(x - cx, y - cy) < r;
-    const run = keys => { p.completed = false; AudioFX.click(); startMotion(keys); };
+    const run = keys => { p.completed = false; AudioFX.click(); state.stats.places++; updateStats(); startMotion(keys); };
     const fail = msg => { AudioFX.error(); showToast(msg); };
     if (state.tour?.running && !state.motion) stopTour();
     if (state.motion) { showToast("等当前特写动画结束后，再放置下一个工具"); return; }
@@ -1438,7 +1447,11 @@
   window.addEventListener("keydown", e => {
     if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
     const k = e.key.toLowerCase();
-    if (k === "escape" && !$("#journeyOverlay").hidden) { hideJourney(); return; }
+    if (k === "escape") {
+      if (!$("#journeyOverlay").hidden) hideJourney();
+      if (!$("#designOverlay").hidden) $("#designOverlay").hidden = true;
+      return;
+    }
     if (k === "m") { toggleSound(); return; }
     if (k === "f") { toggleFullscreen(); return; }
     if (!state.layer) {
@@ -1461,6 +1474,10 @@
   $("#journeyHome").addEventListener("click", () => { hideJourney(); goHome(); });
   $("#journeyReplay").addEventListener("click", () => { hideJourney(); startTour(); });
   $("#journeyOverlay").addEventListener("click", e => { if (e.target === $("#journeyOverlay")) hideJourney(); });
+  $("#designButton").addEventListener("click", () => { $("#designOverlay").hidden = false; });
+  $("#heroDesignButton").addEventListener("click", () => { $("#designOverlay").hidden = false; });
+  $("#designClose").addEventListener("click", () => { $("#designOverlay").hidden = true; });
+  $("#designOverlay").addEventListener("click", e => { if (e.target === $("#designOverlay")) $("#designOverlay").hidden = true; });
   $("#backHome").addEventListener("click", goHome);
   $("#homeBrand").addEventListener("click", e => { e.preventDefault(); goHome(); });
   $("#enterLayerOne").addEventListener("click", () => switchLayer(1));
