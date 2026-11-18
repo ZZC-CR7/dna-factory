@@ -472,6 +472,11 @@
       state.playing = false; updatePlayBtn();
       $("#sceneHint").textContent = "场景完成 ✓ 点击 ▶ 可重新播放";
       renderStepUI();
+      if (qAuto.get("auto") === "1" && !routeNav) {
+        routeNav = true;
+        setTimeout(() => showToast("答辩路线完成 🎉 感谢观看"), 3000);
+        setTimeout(() => { location.href = "index.html"; }, 8000);
+      }
     }
   }
 
@@ -565,6 +570,16 @@
   renderStepUI();
   updatePlayBtn();
   renderCards();
+  // 答辩路线：?auto=1 自动播放第一个场景
+  const qAuto = new URLSearchParams(location.search);
+  let routeNav = false;
+  if (qAuto.get("auto") === "1") {
+    setTimeout(() => {
+      state.scenario = 0; state.step = 0; state.phase = 0; state.playing = true;
+      renderPicker(); renderStepUI(); updatePlayBtn();
+      $("#sceneHint").textContent = "答辩路线 · 自动播放中…";
+    }, 900);
+  }
   window.addEventListener("resize", () => resize());
   requestAnimationFrame(loop);
 })();
