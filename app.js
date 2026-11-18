@@ -1,5 +1,5 @@
 (() => {
-  // 分子编辑实验室 · 从 DNA 到蛋白质 · v1.7.0（2026-11-18）
+  // 分子编辑实验室 · 从 DNA 到蛋白质 · v1.7.1（2026-11-18）
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const canvas = $("#moleculeCanvas");
@@ -385,15 +385,15 @@
     fork: { title: "解旋酶沿 DNA 前进，双链张开", caption: "解旋酶分开碱基对，形成两条不再交叉的模板臂。", focus: [520, 292, 1.65], duration: 2300 },
     copy: { title: "DNA 聚合酶沿模板逐位配对", caption: "聚合酶在单链模板旁读取碱基，逐个加入互补核苷酸。", focus: [650, 205, 1.95], duration: 3600 },
     seal: { title: "DNA 连接酶封合新链缺口", caption: "聚合酶逐位加入互补核苷酸；连接酶随后封合冈崎片段之间的糖—磷酸骨架缺口。", focus: [730, 370, 2.2], duration: 2600 },
-    bind: { title: "Cas9·向导 RNA 搜索并结合靶位点", caption: "向导 RNA 与目标互补配对，Cas9 同时检查邻近 PAM。", focus: [500, 330, 1.85], duration: 2100 },
-    cut: { title: "Cas9 像剪刀一样切开 DNA", caption: "HNH 与 RuvC 两个核酸酶结构域合拢，在 PAM 邻近位点切断两条 DNA 链。", focus: [710, 338, 2.25], duration: 2300 },
-    nhej: { title: "非同源末端连接修复", caption: "断裂末端被直接拉近并连接；常伴随小片段插入或缺失（indel），可能造成移码。", focus: [710, 338, 1.95], duration: 2100 },
-    hdr: { title: "供体模板引导 HDR 修复", caption: "供体 DNA 与断裂两侧同源臂配对，引导模板介导的精准序列替换。", focus: [710, 338, 2.05], duration: 2600 },
-    activate: { title: "dCas9·VP64 招募转录激活因子", caption: "激活结构域招募转录机器，目标基因表达上调；DNA 双链保持完整。", focus: [220, 300, 2.05], duration: 2600 },
-    repress: { title: "dCas9·KRAB 抑制转录", caption: "抑制结构域占据调控区，转录减弱、基因被沉默；DNA 双链保持完整。", focus: [220, 300, 2.05], duration: 2600 },
-    mark: { title: "荧光 dCas9 标记基因位点", caption: "荧光蛋白被招募到目标位点，持续脉冲显示基因的精确位置。", focus: [500, 338, 2.15], duration: 2100 },
-    baseEdit: { title: "碱基编辑 · 不切断双链的单碱基替换", caption: "脱氨酶把靶位点的一个 A 化学修饰为次黄嘌呤，经一轮复制实现 A·T → G·C；全程不产生双链断裂。应用：修正镰刀型细胞贫血的致病点突变。", focus: [690, 338, 2.05], duration: 3200 },
-    primeEdit: { title: "先导编辑 · pegRNA 引导写入新序列", caption: "逆转录酶以 pegRNA 为模板把新序列写入切口，可替换、插入或删除小片段。应用：可覆盖绝大多数致病突变类型。", focus: [690, 338, 2.05], duration: 3200 },
+    bind: { title: "Cas9·向导 RNA 搜索并结合靶位点", caption: "向导 RNA 与目标互补配对，Cas9 同时检查邻近 PAM。（白话：快递员对门牌号）", focus: [500, 330, 1.85], duration: 2100 },
+    cut: { title: "Cas9 像剪刀一样切开 DNA", caption: "HNH 与 RuvC 两个核酸酶结构域合拢，在 PAM 邻近位点切断两条 DNA 链。（白话：剪刀两刃合拢）", focus: [710, 338, 2.25], duration: 2300 },
+    nhej: { title: "非同源末端连接修复", caption: "断裂末端被直接拉近并连接；常伴随小片段插入或缺失（indel），可能造成移码。（白话：直接粘上，可能缺几个字）", focus: [710, 338, 1.95], duration: 2100 },
+    hdr: { title: "供体模板引导 HDR 修复", caption: "供体 DNA 与断裂两侧同源臂配对，引导模板介导的精准序列替换。（白话：照模板重新写）", focus: [710, 338, 2.05], duration: 2600 },
+    activate: { title: "dCas9·VP64 招募转录激活因子", caption: "激活结构域招募转录机器，目标基因表达上调；DNA 双链保持完整。（白话：只加油门，不拆车）", focus: [220, 300, 2.05], duration: 2600 },
+    repress: { title: "dCas9·KRAB 抑制转录", caption: "抑制结构域占据调控区，转录减弱、基因被沉默；DNA 双链保持完整。（白话：只踩刹车，不拆车）", focus: [220, 300, 2.05], duration: 2600 },
+    mark: { title: "荧光 dCas9 标记基因位点", caption: "荧光蛋白被招募到目标位点，持续脉冲显示基因的精确位置。（白话：贴荧光标签找位置）", focus: [500, 338, 2.15], duration: 2100 },
+    baseEdit: { title: "碱基编辑 · 不切断双链的单碱基替换", caption: "脱氨酶把靶位点的一个 A 化学修饰为次黄嘌呤，经一轮复制实现 A·T → G·C；全程不产生双链断裂。应用：修正镰刀型细胞贫血的致病点突变。（白话：只改一个字，不剪断）", focus: [690, 338, 2.05], duration: 3200 },
+    primeEdit: { title: "先导编辑 · pegRNA 引导写入新序列", caption: "逆转录酶以 pegRNA 为模板把新序列写入切口，可替换、插入或删除小片段。应用：可覆盖绝大多数致病突变类型。（白话：搜索并替换一小段）", focus: [690, 338, 2.05], duration: 3200 },
     transcribe: { title: "RNA 聚合酶读取 DNA 并延伸 RNA", caption: "聚合酶读取模板链，按 A–U、C–G 配对逐个加入核苷酸；新生 RNA 从出口伸出，贴近模板延伸。", focus: [470, 265, 1.85], duration: 4200 },
     splice: { title: "剪接体识别并移除内含子", caption: "剪接体包围内含子，形成套索样结构；两侧外显子随后接合，形成成熟 mRNA。", focus: [500, 340, 2.0], duration: 3600 },
     export: { title: "成熟 mRNA 通过核孔输出", caption: "成熟 mRNA 与蛋白质组成 mRNP 复合体，经嵌在核膜上的核孔复合体通道进入细胞质。", focus: [665, 300, 1.95], duration: 3200 },
