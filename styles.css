@@ -425,6 +425,7 @@ body.in-lab .home-screen { display: none; }
   .topbar { gap: 8px; }
   .breadcrumb { display: none; }
   .reference-link { display: none; }
+  .app-link { display: inline-flex !important; font-size: 9px; }
   .top-actions { gap: 6px; }
   .icon-button { height: 30px; width: 32px; font-size: 17px; }
   .hero-stage { min-height: 430px; height: 56vh; }
