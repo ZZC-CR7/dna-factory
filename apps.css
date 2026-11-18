@@ -66,6 +66,8 @@ button { font: inherit; touch-action: manipulation; }
 .scene-info h3 { margin: 9px 0 0; color: #dbe7ee; font-size: 15px; font-weight: 600; }
 .scene-info p { margin: 8px 0 0; color: #94a9b5; font-size: 11.5px; line-height: 1.8; }
 .scene-meaning { padding: 9px 11px; border-left: 2px solid rgba(145,208,174,.55); border-radius: 0 8px 8px 0; background: rgba(145,208,174,.07); color: #a9c8bd !important; }
+.step-plain { margin: 6px 0 0; padding-left: 8px; border-left: 2px solid rgba(232,184,117,.55); color: #d8b98a; font-size: 11.5px; line-height: 1.7; }
+.step-plain:empty { display: none; }
 
 /* ── 应用速览 ── */
 .apps-tabs { position: sticky; top: 61px; z-index: 15; display: flex; gap: 6px; padding: 10px 0; overflow-x: auto; background: linear-gradient(180deg, rgba(7,17,26,.95), rgba(7,17,26,.85)); -webkit-overflow-scrolling: touch; }
