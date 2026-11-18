@@ -267,7 +267,7 @@
     { id: "repair", title: "选择修复路径", text: "细胞有两种修复方式：NHEJ 直接连接（常产生小片段缺失），或 HDR 借助供体模板精准修复。", plain: "白话：细胞赶紧补缺口——NHEJ 直接粘（可能粘坏几个字），HDR 照着模板重写（精准）。", dur: 0 },
     { id: "done", title: "基因编辑完成", text: "修复完成——这正是基因编辑的起点：敲除、修正或替换一段遗传信息。", plain: "白话：基因被敲除或改写——这就是基因编辑。", dur: 0 }
   ];
-  const state = { mode: "observe", step: -1, phase: 0, auto: false, repair: null, burstDone: false };
+  const state = { mode: "observe", step: -1, phase: 0, auto: false, repair: null, burstDone: false, guide: false };
 
   function stepInfo(s) {
     const st = STEPS[s];
@@ -461,7 +461,7 @@
 
     if (state.mode === "demo" && state.step >= 0) {
       stepUpdate(dt, t);
-      const dur = STEPS[state.step].dur;
+      const dur = STEPS[state.step].dur * (state.guide ? .62 : 1);
       if (dur > 0) {
         state.phase += dt / dur;
         if (state.phase >= 1) {
@@ -470,6 +470,10 @@
           else if (state.step === 4) { /* 等待按钮 */ }
           else state.phase = 1;
         }
+      } else if (state.step === 4 && state.guide) {
+        // 30 秒导览：修复步骤自动选择 NHEJ
+        state.phase += dt / 1600;
+        if (state.phase >= 1) chooseRepair("nhej");
       }
     } else if (state.mode === "observe" && state.step < 0 && cas9.position.distanceTo(cas9Home) > .01) {
       cas9.position.lerp(cas9Home, .03);
@@ -509,6 +513,14 @@
 
   /* ─────────────── 控件 ─────────────── */
   $("#modeObserve").addEventListener("click", () => { state.mode = "observe"; state.auto = false; updateAutoBtn(); $("#d3status").textContent = "自由观察模式"; });
+  $("#modeGuide").addEventListener("click", () => { $("#d3guide").hidden = false; });
+  $("#guideStart").addEventListener("click", () => {
+    $("#d3guide").hidden = true;
+    state.guide = true; state.mode = "demo"; state.auto = true; state.repair = null;
+    updateAutoBtn(); goStep(0);
+    $("#d3status").textContent = "30 秒导览播放中…";
+  });
+  $("#guideClose").addEventListener("click", () => { $("#d3guide").hidden = true; $("#d3status").textContent = "自由观察模式"; });
   $("#modeDemo").addEventListener("click", () => { state.mode = "demo"; state.auto = true; updateAutoBtn(); goStep(0); });
   $("#modeReset").addEventListener("click", resetAll);
   $("#sPrev").addEventListener("click", () => { state.auto = false; updateAutoBtn(); if (state.step <= 0) { resetAll(); return; } goStep(state.step - 1); });
@@ -523,5 +535,7 @@
   $("#repHDR").addEventListener("click", () => { state.mode = "demo"; state.phase = 0; chooseRepair("hdr"); });
 
   resetAll();
+  // 30 秒导览：打开页面 1.2 秒后弹出引导卡
+  setTimeout(() => { if (!$("#d3guide") || $("#d3guide").hidden === false) return; $("#d3guide").hidden = false; }, 1200);
   requestAnimationFrame(loop);
 })();
