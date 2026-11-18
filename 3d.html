@@ -12,6 +12,7 @@
     <a class="d3-brand" href="index.html"><span class="d3-mark">3D</span><span><b>分子视野</b><small>CRISPR-Cas9 · 三维演示</small></span></a>
     <nav class="d3-modes">
       <button id="modeObserve" class="active" type="button">自由观察</button>
+      <button id="modeGuide" type="button">30″ 导览</button>
       <button id="modeDemo" type="button">▶ 演示动画</button>
       <button id="modeReset" type="button">↺ 重置</button>
     </nav>
@@ -28,6 +29,17 @@
       <span><i style="background:#91d0ae"></i>向导 RNA</span>
     </div>
     <div class="d3-status" id="d3status">自由观察模式</div>
+    <div class="d3-guide" id="d3guide" hidden>
+      <div class="d3-guide-card">
+        <span class="kicker">30 秒导览</span>
+        <h2>30 秒看懂 CRISPR</h2>
+        <p>自动演示：搜索 → 解链 → 配对 → 切割 → 修复，全程配白话字幕。评委一键观看，无需操作。</p>
+        <div class="d3-guide-actions">
+          <button id="guideStart" type="button">▶ 开始 30 秒导览</button>
+          <button id="guideClose" type="button">先自己逛逛</button>
+        </div>
+      </div>
+    </div>
     <div class="d3-repair" id="d3repair" hidden>
       <button id="repNHEJ" type="button">NHEJ · 直接连接（常致敲除）</button>
       <button id="repHDR" type="button">HDR · 供体模板精准修复</button>
