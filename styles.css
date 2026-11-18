@@ -452,6 +452,16 @@ body.in-lab .home-screen { display: none; }
 .design-block h4 { margin: 0 0 6px; color: #cfe0e8; font-size: 12px; font-weight: 600; }
 .design-block p { margin: 0; color: #94a9b5; font-size: 10.5px; line-height: 1.75; }
 .design-note { margin-top: 10px; color: #5f7684; font-size: 9px; }
+.route-list { display: grid; gap: 8px; margin: 16px 0 6px; }
+.route-item { display: grid; grid-template-columns: 26px 1fr 20px; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(127,201,213,.04); color: #8fa5b2; font-size: 12px; }
+.route-item b { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: rgba(127,201,213,.14); color: #9dd6dc; font-size: 11px; }
+.route-item i { font-style: normal; text-align: right; color: #55707f; }
+.route-item.now { border-color: rgba(232,184,117,.5); color: #e8cfa4; background: rgba(232,184,117,.07); }
+.route-item.now b { background: rgba(232,184,117,.2); color: #ffd9a0; }
+.route-item.now i { color: #e8b875; }
+.route-item.done { color: #a9c8bd; }
+.route-item.done b { background: rgba(145,208,174,.18); color: #a9dcc0; }
+.route-item.done i { color: #91d0ae; }
 @media (max-width: 760px) {
   .design-body { grid-template-columns: 1fr; }
   .hero-badge { font-size: 8px; }
