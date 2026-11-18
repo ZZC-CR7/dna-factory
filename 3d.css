@@ -49,6 +49,16 @@ button { touch-action: manipulation; }
 .d3-info p { margin: 5px 0 0; color: #94a9b5; font-size: 11px; line-height: 1.7; }
 .d3-plain { margin-top: 6px !important; padding-left: 8px; border-left: 2px solid rgba(232,184,117,.55); color: #d8b98a !important; font-size: 11px !important; }
 .d3-plain:empty { display: none; }
+.d3-guide { position: absolute; inset: 0; z-index: 22; display: grid; place-items: center; background: rgba(4,10,16,.55); backdrop-filter: blur(4px); }
+.d3-guide[hidden] { display: none; }
+.d3-guide-card { width: min(460px, calc(100% - 36px)); padding: 26px 28px; border: 1px solid rgba(127,201,213,.35); border-radius: 16px; background: radial-gradient(ellipse at 50% -20%, #1a3344 0, #0c1823 62%); box-shadow: 0 30px 80px rgba(0,0,0,.5); text-align: center; animation: journeyIn .35s ease; }
+@keyframes journeyIn { from { opacity: 0; transform: translateY(14px) scale(.98); } }
+.d3-guide-card h2 { margin: 8px 0 10px; color: #e2edf2; font-size: 21px; font-weight: 600; }
+.d3-guide-card p { margin: 0; color: #94a9b5; font-size: 12px; line-height: 1.8; }
+.d3-guide-actions { display: flex; gap: 10px; margin-top: 18px; }
+.d3-guide-actions button { flex: 1; padding: 11px 12px; border: 1px solid rgba(127,201,213,.3); border-radius: 10px; color: #cfe0e8; background: rgba(127,201,213,.07); cursor: pointer; font-size: 13px; transition: .2s; }
+.d3-guide-actions button:first-child { border-color: rgba(232,184,117,.55); color: #f0d29c; background: rgba(232,184,117,.1); }
+.d3-guide-actions button:hover { transform: translateY(-1px); }
 .d3-foot { position: fixed; bottom: 0; left: 0; right: 0; z-index: 19; display: none; }
 @media (max-width: 640px) {
   .d3-brand small { display: none; }
