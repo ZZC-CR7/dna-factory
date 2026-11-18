@@ -1,5 +1,5 @@
 (() => {
-  // 分子编辑实验室 · 从 DNA 到蛋白质 · v1.5.5（2026-11-18）
+  // 分子编辑实验室 · 从 DNA 到蛋白质 · v1.6.0（2026-11-18）
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const canvas = $("#moleculeCanvas");
@@ -47,7 +47,7 @@
 
   const layerData = {
     1: { title: "DNA 解旋与复制", subtitle: "打开双链，沿模板合成互补 DNA", mode: "DNA 复制", toolIds: ["helicase", "polymerase", "ligase"], sequence: "ATGCCGTAGCTA", bottom: "TACGGCATCGAT", note: "点击 A、T、C、G 碱基，或查看糖—磷酸骨架。", scene: "复制叉形成", link: "复制出的新链携带完整遗传信息，其中的任何一段基因位点，都可以被下一层的 CRISPR 系统精确找到。", meaning: "DNA 半保留复制是细胞分裂与遗传信息代代相传的基础；许多抗癌药物也作用于 DNA 复制过程。" },
-    2: { title: "DNA 靶向编辑与调控", subtitle: "以 CRISPR-Cas9 演示靶向识别、切割、修复与表达调控", mode: "CRISPR · Cas9", toolIds: ["cas9", "donor", "activator", "repressor", "marker"], sequence: TARGET, bottom: [...TARGET].map(c => complement[c]).join(""), note: "向导 RNA 与靶序列配对；Cas9 还需识别邻近 PAM。", scene: "靶向编辑", link: "编辑后的基因序列将作为模板被转录成 RNA——遗传信息开始向外传递。", meaning: "2020 年诺奖之后，基因编辑进入应用爆发期：2023 年底全球首款 CRISPR 疗法 Casgevy 在英美获批，治疗镰刀型细胞贫血与 β 地中海贫血；2025 年体内直接编辑进入全球 III 期临床；中国在体内编辑药物与基因编辑作物上也在同步推进。" },
+    2: { title: "DNA 靶向编辑与调控", subtitle: "以 CRISPR-Cas9 演示靶向识别、切割、修复与表达调控", mode: "CRISPR · Cas9", toolIds: ["cas9", "donor", "activator", "repressor", "marker", "baseEdit", "primeEdit"], sequence: TARGET, bottom: [...TARGET].map(c => complement[c]).join(""), note: "向导 RNA 与靶序列配对；Cas9 还需识别邻近 PAM。", scene: "靶向编辑", link: "编辑后的基因序列将作为模板被转录成 RNA——遗传信息开始向外传递。", meaning: "2020 年诺奖之后，基因编辑进入应用爆发期：2023 年底全球首款 CRISPR 疗法 Casgevy 在英美获批，治疗镰刀型细胞贫血与 β 地中海贫血；2025 年体内直接编辑进入全球 III 期临床；中国在体内编辑药物与基因编辑作物上也在同步推进。" },
     3: { title: "转录与 RNA 剪接", subtitle: "将 DNA 信息转录为 RNA，再加工成熟", mode: "RNA 加工", toolIds: ["rnaPol", "spliceosome", "nuclearPore"], sequence: "ATGCCGTAGCTA", bottom: "AUGCCGUAGCUA", note: "前体 mRNA 包含外显子与内含子；剪接后形成成熟 mRNA。", scene: "从基因到成熟 mRNA", link: "成熟 mRNA 携带编辑后的信息进入细胞质，交给核糖体翻译成蛋白质。", meaning: "同一基因因剪接方式不同可产生多种蛋白质；剪接异常与多种遗传病相关，剪接调控也是药物研发热点。" },
     4: { title: "翻译与蛋白质合成", subtitle: "核糖体读取密码子，tRNA 递送氨基酸", mode: "蛋白质翻译", toolIds: ["ribosome", "trna", "amino", "chaperone"], sequence: "AUGCCGGUAGCU", bottom: "UACGGCCAUCGA", note: "每三个 RNA 碱基组成一个密码子；tRNA 以互补的反密码子与之配对（A–U、C–G）。", scene: "读取遗传密码", link: "新生多肽链需要折叠成正确构象，并在信号肽指引下被送往细胞各处发挥作用。", meaning: "遗传密码的解读是中心法则的核心；许多抗生素正是通过干扰细菌核糖体的翻译来杀菌。2024 年诺贝尔化学奖授予蛋白质设计与 AlphaFold2 结构预测——从氨基酸序列到三维结构，正是本层折叠过程的科学前沿。" },
     5: { title: "细胞内蛋白质转运", subtitle: "观察分泌蛋白从内质网到细胞外的路径", mode: "蛋白质转运", toolIds: ["signal", "er", "vesicle", "golgi", "membrane"], sequence: "", bottom: "", note: "信号肽、囊泡和细胞器共同决定蛋白质去向。", scene: "细胞层级的运输路径", link: "至此，一段 DNA 上的信息经过解旋、编辑、转录、翻译与运输，最终变成细胞外的蛋白质——生命就是这样运作的。", meaning: "分泌蛋白是胰岛素、抗体等生物药的基础；理解转运机制，才能工程化生产重组蛋白药物。" }
@@ -59,6 +59,8 @@
     ligase: ["DNA 连接酶", "封合 DNA 片段", "#e8b875", "⌁"],
     cas9: ["Cas9 · sgRNA", "识别靶序列并切割 DNA", "#7fc9d5", "✂"],
     donor: ["供体 DNA", "HDR 精准修复模板", "#e8b875", "↔"],
+    baseEdit: ["碱基编辑器 · ABE", "不切双链，替换单个碱基对", "#9bc7e8", "◍"],
+    primeEdit: ["先导编辑器 · PE", "写入小片段新序列", "#c9b7ec", "✎"],
     activator: ["dCas9 · VP64", "提高目标基因转录", "#91d0ae", "+"],
     repressor: ["dCas9 · KRAB", "抑制目标基因转录", "#d99b91", "−"],
     marker: ["dCas9 · 荧光标记", "显示目标基因位点", "#b7a2e4", "✳"],
@@ -96,6 +98,8 @@
     codon: ["密码子", "mRNA 上连续的三个核苷酸，指定氨基酸或翻译终止信号。"],
     anticodon: ["反密码子", "tRNA 上与密码子互补的三个碱基，按 A–U、C–G 配对识别密码子，保证递送正确的氨基酸。"],
     startCodon: ["起始密码子 · AUG", "翻译通常从 AUG 开始，编码甲硫氨酸（Met）；核糖体在此组装并开启肽链合成。"],
+    baseEdit: ["碱基编辑器 · ABE", "失活 Cas9 与腺嘌呤脱氨酶融合：不切断双链，直接把一个 A·T 碱基对改写成 G·C，用于修正点突变。"],
+    primeEdit: ["先导编辑器 · PE", "失活 Cas9 融合逆转录酶，由 pegRNA 同时指定目标位点和新序列，可完成替换、插入与删除。"],
     exocytosis: ["胞吐", "运输囊泡与细胞膜融合，把内容物释放到细胞外——这是分泌蛋白出胞的主要方式。"],
     aminoAcid: ["氨基酸", "核糖体根据密码子顺序连接氨基酸，形成多肽链。"]
   };
@@ -139,6 +143,8 @@
       protein: ["蛋白质货物", "蛋白质的定位信号与细胞运输机制共同决定其最终去向。"],
       promoter: ["启动子区域", "转录因子和 RNA 聚合酶等因子在此调控基因转录起始。"],
       repair: ["DNA 修复", "双链断裂可由不同细胞修复路径处理；NHEJ 常产生插入或缺失，HDR 可利用供体模板。"],
+      baseEdit: ["碱基编辑器", "不切断 DNA 双链，直接把一个碱基对改写成另一个（如 A·T → G·C）。"],
+      primeEdit: ["先导编辑器", "pegRNA 指定目标位点并携带新序列，逆转录酶将其写入基因组。"],
       replicationFork: ["复制叉", "DNA 双链局部打开形成的 Y 形区域，是新链合成发生的位置。"],
       cell: ["真核细胞", "细胞器分工协作，执行转录、翻译、蛋白加工与运输等过程。"],
       rna: ["RNA 转录本", "由 RNA 聚合酶合成，携带 DNA 的序列信息进入后续加工或翻译。"]
@@ -347,7 +353,9 @@
       else if (p.opened) setOutcome("复制叉形成", "双链已打开", "亲代链作为模板；按 A–T、C–G 配对加入互补核苷酸。", "解旋酶到位");
       else setOutcome("准备开始", "选择解旋酶", "把解旋酶拖到双链中央，打开复制叉。", "DNA 双链待解开");
     } else if (state.layer === 2) {
-      if (p.expression) setOutcome(p.expression === "up" ? "表达上调" : "表达抑制", p.expression === "up" ? "CRISPRa · 转录激活" : "CRISPRi · 转录抑制", p.expression === "up" ? "激活结构域招募转录机器，目标基因表达上调；DNA 保持完整。应用：激活抑癌基因、增强作物抗逆基因表达。" : "抑制结构域占据调控区，转录减弱、基因被沉默；DNA 保持完整。应用：抑制致病基因、研究基因功能。", p.expression === "up" ? "转录本增加" : "转录信号减弱");
+      if (p.baseEdited) setOutcome("碱基替换完成", "单碱基编辑 · 无断裂", "脱氨酶在不切断双链的情况下完成 A·T→G·C 替换。应用：直接修正点突变致病位点（如镰刀型细胞贫血的 E6V 突变）。", "碱基被精准改写");
+      else if (p.primeEdited) setOutcome("先导编辑完成", "搜索替换写入新序列", "pegRNA 与逆转录酶把新序列写入靶位点，可替换、插入或删除小片段。应用：可覆盖绝大多数致病突变类型。", "新序列已写入");
+      else if (p.expression) setOutcome(p.expression === "up" ? "表达上调" : "表达抑制", p.expression === "up" ? "CRISPRa · 转录激活" : "CRISPRi · 转录抑制", p.expression === "up" ? "激活结构域招募转录机器，目标基因表达上调；DNA 保持完整。应用：激活抑癌基因、增强作物抗逆基因表达。" : "抑制结构域占据调控区，转录减弱、基因被沉默；DNA 保持完整。应用：抑制致病基因、研究基因功能。", p.expression === "up" ? "转录本增加" : "转录信号减弱");
       else if (p.imaged) setOutcome("位点已标记", "目标基因位点可视化", "荧光 dCas9 标记目标位点并持续脉冲。应用：染色体定位成像、突变位点诊断。", "荧光标记持续脉冲");
       else if (p.hdr) setOutcome("HDR 完成", "目标序列已按模板替换", "供体 DNA 经同源臂配对引导精准替换。应用：修正致病突变——镰刀型细胞贫血的基因疗法正是这一思路。", "模板介导修复");
       else if (p.nhej) setOutcome("NHEJ 情景", "可能出现插入或缺失", "断裂末端直接连接，常产生小片段插入/缺失（indel），可能造成移码敲除。应用：快速敲除基因、研究基因功能。", "indel 示意");
@@ -360,7 +368,7 @@
       else if (p.transcribed) setOutcome("转录完成", "pre-mRNA 已生成", "转录本包含外显子和内含子；将剪接体拖到内含子区域。", "pre-mRNA");
       else setOutcome("准备开始", "启动转录", "把 RNA 聚合酶拖到 DNA 模板上，生成前体 RNA。", "等待转录");
     } else if (state.layer === 4) {
-      if (p.folded) setOutcome("蛋白质形成", "多肽已折叠", "多肽链在分子伴侣协助下折叠成稳定三维结构，形成有功能的蛋白质。", "折叠蛋白");
+      if (p.folded) setOutcome("蛋白质形成", "多肽已折叠", "多肽链在分子伴侣协助下折叠成稳定三维结构，形成有功能的蛋白质。如今 AI（AlphaFold2，2024 诺奖）已能由氨基酸序列直接预测这样的三维结构。", "折叠蛋白");
       else if (p.translated) setOutcome("肽链延伸", "氨基酸正在连接", "tRNA 依据反密码子与密码子互补配对（A–U、C–G），依次递送氨基酸；多肽链按 N 端→C 端延伸。", "多肽链增长");
       else if (p.ribosome) setOutcome("核糖体到位", "开始读取密码子", "核糖体定位到起始密码子 AUG（编码甲硫氨酸）；拖动 tRNA 开始翻译。", "密码子配对");
       else setOutcome("准备开始", "组装翻译复合体", "将核糖体放到 mRNA 上，结合起始密码子 AUG，开启密码子读取。", "等待翻译");
@@ -384,12 +392,14 @@
     activate: { title: "dCas9·VP64 招募转录激活因子", caption: "激活结构域招募转录机器，目标基因表达上调；DNA 双链保持完整。", focus: [220, 300, 2.05], duration: 2600 },
     repress: { title: "dCas9·KRAB 抑制转录", caption: "抑制结构域占据调控区，转录减弱、基因被沉默；DNA 双链保持完整。", focus: [220, 300, 2.05], duration: 2600 },
     mark: { title: "荧光 dCas9 标记基因位点", caption: "荧光蛋白被招募到目标位点，持续脉冲显示基因的精确位置。", focus: [500, 338, 2.15], duration: 2100 },
+    baseEdit: { title: "碱基编辑 · 不切断双链的单碱基替换", caption: "脱氨酶把靶位点的一个 A 化学修饰为次黄嘌呤，经一轮复制实现 A·T → G·C；全程不产生双链断裂。应用：修正镰刀型细胞贫血的致病点突变。", focus: [690, 338, 2.05], duration: 3200 },
+    primeEdit: { title: "先导编辑 · pegRNA 引导写入新序列", caption: "逆转录酶以 pegRNA 为模板把新序列写入切口，可替换、插入或删除小片段。应用：可覆盖绝大多数致病突变类型。", focus: [690, 338, 2.05], duration: 3200 },
     transcribe: { title: "RNA 聚合酶读取 DNA 并延伸 RNA", caption: "聚合酶读取模板链，按 A–U、C–G 配对逐个加入核苷酸；新生 RNA 从出口伸出，贴近模板延伸。", focus: [470, 265, 1.85], duration: 4200 },
     splice: { title: "剪接体识别并移除内含子", caption: "剪接体包围内含子，形成套索样结构；两侧外显子随后接合，形成成熟 mRNA。", focus: [500, 340, 2.0], duration: 3600 },
     export: { title: "成熟 mRNA 通过核孔输出", caption: "成熟 mRNA 与蛋白质组成 mRNP 复合体，经嵌在核膜上的核孔复合体通道进入细胞质。", focus: [665, 300, 1.95], duration: 3200 },
     assemble: { title: "核糖体大小亚基结合 mRNA", caption: "核糖体在 mRNA 上组装，定位到起始密码子 AUG（编码甲硫氨酸），准备开始翻译。", focus: [231, 310, 1.8], duration: 2600 },
     translate: { title: "tRNA 递送氨基酸，肽链连续延伸", caption: "tRNA 以反密码子与密码子互补配对（A–U、C–G），递送对应氨基酸；肽键连接使多肽链从 N 端向 C 端延伸。", focus: [510, 300, 2.0], duration: 7800 },
-    fold: { title: "分子伴侣协助新生蛋白折叠", caption: "新生多肽链进入分子伴侣的保护腔，疏水残基内埋，逐步折叠成稳定的三维结构。", focus: [800, 235, 1.9], duration: 4200 },
+    fold: { title: "分子伴侣协助新生蛋白折叠", caption: "新生多肽链进入分子伴侣的保护腔，疏水残基内埋，逐步折叠成稳定的三维结构。如今，AI 模型 AlphaFold2（2024 年诺贝尔化学奖）已能直接从氨基酸序列预测这样的三维结构。", focus: [800, 235, 1.9], duration: 4400 },
     exportMessage: { title: "mRNA 离开细胞核", caption: "先由成熟 mRNA 经嵌在核膜上的核孔进入细胞质；信号肽不是从细胞核输出的。", focus: [233, 280, 1.75], duration: 2300 },
     targetER: { title: "信号肽引导新生蛋白进入粗面内质网", caption: "信号肽引导新生蛋白进入粗面内质网腔；进入后信号肽被切除，蛋白在腔内折叠并初步加工。", focus: [430, 282, 1.9], duration: 3600 },
     transport: { title: "内质网—高尔基体—细胞膜连续运输", caption: "蛋白依次经内质网加工、高尔基体糖基化与分拣，由囊泡运至细胞膜；SNARE 介导膜融合，经胞吐释放。", focus: [670, 285, 1.55], duration: 9200 }
@@ -414,12 +424,14 @@
     if (key === "fork") { p.opened = true; p.forkProgress = 0; }
     if (key === "copy") { p.copied = true; p.copyProgress = 0; }
     if (key === "seal") p.sealProgress = 0;
-    if (key === "bind") { p.binding = true; p.bound = false; p.cut = false; p.bindProgress = 0; delete p.nhej; delete p.hdr; delete p.nhejProgress; delete p.hdrProgress; delete p.expression; delete p.expressionProgress; delete p.imaged; delete p.imageProgress; }
+    if (key === "bind") { p.binding = true; p.bound = false; p.cut = false; p.bindProgress = 0; delete p.nhej; delete p.hdr; delete p.nhejProgress; delete p.hdrProgress; delete p.expression; delete p.expressionProgress; delete p.imaged; delete p.imageProgress; delete p.baseEdited; delete p.baseEditProgress; delete p.primeEdited; delete p.primeEditProgress; }
     if (key === "cut") { p.cutting = true; p.cutProgress = 0; }
     if (key === "nhej") { delete p.hdrProgress; p.nhejProgress = 0; }
     if (key === "hdr") { delete p.nhejProgress; p.hdrProgress = 0; }
     if (key === "activate" || key === "repress") { p.bound=false;p.cut=false;delete p.nhej;delete p.hdr;p.expression = key === "activate" ? "up" : "down"; p.expressionProgress = 0; }
     if (key === "mark") { p.bound=false;p.cut=false;delete p.nhej;delete p.hdr;delete p.expression;delete p.expressionProgress;p.imaged = true; p.imageProgress = 0; }
+    if (key === "baseEdit") { p.bound=false;p.cut=false;delete p.nhej;delete p.hdr;delete p.expression;delete p.expressionProgress;delete p.imaged;delete p.imageProgress;delete p.primeEdited;delete p.primeEditProgress;p.baseEditProgress = 0; }
+    if (key === "primeEdit") { p.bound=false;p.cut=false;delete p.nhej;delete p.hdr;delete p.expression;delete p.expressionProgress;delete p.imaged;delete p.imageProgress;delete p.baseEdited;delete p.baseEditProgress;p.primeEditProgress = 0; }
     if (key === "transcribe") { p.transcribed = true; p.transcriptionProgress = 0; }
     if (key === "splice") { p.splicing = true; p.splicingProgress = 0; }
     if (key === "export") p.exportProgress = 0;
@@ -465,6 +477,8 @@
     if (key === "exportMessage") p.exported = true;
     if (key === "targetER") { p.signal = true; p.inER = true; }
     if (key === "transport") { p.atGolgi = true; p.delivered = true; award("transport", "蛋白已抵达细胞膜并释放"); }
+    if (key === "baseEdit") { p.baseEdited = true; }
+    if (key === "primeEdit") { p.primeEdited = true; }
   }
 
   function updateMotion(now) {
@@ -483,6 +497,8 @@
     if (key === "hdr") p.hdrProgress = eased;
     if (key === "activate" || key === "repress") p.expressionProgress = eased;
     if (key === "mark") p.imageProgress = eased;
+    if (key === "baseEdit") p.baseEditProgress = eased;
+    if (key === "primeEdit") p.primeEditProgress = eased;
     if (key === "transcribe") p.transcriptionProgress = eased;
     if (key === "splice") p.splicingProgress = eased;
     if (key === "export") p.exportProgress = eased;
@@ -602,6 +618,8 @@
       else if (tool === "activator" && near(205, 300, 220)) run(["activate"]);
       else if (tool === "repressor" && near(205, 300, 220)) run(["repress"]);
       else if (tool === "marker" && near(520, 330, 245)) run(["mark"]);
+      else if (tool === "baseEdit" && near(520, 330, 245)) run(["baseEdit"]);
+      else if (tool === "primeEdit" && near(520, 330, 245)) run(["primeEdit"]);
       else if (tool === "cas9") fail("将 Cas9 放到靶序列附近；需要同时匹配 PAM");
       else fail("将所选工具放在对应 DNA 或启动子区域");
     } else if (state.layer === 3) {
@@ -811,8 +829,8 @@
       c.shadowColor="#e8b875";c.shadowBlur=glow;
       for(let strand=0;strand<2;strand++){c.strokeStyle=strand?"#e8b875":"#9bd0ac";c.lineWidth=4;c.beginPath();c.moveTo(-46,strand?8:-8);c.bezierCurveTo(-18,strand?-6:6,18,strand?22:-22,46,strand?8:-8);c.stroke();}
       c.shadowBlur=0;for(let i=0;i<5;i++){const bx=-30+i*15;c.strokeStyle="#f4deb4";c.lineWidth=2;c.beginPath();c.moveTo(bx,-7+Math.sin(i)*5);c.lineTo(bx,7+Math.sin(i)*5);c.stroke();}
-    } else if (kind === "cas9" || kind === "activator" || kind === "repressor" || kind === "marker") {
-      const color = kind === "activator" ? "#79c59a" : kind === "repressor" ? "#c17f79" : kind === "marker" ? "#aa91df" : "#70b4c9";
+    } else if (kind === "cas9" || kind === "activator" || kind === "repressor" || kind === "marker" || kind === "baseEdit" || kind === "primeEdit") {
+      const color = kind === "activator" ? "#79c59a" : kind === "repressor" ? "#c17f79" : kind === "marker" ? "#aa91df" : kind === "baseEdit" ? "#7fb8e8" : kind === "primeEdit" ? "#c0a9ec" : "#70b4c9";
       c.shadowColor = color; c.shadowBlur = glow;
       c.beginPath(); c.ellipse(-21, -3, 34, 27, -.4, 0, TAU); c.fillStyle = kind === "cas9" ? "#4b8295" : color; c.fill();
       c.beginPath(); c.ellipse(20, 1, 30, 24, .45, 0, TAU); c.fillStyle = kind === "cas9" ? "#31576e" : `${color}bb`; c.fill();
@@ -821,6 +839,8 @@
       if (kind === "activator") { for(let i=0;i<3;i++){c.strokeStyle="#b7ebc2";c.lineWidth=2;c.beginPath();c.moveTo(44+i*10,-5);c.lineTo(44+i*10,-28-i*4);c.stroke();} }
       if (kind === "repressor") { c.strokeStyle="#f1c0b9";c.lineWidth=5;c.beginPath();c.moveTo(39,-17);c.lineTo(63,17);c.moveTo(63,-17);c.lineTo(39,17);c.stroke(); }
       if (kind === "marker") { c.strokeStyle="#e0d4ff";c.lineWidth=3;c.beginPath();c.arc(0,0,42,0,TAU);c.stroke(); for(let i=0;i<8;i++){const a=i*TAU/8;c.beginPath();c.moveTo(Math.cos(a)*48,Math.sin(a)*48);c.lineTo(Math.cos(a)*58,Math.sin(a)*58);c.stroke();} }
+      if (kind === "baseEdit") { c.fillStyle="#d9ecff";c.font="700 13px Inter, sans-serif";c.textAlign="center";c.fillText("A→G",6,4); }
+      if (kind === "primeEdit") { c.strokeStyle="#e6dcff";c.lineWidth=3;c.beginPath();c.moveTo(-46,14);c.bezierCurveTo(-20,-26,22,26,44,-12);c.stroke(); }
     } else if (kind === "spliceosome") {
       const colors = ["#b7a2e4", "#8b79bc", "#d2c1f1", "#7767a8", "#a28ccc"];
       for (let i=0;i<5;i++){const a=i*TAU/5-Math.PI/2;c.beginPath();c.arc(Math.cos(a)*28,Math.sin(a)*28,15,0,TAU);c.fillStyle=colors[i];c.fill();c.strokeStyle="rgba(245,235,255,.45)";c.lineWidth=1.5;c.stroke();}
@@ -1022,6 +1042,29 @@
       drawPill(c, 235, 394, up ? "CRISPRa · 转录增强 ↑" : "CRISPRi · 转录减弱 ↓", up ? "#91d0ae" : "#d99b91");
       drawPill(c, 272, 436, up ? "应用：激活抑癌基因 / 增强抗逆基因表达" : "应用：沉默致病基因 / 研究基因功能", "#c7dce1");
       hit("promoter", 208, 300, 55, "启动子 · 基因调控区");
+    }
+    if (p.baseEditProgress !== undefined || p.baseEdited) {
+      const bp = p.baseEdited ? 1 : (p.baseEditProgress || 0);
+      const bx = a[17].x, by = a[17].y;
+      c.save(); c.shadowColor = "#9bc7e8"; c.shadowBlur = 8 + 14 * bp;
+      c.strokeStyle = "rgba(155,199,232," + (.5 + .5 * bp) + ")"; c.lineWidth = 2 + 2 * bp;
+      c.beginPath(); c.arc(bx, by, 10 + 6 * bp, 0, TAU); c.stroke(); c.restore();
+      drawMolecule(c, "baseEdit", bx, by - 46, .5, t);
+      if (bp > .35) label(c, "A → G · 化学修饰", bx, by + 24, "#bcdcf2", 9);
+      if (p.baseEdited) { drawPill(c, bx + 26, 452, "点突变已修正 · A·T → G·C", "#9bc7e8"); hit("baseEdit", bx, by, 34, "碱基编辑器 · 单碱基替换位点"); }
+    }
+    if (p.primeEditProgress !== undefined || p.primeEdited) {
+      const pp = p.primeEdited ? 1 : (p.primeEditProgress || 0);
+      const px = cutX, py = 338;
+      c.save(); c.strokeStyle = "rgba(201,183,236," + (.4 + .5 * pp) + ")"; c.lineWidth = 3; c.setLineDash([4, 3]);
+      c.beginPath(); c.arc(px + 42, py - 36, 16 + 6 * pp, .4, TAU - .4); c.stroke(); c.setLineDash([]); c.restore();
+      drawMolecule(c, "primeEdit", px, py - 42, .52, t);
+      if (pp > .5) {
+        c.fillStyle = "#c0a9ec";
+        for (let i = 0; i < Math.floor(pp * 5); i++) { c.beginPath(); c.arc(px - 18 + i * 9, py, 4, 0, TAU); c.fill(); }
+        label(c, "pegRNA 模板写入", px, py + 24, "#d8cbf4", 9);
+      }
+      if (p.primeEdited) { drawPill(c, px + 24, 452, "新序列已写入 ✓", "#c0a9ec"); hit("primeEdit", px, py, 36, "先导编辑器 · 新序列写入位点"); }
     }
     if (p.imaged) {
       const pulse = 1 + .18 * Math.sin(t / 180); c.beginPath(); c.arc(targetX, 337, 44 * pulse, 0, TAU); c.strokeStyle = "rgba(183,162,228,.96)"; c.lineWidth = 3; c.shadowColor = "#b7a2e4"; c.shadowBlur = 22; c.stroke(); c.shadowBlur = 0;
@@ -1352,7 +1395,7 @@
 
   function drawDraggedTool(c, tool, point) {
     const [name,,color,icon] = toolData[tool] || ["分子工具","","#7fc9d5","•"];
-    const shapes={helicase:"helicase",polymerase:"polymerase",ligase:"ligase",cas9:"cas9",donor:"donor",activator:"activator",repressor:"repressor",marker:"marker",rnaPol:"rnaPol",spliceosome:"spliceosome",nuclearPore:"nuclearPore",ribosome:"ribosome",trna:"trna",amino:"amino",chaperone:"chaperone",signal:"signal",er:"er",vesicle:"vesicle",golgi:"golgi",membrane:"membrane"};
+    const shapes={helicase:"helicase",polymerase:"polymerase",ligase:"ligase",cas9:"cas9",donor:"donor",baseEdit:"baseEdit",primeEdit:"primeEdit",activator:"activator",repressor:"repressor",marker:"marker",rnaPol:"rnaPol",spliceosome:"spliceosome",nuclearPore:"nuclearPore",ribosome:"ribosome",trna:"trna",amino:"amino",chaperone:"chaperone",signal:"signal",er:"er",vesicle:"vesicle",golgi:"golgi",membrane:"membrane"};
     c.save(); c.globalAlpha = .9; drawMolecule(c,shapes[tool]||"other",point.x,point.y,.72,performance.now()); c.restore();
     drawPill(c,point.x,point.y+62,name,color);
   }
