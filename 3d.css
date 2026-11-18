@@ -24,7 +24,18 @@ button { touch-action: manipulation; }
 
 .d3-stage { position: fixed; inset: 0; }
 #d3canvas { display: block; width: 100%; height: 100%; touch-action: none; }
-.d3-hint { position: absolute; left: 50%; bottom: 118px; transform: translateX(-50%); padding: 7px 14px; border: 1px solid rgba(232,184,117,.3); border-radius: 999px; color: #e8cfa4; background: rgba(8,17,27,.7); font-size: 10px; pointer-events: none; white-space: nowrap; }
+.d3-hint { position: absolute; left: 50%; bottom: 172px; transform: translateX(-50%); padding: 7px 14px; border: 1px solid rgba(232,184,117,.3); border-radius: 999px; color: #e8cfa4; background: rgba(8,17,27,.7); font-size: 10px; pointer-events: none; white-space: nowrap; }
+.d3-steps { position: absolute; left: 50%; bottom: 128px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid rgba(127,201,213,.28); border-radius: 999px; background: rgba(8,17,27,.82); backdrop-filter: blur(8px); }
+.d3-steps button { padding: 6px 13px; border: 1px solid rgba(148,184,202,.3); border-radius: 999px; color: #c9d8e0; background: rgba(127,201,213,.06); cursor: pointer; font-size: 11px; transition: .2s; }
+.d3-steps button:hover { border-color: var(--cyan); color: var(--cyan); }
+.d3-steps #sAuto.active { color: #ffd9a0; border-color: rgba(232,184,117,.6); }
+.d3-dots { display: flex; gap: 6px; padding: 0 4px; }
+.d3-dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(127,201,213,.22); cursor: pointer; transition: .2s; }
+.d3-dots i.done { background: var(--green); }
+.d3-dots i.now { background: var(--cyan); box-shadow: 0 0 8px rgba(127,201,213,.85); }
+.d3-repair { position: absolute; left: 50%; bottom: 182px; transform: translateX(-50%); display: flex; gap: 10px; }
+.d3-repair button { padding: 10px 18px; border: 1px solid rgba(232,184,117,.55); border-radius: 12px; color: #f0d29c; background: rgba(232,184,117,.1); cursor: pointer; font-size: 12px; transition: .2s; }
+.d3-repair button:hover { transform: translateY(-1px); border-color: var(--amber); box-shadow: 0 0 14px rgba(232,184,117,.25); }
 .d3-legend { position: absolute; top: 64px; left: 16px; display: flex; flex-direction: column; gap: 7px; pointer-events: none; }
 .d3-legend span { display: flex; align-items: center; gap: 7px; color: #9db0bc; font-size: 10px; }
 .d3-legend i { width: 9px; height: 9px; border-radius: 50%; }
@@ -41,5 +52,8 @@ button { touch-action: manipulation; }
   .d3-brand small { display: none; }
   .d3-modes button { padding: 5px 10px; font-size: 10px; }
   .d3-legend { display: none; }
-  .d3-hint { bottom: 152px; font-size: 9px; }
+  .d3-hint { bottom: 224px; font-size: 9px; }
+  .d3-repair { bottom: 200px; flex-direction: column; gap: 6px; }
+  .d3-steps { bottom: 118px; gap: 5px; }
+  .d3-steps button { padding: 5px 9px; font-size: 10px; }
 }
