@@ -20,7 +20,6 @@
 
   <main class="d3-stage">
     <canvas id="d3canvas" aria-label="可拖拽旋转的三维 DNA 与 Cas9 场景"></canvas>
-    <div class="d3-hint">拖拽旋转 · 滚轮/双指缩放 · 点击结构查看说明</div>
     <div class="d3-legend">
       <span><i style="background:#67c2cc"></i>骨架链 A</span>
       <span><i style="background:#ed8178"></i>骨架链 B</span>
@@ -29,12 +28,24 @@
       <span><i style="background:#91d0ae"></i>向导 RNA</span>
     </div>
     <div class="d3-status" id="d3status">自由观察模式</div>
+    <div class="d3-repair" id="d3repair" hidden>
+      <button id="repNHEJ" type="button">NHEJ · 直接连接（常致敲除）</button>
+      <button id="repHDR" type="button">HDR · 供体模板精准修复</button>
+    </div>
+    <div class="d3-steps" id="d3steps">
+      <button id="sPrev" type="button">‹</button>
+      <div class="d3-dots" id="d3dots"></div>
+      <button id="sNext" type="button">›</button>
+      <button id="sAuto" type="button">▶ 自动播放</button>
+      <button id="sReset" type="button">↺</button>
+    </div>
+    <div class="d3-hint">拖拽旋转 · 滚轮/双指缩放 · 点击结构查看说明</div>
   </main>
 
   <section class="d3-info" id="d3info">
     <div class="d3-info-head"><span class="kicker">结构检查器</span><b id="d3infoTag">点击场景中的结构</b></div>
     <h3 id="d3infoTitle">选择一个部件</h3>
-    <p id="d3infoText">拖拽旋转视角，点击 DNA 骨架、碱基对、PAM 区域或 Cas9 蛋白，查看它的作用。</p>
+    <p id="d3infoText">拖拽旋转视角，点击 DNA 骨架、碱基对、PAM 区域或 Cas9 蛋白，查看它的作用。点「▶ 自动播放」观看完整编辑流程。</p>
   </section>
 
   <footer class="d3-foot">
