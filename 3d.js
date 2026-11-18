@@ -267,7 +267,7 @@
     { id: "repair", title: "选择修复路径", text: "细胞有两种修复方式：NHEJ 直接连接（常产生小片段缺失），或 HDR 借助供体模板精准修复。", plain: "白话：细胞赶紧补缺口——NHEJ 直接粘（可能粘坏几个字），HDR 照着模板重写（精准）。", dur: 0 },
     { id: "done", title: "基因编辑完成", text: "修复完成——这正是基因编辑的起点：敲除、修正或替换一段遗传信息。", plain: "白话：基因被敲除或改写——这就是基因编辑。", dur: 0 }
   ];
-  const state = { mode: "observe", step: -1, phase: 0, auto: false, repair: null, burstDone: false, guide: false };
+  const state = { mode: "observe", step: -1, phase: 0, auto: false, repair: null, burstDone: false, guide: false, guideDoneAt: 0 };
 
   function stepInfo(s) {
     const st = STEPS[s];
@@ -337,6 +337,7 @@
   function chooseRepair(kind) {
     state.repair = kind;
     state.phase = 0;
+    if (state.guide) state.guideDoneAt = performance.now();
     goStep(5);
     if (kind === "nhej") {
       for (let i = cutIdx - 1; i <= cutIdx + 1; i++) {
@@ -479,6 +480,10 @@
       cas9.position.lerp(cas9Home, .03);
       setGuide(cas9.position, cutCenter, .12);
     }
+    if (state.guide && state.step === 5 && state.guideDoneAt && performance.now() - state.guideDoneAt > 4500 && q.get("guide") === "1") {
+      location.href = "app.html?auto=1";
+      return;
+    }
     for (let i = 0; i < P_N; i++) {
       if (pVel[i]) {
         pPos[i * 3] += pVel[i].x * dt * .03;
@@ -535,7 +540,16 @@
   $("#repHDR").addEventListener("click", () => { state.mode = "demo"; state.phase = 0; chooseRepair("hdr"); });
 
   resetAll();
-  // 30 秒导览：打开页面 1.2 秒后弹出引导卡
-  setTimeout(() => { if (!$("#d3guide") || $("#d3guide").hidden === false) return; $("#d3guide").hidden = false; }, 1200);
+  const q = new URLSearchParams(location.search);
+  if (q.get("guide") === "1") {
+    setTimeout(() => {
+      $("#d3guide").hidden = true;
+      state.guide = true; state.mode = "demo"; state.auto = true; state.repair = null;
+      updateAutoBtn(); goStep(0);
+      $("#d3status").textContent = "答辩路线 · 30 秒导览播放中…";
+    }, 900);
+  } else {
+    setTimeout(() => { if ($("#d3guide") && $("#d3guide").hidden) $("#d3guide").hidden = false; }, 1200);
+  }
   requestAnimationFrame(loop);
 })();
