@@ -260,12 +260,12 @@
 
   /* ─────────────── 分步状态机 ─────────────── */
   const STEPS = [
-    { id: "search", title: "Cas9 沿 DNA 扫描 PAM", text: "Cas9·向导 RNA 复合体沿 DNA 滑动搜索，遇到 PAM 基序（NGG）即停下。", dur: 6000 },
-    { id: "unwind", title: "识别并局部解链", text: "PAM 匹配后，靶位点的双链局部解开，形成转录泡样开口。", dur: 3600 },
-    { id: "pair", title: "向导 RNA 与靶序列配对", text: "向导区 20 个碱基与靶 DNA 互补配对（A–U、C–G），形成 R-loop。", dur: 3400 },
-    { id: "cut", title: "HNH / RuvC 切开双链", text: "两个核酸酶结构域分别切断两条链，形成双链断裂。", dur: 3600 },
-    { id: "repair", title: "选择修复路径", text: "细胞有两种修复方式：NHEJ 直接连接（常产生小片段缺失），或 HDR 借助供体模板精准修复。", dur: 0 },
-    { id: "done", title: "基因编辑完成", text: "修复完成——这正是基因编辑的起点：敲除、修正或替换一段遗传信息。", dur: 0 }
+    { id: "search", title: "Cas9 沿 DNA 扫描 PAM", text: "Cas9·向导 RNA 复合体沿 DNA 滑动搜索，遇到 PAM 基序（NGG）即停下。", plain: "白话：像快递员拿着地址沿街找门牌——Cas9 带着「向导」在 DNA 上寻找匹配位点。", dur: 6000 },
+    { id: "unwind", title: "识别并局部解链", text: "PAM 匹配后，靶位点的双链局部解开，形成转录泡样开口。", plain: "白话：找到目标后，DNA 像拉链一样被拉开一小段，露出里面的碱基。", dur: 3600 },
+    { id: "pair", title: "向导 RNA 与靶序列配对", text: "向导区 20 个碱基与靶 DNA 互补配对（A–U、C–G），形成 R-loop。", plain: "白话：向导 RNA 的 20 个字母与目标序列逐个对号入座（A 对 U、C 对 G）。", dur: 3400 },
+    { id: "cut", title: "HNH / RuvC 切开双链", text: "两个核酸酶结构域分别切断两条链，形成双链断裂。", plain: "白话：Cas9 像剪刀一样，把 DNA 的两条链同时剪断。", dur: 3600 },
+    { id: "repair", title: "选择修复路径", text: "细胞有两种修复方式：NHEJ 直接连接（常产生小片段缺失），或 HDR 借助供体模板精准修复。", plain: "白话：细胞赶紧补缺口——NHEJ 直接粘（可能粘坏几个字），HDR 照着模板重写（精准）。", dur: 0 },
+    { id: "done", title: "基因编辑完成", text: "修复完成——这正是基因编辑的起点：敲除、修正或替换一段遗传信息。", plain: "白话：基因被敲除或改写——这就是基因编辑。", dur: 0 }
   ];
   const state = { mode: "observe", step: -1, phase: 0, auto: false, repair: null, burstDone: false };
 
@@ -274,6 +274,7 @@
     $("#d3infoTag").textContent = "步骤 " + (s + 1) + " / " + STEPS.length;
     $("#d3infoTitle").textContent = st.title;
     $("#d3infoText").textContent = st.text;
+    $("#d3plain").textContent = st.plain || "";
     $("#d3status").textContent = state.mode === "observe" ? "自由观察模式" : st.title;
   }
   function renderDots() {
@@ -417,6 +418,7 @@
         if (k > .6) {
           $("#d3infoTitle").textContent = "NHEJ · 直接连接完成";
           $("#d3infoText").textContent = "断裂末端直接连接，中间出现小片段缺失（indel）——可能造成基因敲除。";
+          $("#d3plain").textContent = "白话：像胶带直接粘上，中间少/多了几个字母——基因被「敲除」。";
         }
       } else if (state.repair === "hdr") {
         const k = EASE(p);
@@ -437,6 +439,7 @@
         if (k > .75) {
           $("#d3infoTitle").textContent = "HDR · 模板介导精准修复";
           $("#d3infoText").textContent = "供体 DNA 经同源臂配对引导修复，目标序列被精准替换（绿色区域）。";
+          $("#d3plain").textContent = "白话：照着供体模板，把断裂处按正确内容重新写回。";
         }
       }
     }
