@@ -436,7 +436,6 @@ body.in-lab .home-screen { display: none; }
   .footer-brand small { display: none; }
 }
 /* ── 答辩套装：作品名片 / 设计说明 / 互动统计 ───────────────────────── */
-.hero-badge { display: inline-flex; align-items: center; gap: 7px; margin-top: 14px; padding: 6px 12px; border: 1px solid rgba(232,184,117,.4); border-radius: 999px; color: #e8cfa4; background: rgba(232,184,117,.07); font-size: 9px; letter-spacing: .1em; }
 .hero-actions { display: flex; align-items: center; gap: 12px; margin-top: 26px; }
 .hero-design { padding: 10px 16px; border: 1px solid rgba(148,184,202,.35); border-radius: 999px; color: #b9cbd6; background: rgba(148,184,202,.06); cursor: pointer; font-size: 11px; letter-spacing: .06em; transition: .2s; }
 .hero-design span { display: inline-block; width: 15px; height: 15px; margin-left: 6px; border: 1px solid currentColor; border-radius: 50%; font-size: 9px; line-height: 13px; }
@@ -464,6 +463,5 @@ body.in-lab .home-screen { display: none; }
 .route-item.done i { color: #91d0ae; }
 @media (max-width: 760px) {
   .design-body { grid-template-columns: 1fr; }
-  .hero-badge { font-size: 8px; }
   .hero-actions { flex-wrap: wrap; gap: 10px; }
 }
