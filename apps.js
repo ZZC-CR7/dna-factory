@@ -1,11 +1,14 @@
-/* 基因编辑 · 应用场景实验室 —— 场景引擎 + 应用速览 */
+/* 基因编辑 · 应用场景实验室 v2 —— 镜头特写 + 白话注释 + 动效润色 */
 (() => {
   const $ = (s) => document.querySelector(s);
   const canvas = $("#sceneCanvas");
   const ctx = canvas.getContext("2d");
   const W = 1000, H = 560, TAU = Math.PI * 2;
 
-  const state = { scenario: 0, step: 0, phase: 0, playing: false, flash: 0, advanceAt: 0, hits: [], lastT: 0 };
+  const state = {
+    scenario: 0, step: 0, phase: 0, playing: false, flash: 0, advanceAt: 0, hits: [], lastT: 0,
+    cam: { x: 500, y: 280, zoom: 1 }, camT: { x: 500, y: 280, zoom: 1 }
+  };
 
   /* ─────────────── 画布助手 ─────────────── */
   function resize() {
@@ -36,6 +39,15 @@
     c.beginPath(); c.arc(x, y, r * pulse, 0, TAU); c.stroke(); c.restore();
     if (label2) pill(c, x, y - r - 16, label2, "#e8cfa4");
     hit(x, y, r * 1.35);
+  }
+  function ambience(c, t, seed, n) {
+    for (let i = 0; i < n; i++) {
+      const a = i * 2.4 + seed, x = 120 + ((i * 137 + seed * 53 + t / 26 * (i % 2 ? 1 : -1)) % 760 + 760) % 760;
+      const y = 80 + ((i * 71 + seed * 29) % 400);
+      c.globalAlpha = .1 + .08 * Math.sin(t / 700 + i);
+      c.fillStyle = "#b6d7e2"; c.beginPath(); c.arc(x, y, i % 3 ? 1 : 1.8, 0, TAU); c.fill();
+    }
+    c.globalAlpha = 1;
   }
   function vessel(c, y) {
     c.save(); c.strokeStyle = "rgba(90,48,46,.5)"; c.lineWidth = 30; c.lineCap = "round";
@@ -101,47 +113,55 @@
     c.restore();
   }
 
-  /* ─────────────── 四个互动场景 ─────────────── */
+  /* ─────────────── 四个前沿场景 ─────────────── */
   const SCENARIOS = [
     {
       id: "anemia", icon: "🩸", title: "红细胞贫血的基因疗法", sub: "Casgevy · 体外编辑造血干细胞", color: "#e58f7f",
       source: "依据：Casgevy 2023–2024 英美获批 · EHA 2024 长期随访",
       steps: [
         {
-          type: "tap", title: "病变：镰刀形红细胞", text: "患者红细胞因血红蛋白突变呈镰刀形，堵塞小血管，引起剧痛与器官损伤。点击发光处查看堵塞。", meaning: "病因：HBB 基因点突变，使成人血红蛋白 HbA 异常聚合。",
-          hotspots: [[470, 300, 55]], draw(c, t) {
+          type: "tap", title: "病变：镰刀形红细胞", text: "患者红细胞因血红蛋白突变呈镰刀形，堵塞小血管，引起剧痛与器官损伤。点击发光处查看堵塞。",
+          plain: "白话：红细胞的形状坏了，卡在血管里运不动氧气。", meaning: "病因：HBB 基因点突变，使成人血红蛋白 HbA 异常聚合。",
+          focus: [470, 300, 1.25], hotspots: [[470, 300, 55]], draw(c, t) {
+            ambience(c, t, 1, 14);
             vessel(c, 300);
             sickle(c, 430, 285, 22, .4); sickle(c, 470, 300, 24, .2); sickle(c, 512, 288, 20, .5);
             redCell(c, 320, 285, 16); redCell(c, 380, 318, 14); redCell(c, 700, 290, 16); redCell(c, 760, 315, 14);
-            lbl(c, "镰刀形红细胞堵塞微血管", 500, 175, "#f0b49a", 13);
+            lbl(c, "镰刀形红细胞堵塞微血管", 500, 170, "#f0b49a", 13);
             hotspot(c, 470, 300, 52, t, "点击查看");
           }
         },
         {
-          type: "tap", title: "提取造血干细胞", text: "从患者骨髓中采集造血干细胞——治疗的对象是患者自己的细胞。点击发光的干细胞。", meaning: "自体细胞：编辑后回输，免疫兼容、无需配型。",
-          hotspots: [[400, 320, 55]], draw(c, t) {
+          type: "tap", title: "提取造血干细胞", text: "从患者骨髓中采集造血干细胞——治疗的对象是患者自己的细胞。点击发光的干细胞。",
+          plain: "白话：取出患者的「造血种子细胞」，把它带进实验室改造。", meaning: "自体细胞：编辑后回输，免疫兼容、无需配型。",
+          focus: [500, 300, 1.2], hotspots: [[400, 320, 55]], draw(c, t) {
+            ambience(c, t, 2, 14);
             circle(c, 500, 300, 150, "rgba(120,80,90,.22)");
             lbl(c, "骨髓", 155, 300, "#9a8a92", 12, "left");
             stemCell(c, 380, 300, 32); stemCell(c, 445, 342, 28); stemCell(c, 340, 350, 26);
             syringe(c, 585, 330, -.5, "#e58f7f");
-            lbl(c, "采集患者造血干细胞", 400, 200, "#e8cfa4", 13);
+            lbl(c, "采集患者造血干细胞", 400, 195, "#e8cfa4", 13);
             hotspot(c, 400, 320, 50, t, "点击采集");
           }
         },
         {
-          type: "tap", title: "电转：Cas9 编辑 BCL11A", text: "用电脉冲把 Cas9·sgRNA 送入细胞核，切断 BCL11A 红系增强子——解除对胎儿血红蛋白 HbF 的抑制。点击剪刀。", meaning: "原理：不修复突变基因，而是重新开启出生后被关闭的 HbF。",
-          hotspots: [[540, 300, 60]], draw(c, t) {
+          type: "tap", title: "电转：Cas9 编辑 BCL11A", text: "用电脉冲把 Cas9·sgRNA 送入细胞核，切断 BCL11A 红系增强子——解除对胎儿血红蛋白 HbF 的抑制。点击剪刀。",
+          plain: "白话：给细胞「通电开窗」，把基因剪刀送进去剪一刀。", meaning: "原理：不修复突变基因，而是重新开启出生后被关闭的 HbF。",
+          focus: [430, 300, 1.35], hotspots: [[540, 300, 60]], draw(c, t) {
+            ambience(c, t, 3, 12);
             circle(c, 420, 300, 92, "#c9d6dd", "rgba(255,255,255,.28)", 2); circle(c, 420, 300, 38, "#35536b");
             dnaMini(c, 420, 300, 130, t);
             scissors(c, 545, 300, 1.35, Math.sin(t / 500) * .12);
             pill(c, 420, 415, "BCL11A 增强子", "#9bc7e8");
-            lbl(c, "Cas9·sgRNA 定位并切断靶序列", 500, 175, "#bcdcf2", 13);
+            lbl(c, "Cas9·sgRNA 定位并切断靶序列", 500, 168, "#bcdcf2", 13);
             hotspot(c, 540, 300, 52, t, "点击编辑");
           }
         },
         {
-          type: "auto", duration: 3200, title: "编辑后的细胞扩增", text: "确认编辑成功后，在体外培养扩增到治疗剂量。", meaning: "质检：测序确认编辑位置正确、无脱靶。",
-          draw(c, t, p) {
+          type: "auto", duration: 3200, title: "编辑后的细胞扩增", text: "确认编辑成功后，在体外培养扩增到治疗剂量。",
+          plain: "白话：像发面一样，把改造好的细胞培养到足够数量。", meaning: "质检：测序确认编辑位置正确、无脱靶。",
+          focus: [500, 300, 1.3], draw(c, t, p) {
+            ambience(c, t, 4, 12);
             const n = 1 + Math.floor(p * 3);
             for (let i = 0; i < n; i++) {
               const a = i * TAU / 3;
@@ -149,13 +169,15 @@
             }
             const sc = 1 + .15 * Math.sin(p * TAU * 2);
             circle(c, 500, 300, 36 * sc, "rgba(145,208,174,.12)", "rgba(145,208,174,.55)", 2);
-            lbl(c, "扩增培养 · 细胞分裂", 500, 175, "#a9dcc0", 13);
+            lbl(c, "扩增培养 · 细胞分裂", 500, 168, "#a9dcc0", 13);
             lbl(c, Math.floor(p * 100) + "%", 500, 430, "#7d929f", 11);
           }
         },
         {
-          type: "tap", title: "回输患者体内", text: "把编辑好的造血干细胞经静脉输回患者——新细胞在体内重建造血系统。点击输液装置。", meaning: "回输前需清髓预处理，为新细胞腾出空间。",
-          hotspots: [[620, 300, 65]], draw(c, t) {
+          type: "tap", title: "回输患者体内", text: "把编辑好的造血干细胞经静脉输回患者——新细胞在体内重建造血系统。点击输液装置。",
+          plain: "白话：把改造好的细胞「打回」患者身体里。", meaning: "回输前需清髓预处理，为新细胞腾出空间。",
+          focus: [620, 300, 1.25], hotspots: [[620, 300, 65]], draw(c, t) {
+            ambience(c, t, 5, 12);
             vessel(c, 360);
             rr(c, 618, 85, 76, 112, 12, "rgba(127,201,213,.1)", "rgba(127,201,213,.5)");
             lbl(c, "编辑后细胞", 656, 62, "#9dd6dc", 11);
@@ -167,13 +189,15 @@
           }
         },
         {
-          type: "final", title: "恢复正常红细胞", text: "新细胞持续产生胎儿血红蛋白 HbF：红细胞恢复圆盘形、血管畅通；长期随访显示多数患者多年无需输血。", meaning: "应用意义：一次治疗、长期获益——全球首款获批的 CRISPR 疗法。",
-          draw(c, t) {
+          type: "final", title: "恢复正常红细胞", text: "新细胞持续产生胎儿血红蛋白 HbF：红细胞恢复圆盘形、血管畅通；长期随访显示多数患者多年无需输血。",
+          plain: "白话：血细胞修好了——从「镰刀」变回「圆盘」，一次治疗长期获益。", meaning: "应用意义：全球首款获批的 CRISPR 疗法。",
+          focus: [500, 300, 1.1], draw(c, t) {
+            ambience(c, t, 6, 14);
             vessel(c, 200);
             sickle(c, 240, 188, 17, .3); sickle(c, 300, 206, 18, .2); sickle(c, 370, 182, 16, .4);
             redCell(c, 560, 205, 16); redCell(c, 630, 185, 14); redCell(c, 700, 200, 16); redCell(c, 770, 182, 14);
-            pill(c, 290, 105, "治疗前：镰刀形 · 易堵塞", "#f0b49a");
-            pill(c, 680, 105, "治疗后：圆盘形 · 血流畅通", "#a9dcc0");
+            pill(c, 290, 100, "治疗前：镰刀形 · 易堵塞", "#f0b49a");
+            pill(c, 680, 100, "治疗后：圆盘形 · 血流畅通", "#a9dcc0");
             rr(c, 300, 330, 400, 90, 12, "rgba(145,208,174,.07)", "rgba(145,208,174,.4)");
             lbl(c, "HbF 表达恢复", 380, 370, "#a9dcc0", 13);
             lbl(c, "多数患者多年无需输血", 620, 370, "#dce8ee", 13);
@@ -186,17 +210,21 @@
       source: "依据：西京医院猪肝移植（Nature 2025）· 猪肾移植存活超 200 天",
       steps: [
         {
-          type: "tap", title: "供体猪：器官工厂", text: "选择健康的供体猪——猪器官大小与人类相近，是解决器官短缺的希望。点击供体猪。", meaning: "供需缺口：全球供体器官仅能满足约 10% 的移植需求。",
-          hotspots: [[500, 310, 110]], draw(c, t) {
+          type: "tap", title: "供体猪：器官工厂", text: "选择健康的供体猪——猪器官大小与人类相近，是解决器官短缺的希望。点击供体猪。",
+          plain: "白话：用猪的器官救人的命——器官不够用，猪来补位。", meaning: "供需缺口：全球供体器官仅能满足约 10% 的移植需求。",
+          focus: [500, 300, 1.2], hotspots: [[500, 310, 110]], draw(c, t) {
+            ambience(c, t, 11, 12);
             pig(c, 500, 280, 1.5, true);
-            lbl(c, "供体猪", 500, 150, "#a9dcc0", 13);
-            lbl(c, "全球每年数十万人等待器官移植", 500, 430, "#7d929f", 12);
+            lbl(c, "供体猪", 500, 145, "#a9dcc0", 13);
+            lbl(c, "全球每年数十万人等待器官移植", 500, 435, "#7d929f", 12);
             hotspot(c, 500, 310, 100, t, "点击供体猪");
           }
         },
         {
-          type: "tap", title: "编辑①：敲除猪内源病毒基因", text: "敲除猪基因组中的内源逆转录病毒（PERV），消除跨物种传播风险。点击细胞完成第一刀。", meaning: "PERV：猪细胞天然携带的病毒序列，移植后可能感染人类细胞。",
-          hotspots: [[500, 300, 70]], draw(c, t) {
+          type: "tap", title: "编辑①：敲除猪内源病毒基因", text: "敲除猪基因组中的内源逆转录病毒（PERV），消除跨物种传播风险。点击细胞完成第一刀。",
+          plain: "白话：先拆掉猪细胞里可能传染给人的「病毒引信」。", meaning: "PERV：猪细胞天然携带的病毒序列，移植后可能感染人类细胞。",
+          focus: [500, 300, 1.3], hotspots: [[500, 300, 70]], draw(c, t) {
+            ambience(c, t, 12, 12);
             circle(c, 500, 300, 95, "#c9d6dd", "rgba(255,255,255,.28)", 2); circle(c, 500, 300, 40, "#35536b");
             dnaMini(c, 500, 300, 140, t);
             scissors(c, 560, 240, 1.1, -.6);
@@ -205,8 +233,10 @@
           }
         },
         {
-          type: "tap", title: "编辑②：敲除猪抗原基因", text: "敲除引起超急性排斥的猪抗原基因（α-Gal 等），让人体免疫系统认不出「异己」。", meaning: "超急性排斥：数分钟内摧毁移植物，是异种移植第一道难关。",
-          hotspots: [[500, 300, 70]], draw(c, t) {
+          type: "tap", title: "编辑②：敲除猪抗原基因", text: "敲除引起超急性排斥的猪抗原基因（α-Gal 等），让人体免疫系统认不出「异己」。",
+          plain: "白话：再摘掉猪细胞表面的「异己标志」，人体就不攻击它了。", meaning: "超急性排斥：数分钟内摧毁移植物，是异种移植第一道难关。",
+          focus: [500, 300, 1.3], hotspots: [[500, 300, 70]], draw(c, t) {
+            ambience(c, t, 13, 12);
             circle(c, 500, 300, 95, "#c9d6dd", "rgba(255,255,255,.28)", 2); circle(c, 500, 300, 40, "#35536b");
             dnaMini(c, 500, 300, 140, t);
             scissors(c, 560, 240, 1.1, -.6);
@@ -215,8 +245,10 @@
           }
         },
         {
-          type: "tap", title: "编辑③：敲入人源调节基因", text: "敲入人源补体调节基因，进一步抑制免疫攻击——编辑后的细胞成为「人源化」猪器官的种子。", meaning: "多基因编辑：通常同时编辑数十个位点。",
-          hotspots: [[500, 300, 70]], draw(c, t) {
+          type: "tap", title: "编辑③：敲入人源调节基因", text: "敲入人源补体调节基因，进一步抑制免疫攻击——编辑后的细胞成为「人源化」猪器官的种子。",
+          plain: "白话：再装上一套「人体通行证」，让移植器官更像人自己的。", meaning: "多基因编辑：通常同时编辑数十个位点。",
+          focus: [500, 300, 1.3], hotspots: [[500, 300, 70]], draw(c, t) {
+            ambience(c, t, 14, 12);
             circle(c, 500, 300, 95, "#c9d6dd", "rgba(255,255,255,.28)", 2); circle(c, 500, 300, 40, "#35536b");
             dnaMini(c, 500, 300, 140, t);
             scissors(c, 560, 240, 1.1, -.6);
@@ -225,28 +257,32 @@
           }
         },
         {
-          type: "auto", duration: 3600, title: "核移植 → 克隆猪培育", text: "把编辑后细胞的核移入去核卵母细胞，培育胚胎并移植给代孕母猪，生出携带目标基因编辑的仔猪。", meaning: "体细胞核移植：与「多莉羊」同源的技术路线。",
-          draw(c, t, p) {
+          type: "auto", duration: 3600, title: "核移植 → 克隆猪培育", text: "把编辑后细胞的核移入去核卵母细胞，培育胚胎并移植给代孕母猪，生出携带目标基因编辑的仔猪。",
+          plain: "白话：用「克隆」技术，把改造好的细胞变成一整只小猪。", meaning: "体细胞核移植：与「多莉羊」同源的技术路线。",
+          focus: [650, 300, 1.25], draw(c, t, p) {
+            ambience(c, t, 15, 12);
             circle(c, 500, 300, 60, "rgba(217,160,184,.3)", "rgba(217,160,184,.6)", 2);
             stemCell(c, 500, 300, 30);
             if (p > .35) {
               const a = Math.min(1, (p - .35) / .35);
               circle(c, 640, 280, 52 * a, "rgba(201,214,221,.3)", "rgba(201,214,221,.6)", 2);
-              lbl(c, "去核卵母细胞", 640, 200, "#b9cbd6", 10);
+              lbl(c, "去核卵母细胞", 640, 195, "#b9cbd6", 10);
             }
             if (p > .7) {
               const a = Math.min(1, (p - .7) / .3);
               pig(c, 800, 310, .62 * a, true);
               lbl(c, "克隆仔猪", 800, 430, "#a9dcc0", 11);
             }
-            lbl(c, "体细胞核移植 · 胚胎发育", 420, 150, "#e8cfa4", 13);
+            lbl(c, "体细胞核移植 · 胚胎发育", 420, 145, "#e8cfa4", 13);
             lbl(c, Math.floor(p * 100) + "%", 420, 430, "#7d929f", 11);
           }
         },
         {
-          type: "tap", title: "移植给等待器官的患者", text: "把猪肾/猪肝移植给终末期患者：手术团队建立血流后，器官开始工作。点击器官完成移植。", meaning: "免疫抑制方案配合：多基因编辑 + 药物双保险。",
-          hotspots: [[500, 300, 75]], draw(c, t) {
-            lbl(c, "终末期患者", 300, 150, "#9dd6dc", 12);
+          type: "tap", title: "移植给等待器官的患者", text: "把猪肾/猪肝移植给终末期患者：手术团队建立血流后，器官开始工作。点击器官完成移植。",
+          plain: "白话：像换零件一样，把猪器官装进患者体内。", meaning: "免疫抑制方案配合：多基因编辑 + 药物双保险。",
+          focus: [500, 300, 1.3], hotspots: [[500, 300, 75]], draw(c, t) {
+            ambience(c, t, 16, 12);
+            lbl(c, "终末期患者", 300, 145, "#9dd6dc", 12);
             c.save(); c.strokeStyle = "#7fd0c0"; c.lineWidth = 4;
             c.beginPath(); c.ellipse(500, 300, 52, 36, .2, 0, TAU); c.stroke(); c.restore();
             circle(c, 500, 300, 22, "rgba(145,208,174,.35)", "rgba(145,208,174,.8)", 2);
@@ -255,8 +291,10 @@
           }
         },
         {
-          type: "final", title: "器官正常工作", text: "移植后器官持续工作：亚洲首例猪肾移植患者存活超 200 天、肾功能稳定；世界首例猪肝移植研究发表于 Nature。", meaning: "应用意义：异种移植或将成为终结器官短缺的工程方案。",
-          draw(c, t) {
+          type: "final", title: "器官正常工作", text: "移植后器官持续工作：亚洲首例猪肾移植患者存活超 200 天、肾功能稳定；世界首例猪肝移植研究发表于 Nature。",
+          plain: "白话：猪器官真的在人体里「上班」了——超过 200 天。", meaning: "应用意义：异种移植或将成为终结器官短缺的工程方案。",
+          focus: [500, 300, 1.15], draw(c, t) {
+            ambience(c, t, 17, 14);
             c.save(); c.strokeStyle = "rgba(145,208,174,.7)"; c.lineWidth = 3;
             c.beginPath(); c.moveTo(280, 380); c.lineTo(330, 330); c.lineTo(400, 350); c.stroke(); c.restore();
             circle(c, 330, 330, 7, "#a9dcc0"); circle(c, 400, 350, 7, "#a9dcc0");
@@ -275,17 +313,21 @@
       source: "依据：2024 诺贝尔化学奖 · 合成生物学产业化",
       steps: [
         {
-          type: "tap", title: "输入：氨基酸序列", text: "一切从一段氨基酸序列开始。点击序列，把它交给 AI。", meaning: "序列决定结构、结构决定功能——蛋白质的折叠规则。",
-          hotspots: [[500, 300, 90]], draw(c, t) {
+          type: "tap", title: "输入：氨基酸序列", text: "一切从一段氨基酸序列开始。点击序列，把它交给 AI。",
+          plain: "白话：给 AI 一串「字母」，它就能算出蛋白质长什么样。", meaning: "序列决定结构、结构决定功能——蛋白质的折叠规则。",
+          focus: [500, 300, 1.25], hotspots: [[500, 300, 90]], draw(c, t) {
+            ambience(c, t, 21, 12);
             rr(c, 300, 270, 400, 60, 10, "rgba(127,201,213,.07)", "rgba(127,201,213,.45)");
             lbl(c, "M K T A I L V Y S G …", 500, 302, "#bcdcf2", 17);
-            lbl(c, "氨基酸序列", 500, 230, "#9dd6dc", 12);
+            lbl(c, "氨基酸序列", 500, 225, "#9dd6dc", 12);
             hotspot(c, 500, 300, 80, t, "点击交给 AI");
           }
         },
         {
-          type: "auto", duration: 3400, title: "AI 预测三维结构", text: "AlphaFold2 在数分钟内预测出蛋白质的三维折叠——从一维序列到三维结构。", meaning: "2024 年诺贝尔化学奖：破解蛋白质结构的 50 年难题。",
-          draw(c, t, p) {
+          type: "auto", duration: 3400, title: "AI 预测三维结构", text: "AlphaFold2 在数分钟内预测出蛋白质的三维折叠——从一维序列到三维结构。",
+          plain: "白话：AI 把「一串字母」折成「一个立体模型」。", meaning: "2024 年诺贝尔化学奖：破解蛋白质结构的 50 年难题。",
+          focus: [500, 300, 1.3], draw(c, t, p) {
+            ambience(c, t, 22, 12);
             const pts = [];
             for (let i = 0; i < 40; i++) {
               const u = i / 39, wob = Math.sin(i * .9 + t / 600);
@@ -298,14 +340,15 @@
             c.strokeStyle = "rgba(183,162,228,.7)"; c.lineWidth = 2;
             for (let i = 0; i < 38; i += 4) { c.beginPath(); c.moveTo(pts[i].x, pts[i].y); c.lineTo(pts[i + 4].x, pts[i + 4].y); c.stroke(); }
             c.restore();
-            if (p < .5) lbl(c, "预测折叠中…", 500, 470, "#9dd6dc", 12);
-            else lbl(c, "三维结构预测完成", 500, 470, "#a9dcc0", 12);
-            pill(c, 500, 180, p < .5 ? "AlphaFold2 计算中" : "AlphaFold2 · 结构预测 ✓", "#9dd6dc");
+            lbl(c, p < .5 ? "预测折叠中…" : "三维结构预测完成", 500, 470, p < .5 ? "#9dd6dc" : "#a9dcc0", 12);
+            pill(c, 500, 175, p < .5 ? "AlphaFold2 计算中" : "AlphaFold2 · 结构预测 ✓", "#9dd6dc");
           }
         },
         {
-          type: "tap", title: "设计改造：活性位点", text: "基于预测结构，圈出活性位点并做定向改造——设计更强的酶或全新的蛋白药物。点击活性口袋。", meaning: "蛋白质设计：可以设计自然界不存在的全新蛋白。",
-          hotspots: [[500, 300, 60]], draw(c, t) {
+          type: "tap", title: "设计改造：活性位点", text: "基于预测结构，圈出活性位点并做定向改造——设计更强的酶或全新的蛋白药物。点击活性口袋。",
+          plain: "白话：给蛋白质「微调工位」，让它干活更厉害。", meaning: "蛋白质设计：可以设计自然界不存在的全新蛋白。",
+          focus: [500, 300, 1.35], hotspots: [[500, 300, 60]], draw(c, t) {
+            ambience(c, t, 23, 12);
             for (let i = 0; i < 40; i++) {
               const a = i * 1.7;
               circle(c, 500 + Math.cos(a) * 62, 300 + Math.sin(a) * 62, 6, "rgba(127,201,213,.5)");
@@ -313,25 +356,29 @@
             const pulse = 1 + .15 * Math.sin(t / 200);
             circle(c, 500, 300, 24 * pulse, "rgba(232,184,117,.15)", "rgba(232,184,117,.8)", 3);
             lbl(c, "活性位点 · 定向改造", 500, 420, "#e8cfa4", 12);
-            pill(c, 500, 180, "折叠结构 + 设计改造", "#9dd6dc");
+            pill(c, 500, 175, "折叠结构 + 设计改造", "#9dd6dc");
             hotspot(c, 500, 300, 55, t, "点击改造");
           }
         },
         {
-          type: "tap", title: "合成基因 · 转入工程菌", text: "把设计好的蛋白序列反译为 DNA，合成基因并转入大肠杆菌/酵母——细胞成为「活的工厂」。点击细菌。", meaning: "合成生物学：微生物发酵替代传统提取与化学合成。",
-          hotspots: [[500, 310, 75]], draw(c, t) {
+          type: "tap", title: "合成基因 · 转入工程菌", text: "把设计好的蛋白序列反译为 DNA，合成基因并转入大肠杆菌/酵母——细胞成为「活的工厂」。点击细菌。",
+          plain: "白话：把「图纸」写进微生物，让它变成工厂流水线。", meaning: "合成生物学：微生物发酵替代传统提取与化学合成。",
+          focus: [500, 310, 1.3], hotspots: [[500, 310, 75]], draw(c, t) {
+            ambience(c, t, 24, 12);
             c.save(); c.strokeStyle = "#a9c8d2"; c.lineWidth = 4;
             c.beginPath(); c.ellipse(500, 300, 105, 52, 0, 0, TAU); c.stroke();
             c.strokeStyle = "rgba(232,184,117,.7)"; c.lineWidth = 2;
             c.beginPath(); c.arc(560, 270, 26, 0, TAU); c.stroke(); c.restore();
             lbl(c, "工程菌 · 携带目的基因", 500, 420, "#e8cfa4", 12);
-            pill(c, 500, 180, "基因合成 + 转化", "#9dd6dc");
+            pill(c, 500, 175, "基因合成 + 转化", "#9dd6dc");
             hotspot(c, 500, 310, 70, t, "点击转入");
           }
         },
         {
-          type: "auto", duration: 3200, title: "发酵罐放大生产", text: "工程菌在大型发酵罐中扩增，目标蛋白被大量合成——从实验室到工业规模。", meaning: "应用：胰岛素、抗体片段、工业酶均可用此路径量产。",
-          draw(c, t, p) {
+          type: "auto", duration: 3200, title: "发酵罐放大生产", text: "工程菌在大型发酵罐中扩增，目标蛋白被大量合成——从实验室到工业规模。",
+          plain: "白话：像酿酒一样「发酵」，把蛋白一罐罐生产出来。", meaning: "应用：胰岛素、抗体片段、工业酶均可用此路径量产。",
+          focus: [500, 300, 1.3], draw(c, t, p) {
+            ambience(c, t, 25, 12);
             rr(c, 380, 120, 240, 330, 20, "rgba(127,201,213,.08)", "rgba(127,201,213,.5)");
             const level = 120 + 330 * (1 - p);
             rr(c, 382, level, 236, 120 + 330 - level, 18, "rgba(127,201,213,.18)");
@@ -344,13 +391,15 @@
           }
         },
         {
-          type: "final", title: "蛋白产品下线", text: "纯化后的目标蛋白成为药物或工业产品——AI 设计 + 基因编辑 + 细胞工厂，构成完整的蛋白质工程链条。", meaning: "应用意义：更快的药物研发、更绿色的生物制造。",
-          draw(c, t) {
+          type: "final", title: "蛋白产品下线", text: "纯化后的目标蛋白成为药物或工业产品——AI 设计 + 基因编辑 + 细胞工厂，构成完整的蛋白质工程链条。",
+          plain: "白话：AI 画图纸 → 微生物当工人 → 药瓶里出产品。", meaning: "应用意义：更快的药物研发、更绿色的生物制造。",
+          focus: [500, 300, 1.15], draw(c, t) {
+            ambience(c, t, 26, 14);
             for (let i = 0; i < 3; i++) {
               rr(c, 300 + i * 150, 230, 80, 140, 10, "rgba(145,208,174,.08)", "rgba(145,208,174,.5)");
               lbl(c, ["胰岛素", "抗体药物", "工业酶"][i], 340 + i * 150, 300, "#dce8ee", 12);
             }
-            pill(c, 500, 150, "AI 蛋白质工厂 · 全链条 ✓", "#9dd6dc");
+            pill(c, 500, 145, "AI 蛋白质工厂 · 全链条 ✓", "#9dd6dc");
             lbl(c, "2024 诺奖：蛋白质设计 + 结构预测", 500, 430, "#c9b8ea", 12);
           }
         }
@@ -361,27 +410,34 @@
       source: "依据：FDA 2025.4 批准 · 加拿大 2026.1 批准 · 中国推进安全评价",
       steps: [
         {
-          type: "tap", title: "难题：蓝耳病暴发", text: "猪繁殖与呼吸综合征（PRRS）导致母猪流产、仔猪死亡，是养猪业损失最大的疫病之一。点击患病猪群。", meaning: "背景：蓝耳病每年给全球养猪业造成数十亿美元损失。",
-          hotspots: [[500, 310, 140]], draw(c, t) {
+          type: "tap", title: "难题：蓝耳病暴发", text: "猪繁殖与呼吸综合征（PRRS）导致母猪流产、仔猪死亡，是养猪业损失最大的疫病之一。点击患病猪群。",
+          plain: "白话：一种让养猪业每年损失惨重的「猪流感」类疫病。", meaning: "背景：蓝耳病每年给全球养猪业造成数十亿美元损失。",
+          focus: [500, 310, 1.2], hotspots: [[500, 310, 140]], draw(c, t) {
+            ambience(c, t, 31, 12);
             pig(c, 380, 300, 1.1, false); pig(c, 540, 330, 1, false); pig(c, 660, 290, 1.05, false);
-            lbl(c, "蓝耳病暴发 · 猪群患病", 500, 160, "#f0b49a", 13);
+            virus(c, 430, 180, 12, t); virus(c, 620, 160, 10, t + 900);
+            lbl(c, "蓝耳病暴发 · 猪群患病", 500, 130, "#f0b49a", 13);
             hotspot(c, 500, 310, 130, t, "点击猪群");
           }
         },
         {
-          type: "tap", title: "实验室：编辑 CD163 基因", text: "在受精卵中编辑 CD163 基因——它是蓝耳病毒进入细胞的「门锁」。点击剪刀完成编辑。", meaning: "原理：病毒通过 CD163 受体入侵猪的免疫细胞，敲掉它病毒就进不来。",
-          hotspots: [[540, 300, 65]], draw(c, t) {
+          type: "tap", title: "实验室：编辑 CD163 基因", text: "在受精卵中编辑 CD163 基因——它是蓝耳病毒进入细胞的「门锁」。点击剪刀完成编辑。",
+          plain: "白话：把病毒进细胞的「门锁」拆掉，病毒就进不来了。", meaning: "原理：病毒通过 CD163 受体入侵猪的免疫细胞，敲掉它病毒就进不来。",
+          focus: [450, 300, 1.35], hotspots: [[540, 300, 65]], draw(c, t) {
+            ambience(c, t, 32, 12);
             circle(c, 420, 300, 90, "rgba(217,160,184,.25)", "rgba(217,160,184,.55)", 2);
             dnaMini(c, 420, 300, 130, t);
             scissors(c, 545, 300, 1.3, Math.sin(t / 500) * .12);
             pill(c, 420, 420, "CD163 受体基因", "#e8cfa4");
-            lbl(c, "编辑受精卵基因组", 500, 170, "#e8cfa4", 13);
+            lbl(c, "编辑受精卵基因组", 500, 165, "#e8cfa4", 13);
             hotspot(c, 540, 300, 58, t, "点击编辑");
           }
         },
         {
-          type: "auto", duration: 3400, title: "胚胎移植 · 仔猪出生", text: "编辑后的胚胎移入代孕母猪，出生的仔猪携带抗病基因。", meaning: "胚胎工程：基因编辑与辅助生殖技术的结合。",
-          draw(c, t, p) {
+          type: "auto", duration: 3400, title: "胚胎移植 · 仔猪出生", text: "编辑后的胚胎移入代孕母猪，出生的仔猪携带抗病基因。",
+          plain: "白话：像试管婴儿一样，把编辑过的胚胎送回母猪体内孕育。", meaning: "胚胎工程：基因编辑与辅助生殖技术的结合。",
+          focus: [620, 310, 1.25], draw(c, t, p) {
+            ambience(c, t, 33, 12);
             circle(c, 420, 300, 55, "rgba(217,160,184,.3)", "rgba(217,160,184,.6)", 2);
             stemCell(c, 420, 300, 28);
             if (p > .5) {
@@ -389,28 +445,32 @@
               pig(c, 640, 310, 1.15 * a, true);
               lbl(c, "代孕母猪", 640, 430, "#a9dcc0", 11);
             }
-            lbl(c, "胚胎移植 → 代孕 → 出生", 420, 165, "#e8cfa4", 13);
+            lbl(c, "胚胎移植 → 代孕 → 出生", 420, 160, "#e8cfa4", 13);
             lbl(c, Math.floor(p * 100) + "%", 420, 430, "#7d929f", 11);
           }
         },
         {
-          type: "tap", title: "验证：病毒进不来了", text: "用蓝耳病毒攻毒试验验证：抗病猪的细胞没有 CD163「门锁」，病毒颗粒被拒之门外。点击病毒试试。", meaning: "效果：基因编辑猪对 PRRS 病毒表现出稳定抗性。",
-          hotspots: [[540, 260, 55]], draw(c, t) {
+          type: "tap", title: "验证：病毒进不来了", text: "用蓝耳病毒攻毒试验验证：抗病猪的细胞没有 CD163「门锁」，病毒颗粒被拒之门外。点击病毒试试。",
+          plain: "白话：拿病毒去「敲门」——没有门锁，病毒干瞪眼。", meaning: "效果：基因编辑猪对 PRRS 病毒表现出稳定抗性。",
+          focus: [520, 290, 1.3], hotspots: [[540, 260, 55]], draw(c, t) {
+            ambience(c, t, 34, 12);
             pig(c, 430, 320, 1.35, true);
             virus(c, 545, 255, 16, t); virus(c, 585, 225, 12, t + 900);
             c.save(); c.strokeStyle = "rgba(232,184,117,.85)"; c.lineWidth = 3; c.setLineDash([5, 5]);
             c.beginPath(); c.moveTo(500, 300); c.lineTo(545, 265); c.moveTo(500, 310); c.lineTo(585, 235); c.stroke(); c.setLineDash([]);
             c.strokeStyle = "rgba(239,129,121,.9)"; c.lineWidth = 3;
             c.beginPath(); c.moveTo(528, 288); c.lineTo(545, 271); c.moveTo(528, 298); c.lineTo(545, 281); c.stroke(); c.restore();
-            lbl(c, "CD163 缺失：病毒无法进入细胞", 500, 160, "#f0d29c", 13);
+            lbl(c, "CD163 缺失：病毒无法进入细胞", 500, 155, "#f0d29c", 13);
             hotspot(c, 540, 260, 50, t, "点击病毒");
           }
         },
         {
-          type: "final", title: "抗病猪走向产业", text: "抗蓝耳病基因编辑猪获美国 FDA 批准（2025）、加拿大批准（2026），中国正在推进安全评价试验——疫病防控与动物福利的新防线。", meaning: "应用意义：减少兽药使用、降低养殖损失，基因编辑从实验室走向农场。",
-          draw(c, t) {
+          type: "final", title: "抗病猪走向产业", text: "抗蓝耳病基因编辑猪获美国 FDA 批准（2025）、加拿大批准（2026），中国正在推进安全评价试验——疫病防控与动物福利的新防线。",
+          plain: "白话：少打疫苗少用药，猪健康、人也安心。", meaning: "应用意义：减少兽药使用、降低养殖损失，基因编辑从实验室走向农场。",
+          focus: [500, 300, 1.15], draw(c, t) {
+            ambience(c, t, 35, 14);
             pig(c, 300, 300, 1.4, true); pig(c, 500, 330, 1.2, true); pig(c, 670, 290, 1.3, true);
-            pill(c, 300, 160, "健康猪群 · 无需疫苗", "#a9dcc0");
+            pill(c, 300, 155, "健康猪群 · 无需疫苗", "#a9dcc0");
             rr(c, 620, 430, 260, 70, 12, "rgba(232,184,117,.08)", "rgba(232,184,117,.5)");
             lbl(c, "FDA 2025 批准 · 多国放行", 750, 465, "#e8cfa4", 12);
           }
@@ -455,8 +515,14 @@
     $("#stepIndex").textContent = "第 " + (state.step + 1) + " / " + sc.steps.length + " 步";
     $("#stepTitle").textContent = st.title;
     $("#stepText").textContent = st.text;
+    $("#stepPlain").textContent = st.plain || "";
     $("#stepMeaning").textContent = st.meaning || "";
     $("#sceneHint").textContent = st.type === "tap" ? "点击发光目标，推进步骤" : st.type === "auto" ? "自动演示中…" : "场景完成 ✓ 点击 ▶ 可重新播放";
+    if (st.focus) {
+      state.camT.x = st.focus[0]; state.camT.y = st.focus[1]; state.camT.zoom = st.focus[2] || 1;
+    } else {
+      state.camT.x = 500; state.camT.y = 280; state.camT.zoom = 1;
+    }
   }
   function updatePlayBtn() {
     const b = $("#btnPlay");
@@ -487,7 +553,16 @@
     g.addColorStop(0, "rgba(36,70,86,.42)"); g.addColorStop(.56, "rgba(16,34,48,.18)"); g.addColorStop(1, "rgba(4,12,20,0)");
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
     state.hits = [];
+    // 镜头平滑特写
+    state.cam.x += (state.camT.x - state.cam.x) * .07;
+    state.cam.y += (state.camT.y - state.cam.y) * .07;
+    state.cam.zoom += (state.camT.zoom - state.cam.zoom) * .07;
+    ctx.save();
+    ctx.translate(W / 2, H / 2);
+    ctx.scale(state.cam.zoom, state.cam.zoom);
+    ctx.translate(-state.cam.x, -state.cam.y);
     curStep().draw(ctx, t, state.phase);
+    ctx.restore();
     if (state.flash > 0) { ctx.fillStyle = "rgba(145,208,174," + (state.flash * .32) + ")"; ctx.fillRect(0, 0, W, H); state.flash -= .05; }
     const dt = Math.min(60, t - (state.lastT || t)); state.lastT = t;
     const st = curStep();
@@ -505,10 +580,13 @@
 
   canvas.addEventListener("pointerdown", (e) => {
     const r = canvas.getBoundingClientRect();
-    const x = (e.clientX - r.left) * W / r.width, y = (e.clientY - r.top) * H / r.height;
+    const px = (e.clientX - r.left) * W / r.width, py = (e.clientY - r.top) * H / r.height;
+    // 屏幕坐标 → 场景坐标（镜头变换逆运算）
+    const sx = (px - W / 2) / state.cam.zoom + state.cam.x;
+    const sy = (py - H / 2) / state.cam.zoom + state.cam.y;
     const st = curStep();
     if (st && st.type === "tap") {
-      const h = [...state.hits].reverse().find(h => Math.hypot(x - h.x, y - h.y) <= h.r);
+      const h = [...state.hits].reverse().find(h => Math.hypot(sx - h.x, sy - h.y) <= h.r);
       if (h) { state.flash = 1; advance(); }
     }
   });
