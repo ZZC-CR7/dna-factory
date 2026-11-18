@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07111c">
+  <title>基因编辑 · 应用前沿</title>
+  <link rel="stylesheet" href="apps.css">
+</head>
+<body>
+  <header class="apps-top">
+    <a class="apps-brand" href="index.html"><span class="apps-mark">M</span><span><b>分子实验室</b><small>应用前沿 · 2020 之后</small></span></a>
+    <a class="apps-back" href="index.html">← 返回原理演示</a>
+  </header>
+
+  <section class="apps-hero">
+    <h1>基因编辑，<em>正在改变什么</em></h1>
+    <p>从治愈遗传病到改造细胞工厂——盘点 2020 年诺贝尔奖之后，已落地与最前沿的应用。点击标签筛选领域，点卡片展开详情。</p>
+    <div class="apps-chips">
+      <span>2023 · 首款疗法获批</span>
+      <span>2025 · 体内编辑进入 III 期</span>
+      <span>2026 · 抗蓝耳猪获批上市</span>
+    </div>
+  </section>
+
+  <nav class="apps-tabs" id="appsTabs" aria-label="应用领域">
+    <button data-cat="all" class="active" type="button">全部</button>
+    <button data-cat="medical" type="button">医学治疗</button>
+    <button data-cat="cell" type="button">细胞工程</button>
+    <button data-cat="protein" type="button">蛋白质工程</button>
+    <button data-cat="agri" type="button">农业与育种</button>
+    <button data-cat="ethics" type="button">伦理与边界</button>
+  </nav>
+
+  <main class="apps-list" id="appsList"></main>
+
+  <footer class="apps-foot">
+    <p>内容依据公开资料整理（2023–2026）：监管批准、临床数据与学术论文。医疗信息仅供科普，不构成诊疗建议；图形与描述为示意。</p>
+    <p>配套原理演示：<a href="index.html">分子编辑实验室 · 从 DNA 到蛋白质</a></p>
+  </footer>
+
+  <script>
+    const APPS = [
+      { cat: "medical", badge: "已获批", bc: "b-ok", year: "2023–2024", org: "Vertex × CRISPR Therapeutics", title: "Casgevy", tags: ["体外编辑", "血液病"], text: "编辑患者造血干细胞、重新激活胎儿血红蛋白 HbF，治疗镰刀型细胞贫血与 β 地中海贫血——全球首款获批的 CRISPR 疗法，长期随访显示多数患者多年无需输血。" },
+      { cat: "medical", badge: "临床 III 期", bc: "b-iii", year: "2025", org: "Intellia", title: "NTLA-2002", tags: ["体内编辑", "罕见病"], text: "脂质纳米颗粒把 Cas9 直接送入体内，敲低激肽释放酶，治疗遗传性血管性水肿；2025 年 1 月全球 III 期研究启动，是体内直接编辑的重大里程碑。" },
+      { cat: "medical", badge: "临床 III 期", bc: "b-iii", year: "2025", org: "Intellia", title: "nex-z", tags: ["体内编辑", "淀粉样变性"], text: "体内编辑 TTR 基因，治疗转甲状腺素蛋白淀粉样变性（ATTR），注册性 III 期研究推进中。" },
+      { cat: "medical", badge: "临床 I/II 期", bc: "b-ii", year: "2023–2024", org: "锐正基因", title: "ART001", tags: ["体内编辑", "国产突破"], text: "中国首个进入人体的体内基因编辑药物（治疗 ATTR），2024 年 8 月成为首个获美国 FDA 临床试验许可的中国同类产品。" },
+      { cat: "medical", badge: "临床 I/II 期", bc: "b-ii", year: "2024", org: "Beam Therapeutics", title: "BEAM-101", tags: ["碱基编辑", "血液病"], text: "碱基编辑器在造血干细胞中做 A→G 单碱基替换、激活 HbF 治疗镰刀型贫血；2024 年公布的全部 7 例患者 HbF 均升至 60% 以上。" },
+      { cat: "medical", badge: "临床 I 期", bc: "b-i", year: "2026", org: "Lilly", title: "VERVE-102", tags: ["碱基编辑", "心血管"], text: "一次性体内碱基编辑关闭肝脏 PCSK9：单次输注后 LDL-C 最多降低 62%、维持 18 个月，计划年内进入 II 期——「打一针降胆固醇」成为现实。" },
+      { cat: "medical", badge: "临床 I/II 期", bc: "b-ii", year: "2025", org: "Prime Medicine", title: "PM359", tags: ["先导编辑", "免疫缺陷"], text: "先导编辑首次进入人体：单次输注修复慢性肉芽肿病的致病突变，首例患者 30 天内中性粒细胞功能恢复 66%。" },
+      { cat: "cell", badge: "前沿临床", bc: "b-new", year: "2024–2025", org: "西京医院 等", title: "基因编辑猪器官移植", tags: ["异种移植", "器官短缺"], text: "多基因编辑猪的肝、肾移植给人体：世界首例猪肝移植（2025 年 Nature 发表）、亚洲首例猪肾移植活人存活超 200 天——为终结器官短缺打开大门。" },
+      { cat: "cell", badge: "前沿研究", bc: "b-new", year: "2025", org: "北大魏文胜团队 等", title: "通用型「现货」CAR-T", tags: ["细胞治疗", "癌症免疫"], text: "CRISPR 改造健康供体 T 细胞（糖盾护体策略），做出可量产、可即用的现货细胞药；早期临床中细胞在体内持续超过 6 个月。" },
+      { cat: "protein", badge: "诺奖级平台", bc: "b-ok", year: "2024", org: "Baker / DeepMind", title: "AI 蛋白质设计", tags: ["蛋白质工程", "AI"], text: "2024 年诺贝尔化学奖：蛋白质设计 + AlphaFold2 结构预测——可设计全新酶、疫苗与蛋白药物，基因编辑与 AI 正在合流。" },
+      { cat: "protein", badge: "已产业化", bc: "b-ok", year: "2010s–今", org: "产业界", title: "细胞工厂 · 合成生物学", tags: ["生物制造", "药物生产"], text: "CRISPR 改良酵母、大肠杆菌等微生物，量产胰岛素前体、抗体片段与青蒿素前体——工程菌成为「活的工厂」。" },
+      { cat: "protein", badge: "已产业化", bc: "b-ok", year: "2018 后", org: "产业界", title: "工业酶定向改造", tags: ["酶工程", "绿色制造"], text: "定向进化（2018 年诺奖）与 CRISPR 高通量筛选结合，改造洗涤剂、生物燃料与绿色化工所需的工业酶。" },
+      { cat: "agri", badge: "获批推进", bc: "b-ok", year: "2024.12–", org: "农业农村部", title: "中国基因编辑作物", tags: ["粮食安全", "抗病优质"], text: "大豆、小麦、玉米、水稻等基因编辑作物陆续获得安全证书——不转入外源基因的精准育种进入快车道。" },
+      { cat: "agri", badge: "已上市", bc: "b-ok", year: "2019–2021", org: "美国 / 日本", title: "编辑食品走上餐桌", tags: ["食品", "营养"], text: "高油酸大豆（全球首款基因编辑食品）、GABA 番茄、增肌真鲷、抗褐变马铃薯——全球已有 70 余种基因编辑农产品。" },
+      { cat: "agri", badge: "已获批（美/加）", bc: "b-ok", year: "2025–2026", org: "Genus × PIC/首农", title: "抗蓝耳病猪", tags: ["动物育种", "疫病防控"], text: "编辑 CD163 基因使猪天然抵抗蓝耳病毒：2025 年美国 FDA 批准、2026 年加拿大批准，中国安全评价试验推进中。" },
+      { cat: "ethics", badge: "伦理边界", bc: "b-warn", year: "2021–", org: "中国刑法修正案（十一）", title: "生殖系编辑的红线", tags: ["法规", "生殖伦理"], text: "非法植入基因编辑、克隆胚胎已入刑；全球共识：临床禁止对人类胚胎做可遗传的基因编辑——技术有边界，科学更有边界。" },
+      { cat: "ethics", badge: "争议前沿", bc: "b-warn", year: "研究中", org: "多国实验室", title: "基因驱动", tags: ["生态", "公共卫生"], text: "让编辑基因在种群中自我扩散，可压制蚊媒传播的疟疾；生态风险仍在评估，仅限严格封闭实验。" }
+    ];
+    const CATS = { all: "全部", medical: "医学治疗", cell: "细胞工程", protein: "蛋白质工程", agri: "农业与育种", ethics: "伦理与边界" };
+    const list = document.getElementById("appsList");
+    const tabs = document.getElementById("appsTabs");
+    let cat = "all";
+    function render() {
+      const items = APPS.filter(a => cat === "all" || a.cat === cat);
+      list.innerHTML = items.map((a, i) => {
+        const more = a.text.length > 62;
+        return '<article class="app-card"><div class="app-head"><span class="app-badge ' + a.bc + '">' + a.badge + '</span><span class="app-year">' + a.year + '</span></div><h3>' + a.title + '</h3><p class="app-org">' + a.org + '</p><p class="app-text">' + a.text + '</p><div class="app-tags">' + a.tags.map(t => '<i>' + t + '</i>').join("") + '</div></article>';
+      }).join("");
+    }
+    tabs.addEventListener("click", e => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      cat = btn.dataset.cat;
+      tabs.querySelectorAll("button").forEach(b => b.classList.toggle("active", b === btn));
+      render();
+    });
+    render();
+  </script>
+</body>
+</html>
