@@ -1,5 +1,5 @@
 (() => {
-  // 分子编辑实验室 · 从 DNA 到蛋白质 · v1.6.0（2026-11-18）
+  // 分子编辑实验室 · 从 DNA 到蛋白质 · v1.6.1（2026-11-18）
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const canvas = $("#moleculeCanvas");
@@ -430,8 +430,8 @@
     if (key === "hdr") { delete p.nhejProgress; p.hdrProgress = 0; }
     if (key === "activate" || key === "repress") { p.bound=false;p.cut=false;delete p.nhej;delete p.hdr;p.expression = key === "activate" ? "up" : "down"; p.expressionProgress = 0; }
     if (key === "mark") { p.bound=false;p.cut=false;delete p.nhej;delete p.hdr;delete p.expression;delete p.expressionProgress;p.imaged = true; p.imageProgress = 0; }
-    if (key === "baseEdit") { p.bound=false;p.cut=false;delete p.nhej;delete p.hdr;delete p.expression;delete p.expressionProgress;delete p.imaged;delete p.imageProgress;delete p.primeEdited;delete p.primeEditProgress;p.baseEditProgress = 0; }
-    if (key === "primeEdit") { p.bound=false;p.cut=false;delete p.nhej;delete p.hdr;delete p.expression;delete p.expressionProgress;delete p.imaged;delete p.imageProgress;delete p.baseEdited;delete p.baseEditProgress;p.primeEditProgress = 0; }
+    if (key === "baseEdit") { $("#repairActions").hidden = true; p.bound=false;p.cut=false;delete p.nhej;delete p.hdr;delete p.expression;delete p.expressionProgress;delete p.imaged;delete p.imageProgress;delete p.primeEdited;delete p.primeEditProgress;p.baseEditProgress = 0; }
+    if (key === "primeEdit") { $("#repairActions").hidden = true; p.bound=false;p.cut=false;delete p.nhej;delete p.hdr;delete p.expression;delete p.expressionProgress;delete p.imaged;delete p.imageProgress;delete p.baseEdited;delete p.baseEditProgress;p.primeEditProgress = 0; }
     if (key === "transcribe") { p.transcribed = true; p.transcriptionProgress = 0; }
     if (key === "splice") { p.splicing = true; p.splicingProgress = 0; }
     if (key === "export") p.exportProgress = 0;
@@ -653,6 +653,8 @@
       if (tool === "donor") return !!p.cut && near(710, 338, 210);
       if (tool === "activator" || tool === "repressor") return near(205, 300, 220);
       if (tool === "marker") return near(520, 330, 245);
+      if (tool === "baseEdit") return near(520, 330, 245);
+      if (tool === "primeEdit") return near(520, 330, 245);
     } else if (state.layer === 3) {
       if (tool === "rnaPol") return near(475, 235, 260);
       if (tool === "spliceosome") return !!p.transcribed && near(500, 370, 220);
