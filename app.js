@@ -1,5 +1,5 @@
 (() => {
-  // 分子编辑实验室 · 从 DNA 到蛋白质 · v1.5.3（2026-11-16）
+  // 分子编辑实验室 · 从 DNA 到蛋白质 · v1.5.4（2026-11-18）
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const canvas = $("#moleculeCanvas");
@@ -508,6 +508,7 @@
 
   function advanceAction() {
     if (state.motion) { showToast("当前动态过程正在播放"); return; }
+    if (state.tour?.running) stopTour();
     startMotion(sequenceForLayer(state.layer), { full: true, reset: true });
   }
 
@@ -578,6 +579,7 @@
     const near = (cx, cy, r = 125) => Math.hypot(x - cx, y - cy) < r;
     const run = keys => { p.completed = false; AudioFX.click(); startMotion(keys); };
     const fail = msg => { AudioFX.error(); showToast(msg); };
+    if (state.tour?.running && !state.motion) stopTour();
     if (state.motion) { showToast("等当前特写动画结束后，再放置下一个工具"); return; }
     if (state.layer === 1) {
       if (tool === "helicase" && near(470, 294, 190) && !p.opened) run(["fork"]);
@@ -1450,7 +1452,7 @@
   });
   // 旅程总结页
   function showJourney() {
-    if (document.fullscreenElement || !state.layer || state.tour?.running) return;
+    if (!state.layer || state.tour?.running) return;
     $("#journeyOverlay").hidden = false;
     AudioFX.complete();
   }
