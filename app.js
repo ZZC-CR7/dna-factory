@@ -287,7 +287,6 @@
     $("#cameraLabel").hidden = true;
     $("#motionProgress").hidden = true;
     $("#liveExplainer").hidden = true;
-    $("#calloutText").textContent = d.note;
     $("#actionNote").querySelector("span:last-child").textContent = d.note;
     const legends = {
       1: [["legend-dna", "亲代 DNA"], ["legend-guide", "新生链"], ["legend-pam", "复制叉"]],
@@ -431,7 +430,6 @@
     $("#liveExplainTool").textContent = `当前道具 · ${stepToolNames[key] || "分子工具"}`;
     $("#liveExplainText").textContent = spec.caption;
     $("#liveExplainer").hidden = false;
-    $("#calloutText").textContent = spec.caption;
     $("#motionLabel").textContent = spec.title;
     $("#motionProgress").hidden = false;
     $("#motionFill").style.width = "0%";
