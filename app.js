@@ -112,6 +112,7 @@
     zoom: 0,
     uncoil: 1,
     motion: null,
+    explainerPlacement: null,
     camera: { x: 500, y: 280, zoom: 1 },
     cameraTarget: { x: 500, y: 280, zoom: 1 },
     lastFrame: 0,
@@ -270,6 +271,7 @@
     state.parts = {};
     state.uncoil = state.layer === 1 ? 0 : 1;
     state.motion = null;
+    state.explainerPlacement = null;
     state.camera = { x: 500, y: 280, zoom: state.layer === 1 ? 1.2 : 1 };
     state.cameraTarget = { ...state.camera };
     state.selectedPart = null;
@@ -329,6 +331,7 @@
   function resetLayer() {
     state.parts = {};
     state.motion = null;
+    state.explainerPlacement = null;
     state.cameraTarget = { x: 500, y: 280, zoom: state.layer === 1 ? 1.2 : 1 };
     $("#cameraLabel").hidden = true;
     $("#motionProgress").hidden = true;
@@ -427,6 +430,7 @@
   function beginStep(key, now) {
     const spec = stepSpecs[key], p = state.parts;
     state.liveExplainKey = key;
+    state.explainerPlacement = null;
     AudioFX.step();
     state.motion = { keys: state.motion.keys, index: state.motion.index, full: state.motion.full, stepStart: now, key };
     state.cameraTarget = { x: spec.focus[0], y: spec.focus[1], zoom: spec.focus[2] };
@@ -1480,14 +1484,17 @@
     if (!spec) return;
     const rect = canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
-    const [focusX, focusY] = spec.focus;
-    const toScreen = (x, y) => ({
-      x: (W / 2 + (x - state.camera.x) * state.camera.zoom) * rect.width / W,
-      y: (H / 2 + (y - state.camera.y) * state.camera.zoom) * rect.height / H
-    });
-    const anchor = toScreen(focusX, focusY);
     const panelWidth = explainer.offsetWidth;
     const panelHeight = explainer.offsetHeight;
+    const layoutKey = [key, rect.width, rect.height, panelWidth, panelHeight].join(":");
+    if (state.explainerPlacement?.key === layoutKey) return;
+    const [focusX, focusY] = spec.focus;
+    const camera = state.cameraTarget || state.camera;
+    const toScreen = (x, y) => ({
+      x: (W / 2 + (x - camera.x) * camera.zoom) * rect.width / W,
+      y: (H / 2 + (y - camera.y) * camera.zoom) * rect.height / H
+    });
+    const anchor = toScreen(focusX, focusY);
     const gap = 26;
     const pad = 9;
     const centerLeft = anchor.x - panelWidth / 2;
@@ -1506,9 +1513,9 @@
     const scaleY = rect.height / H;
     const hitCircles = state.hits.map(hit => {
       const point = toScreen(hit.x, hit.y);
-      return { x: point.x, y: point.y, r: hit.r * state.camera.zoom * Math.max(scaleX, scaleY) + 7 };
+      return { x: point.x, y: point.y, r: hit.r * camera.zoom * Math.max(scaleX, scaleY) + 7 };
     });
-    hitCircles.push({ x: anchor.x, y: anchor.y, r: Math.max(20, 24 * state.camera.zoom * Math.max(scaleX, scaleY)) });
+    hitCircles.push({ x: anchor.x, y: anchor.y, r: Math.max(20, 24 * camera.zoom * Math.max(scaleX, scaleY)) });
     const protectedRects = [".canvas-topline", "#cameraLabel", "#motionProgress", "#tourBanner", "#canvasInstruction", "#canvasStatus", "#zoomBadge"]
       .map(selector => $(selector))
       .filter(element => element && !element.hidden)
@@ -1546,6 +1553,7 @@
       explainer.dataset.position = fitsBelow ? "below" : "above";
       explainer.style.left = `${Math.round(left)}px`;
       explainer.style.top = `${Math.round(Math.max(pad, Math.min(rect.height - panelHeight - pad, top)))}px`;
+      state.explainerPlacement = { key: layoutKey };
       return;
     }
     scored.sort((a, b) => a.score - b.score);
@@ -1554,6 +1562,7 @@
     explainer.dataset.position = best.position;
     explainer.style.left = `${Math.round(best.left)}px`;
     explainer.style.top = `${Math.round(best.top)}px`;
+    state.explainerPlacement = { key: layoutKey };
   }
 
   function drawDraggedTool(c, tool, point) {
@@ -1708,7 +1717,7 @@
     else drawScene(t);
     requestAnimationFrame(loop);
   }
-  window.addEventListener("resize", () => { drawHero(performance.now()); drawScene(performance.now()); });
+  window.addEventListener("resize", () => { state.explainerPlacement = null; drawHero(performance.now()); drawScene(performance.now()); });
   switchLayer(1);
   goHome();
   // 恢复已保存的学习成就（刷新不丢）

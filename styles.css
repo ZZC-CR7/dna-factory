@@ -491,7 +491,7 @@ body.in-lab .home-screen { display: none; }
 .frontier-item i { font-size: 9px; }
 
 /* 与分子视野同屏的同步聊天式步骤解说 */
-.live-explainer { position: absolute; z-index: 5; display: grid; grid-template-columns: 34px minmax(0, 1fr); grid-template-rows: auto auto auto; align-items: start; gap: 5px 8px; width: min(320px, 42%); margin: 0; padding: 10px; border: 1px solid rgba(127,201,213,.34); border-radius: 12px; color: #e4edf2; background: rgba(7,17,27,.94); box-shadow: 0 12px 34px rgba(0,0,0,.3); backdrop-filter: blur(12px); pointer-events: none; }
+.live-explainer { position: absolute; z-index: 5; display: grid; grid-template-columns: 34px minmax(0, 1fr); grid-template-rows: auto auto auto; align-items: start; gap: 5px 8px; width: min(320px, 42%); margin: 0; padding: 10px; border: 1px solid rgba(127,201,213,.34); border-radius: 12px; color: #e4edf2; background: rgba(7,17,27,.94); box-shadow: 0 12px 34px rgba(0,0,0,.3); backdrop-filter: blur(12px); pointer-events: none; transition: left .18s ease, top .18s ease; }
 .live-explainer[hidden] { display: none; }
 .live-explainer::before { position: absolute; top: -8px; left: 50%; content: ""; border: 8px solid transparent; border-top: 0; border-bottom-color: rgba(7,17,27,.96); transform: translateX(-50%); }
 .live-explainer[data-position="above"]::before, .live-explainer[data-position^="above-"]::before { top: auto; bottom: -8px; border: 8px solid transparent; border-bottom: 0; border-top-color: rgba(7,17,27,.96); }
@@ -508,6 +508,7 @@ body.in-lab .home-screen { display: none; }
 .live-explainer-message { grid-column: 2; grid-row: 3; margin: 0; padding: 9px 11px; border: 1px solid rgba(127,201,213,.2); border-radius: 5px 12px 12px 12px; color: #f0f5f7; background: linear-gradient(110deg, rgba(27,48,62,.96), rgba(22,40,53,.94)); font-size: 15px; line-height: 1.55; }
 .live-explainer.is-updating .live-explainer-message { animation: explainerMessageIn .24s ease-out; }
 @keyframes explainerMessageIn { from { opacity: .35; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .live-explainer { transition: none; } }
 
 @media (max-width: 1120px) {
   .live-explainer { width: min(300px, 44%); gap: 5px 7px; }
