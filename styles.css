@@ -246,13 +246,7 @@ body.in-lab .home-screen { display: none; }
 .mini-sequence { margin-top: 12px; padding-top: 10px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); }
 .mini-sequence span { color: #637886; font-size: 8px; letter-spacing: .09em; }
 .mini-sequence code { color: #b5d6c2; font-family: ui-monospace, Consolas, monospace; font-size: 8px; }
-.outcome-card { margin-top: 10px; min-height: 183px; }
 .result-state { color: #788d99; font-size: 8px; letter-spacing: .02em; }
-.result-visual { min-height: 40px; margin-top: 12px; padding: 9px 10px; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,.055); border-radius: 7px; background: rgba(4,11,18,.28); }
-.result-bar { height: 16px; display: flex; align-items: center; gap: 3px; flex: 0 0 55px; }
-.result-bar i { width: 10px; height: 4px; border-radius: 2px; background: #49606e; }
-.result-bar i:nth-child(2), .result-bar i:nth-child(3) { background: #6f8d9b; }
-.result-caption { color: #687d8a; font-size: 8px; }
 .repair-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 10px; }
 .repair-actions[hidden] { display: none; }
 .repair-actions button { min-height: 46px; padding: 7px 8px; text-align: left; border: 1px solid var(--line); border-radius: 7px; background: rgba(255,255,255,.025); cursor: pointer; }
@@ -296,8 +290,6 @@ body.in-lab .home-screen { display: none; }
 .tour-banner { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; background: rgba(9,22,33,.9); border: 1px solid rgba(232,184,117,.45); color: #e9d7b8; font-size: 12px; z-index: 6; pointer-events: none; white-space: nowrap; }
 .tour-banner b { font-weight: 600; color: #ffd9a0; }
 .tour-banner-dot { width: 7px; height: 7px; border-radius: 50%; background: #e8b875; box-shadow: 0 0 8px #e8b875; animation: blink 1s infinite; }
-.meaning-note { margin: 10px 0 0; padding: 8px 10px 8px 12px; border-left: 2px solid rgba(145,208,174,.55); background: rgba(145,208,174,.07); color: #a9c8bd; font-size: 12px; line-height: 1.55; border-radius: 0 8px 8px 0; }
-.meaning-note:empty { display: none; }
 .key-hint { margin: 8px 0 0 26px; color: #5f7684; font-size: 8px; line-height: 1.6; letter-spacing: .04em; }
 .journey-overlay { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 20px; background: rgba(4,10,16,.72); backdrop-filter: blur(6px); }
 .journey-overlay[hidden] { display: none; }
@@ -336,7 +328,7 @@ body.in-lab .home-screen { display: none; }
   .workspace { grid-template-columns: 220px minmax(0,1fr); }
   .right-rail { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: start; gap: 12px; }
   .inspector-head { grid-column: 1 / -1; min-height: 34px; margin: 0; }
-  .outcome-card, .achievement-card, .safety-note { margin-top: 0; }
+  .achievement-card, .safety-note { margin-top: 0; }
   .safety-note { align-self: center; }
 }
 @media (max-width: 760px) {
@@ -475,7 +467,6 @@ body.in-lab .home-screen { display: none; }
 .inspector-head h2 { font-size: 19px; }
 .info-card h3 { font-size: 18px; }
 .info-card p { color: #b7c4cc; font-size: 15px; line-height: 1.7; }
-.meaning-note { font-size: 15px; line-height: 1.7; }
 .action-note { color: #b7c3cb; font-size: 14px; }
 .canvas-topline { font-size: 10px; }
 .canvas-instruction { font-size: 14px; }
@@ -492,8 +483,8 @@ body.in-lab .home-screen { display: none; }
 /* 与分子视野同屏的同步聊天式步骤解说 */
 .live-explainer { position: absolute; z-index: 5; display: grid; grid-template-columns: 34px minmax(0, 1fr); grid-template-rows: auto auto auto; align-items: start; gap: 5px 8px; width: min(320px, 42%); margin: 0; padding: 10px; border: 1px solid rgba(127,201,213,.34); border-radius: 12px; color: #e4edf2; background: rgba(7,17,27,.94); box-shadow: 0 12px 34px rgba(0,0,0,.3); backdrop-filter: blur(12px); pointer-events: none; }
 .live-explainer[hidden] { display: none; }
-.live-explainer::before { position: absolute; top: 50%; left: -8px; content: ""; border: 8px solid transparent; border-left: 0; border-right-color: rgba(7,17,27,.96); transform: translateY(-50%); }
-.live-explainer[data-side="left"]::before { right: -8px; left: auto; border: 8px solid transparent; border-right: 0; border-left-color: rgba(7,17,27,.96); }
+.live-explainer::before { position: absolute; top: -8px; left: 50%; content: ""; border: 8px solid transparent; border-top: 0; border-bottom-color: rgba(7,17,27,.96); transform: translateX(-50%); }
+.live-explainer[data-position="above"]::before { top: auto; bottom: -8px; border: 8px solid transparent; border-bottom: 0; border-top-color: rgba(7,17,27,.96); }
 .live-explainer-avatar { grid-column: 1; grid-row: 1 / span 3; width: 32px; height: 32px; margin-top: 2px; display: grid; place-items: center; border: 1px solid rgba(127,201,213,.38); border-radius: 50%; color: #a9e0e5; background: radial-gradient(circle at 35% 30%, rgba(127,201,213,.3), rgba(17,39,52,.95) 72%); box-shadow: 0 0 18px rgba(127,201,213,.12); font: 600 8px ui-monospace, Consolas, monospace; letter-spacing: .04em; }
 .live-explainer-head { grid-column: 2; grid-row: 1; display: flex; align-items: center; justify-content: flex-start; gap: 10px; color: #d2dfe5; font-size: 14px; letter-spacing: .04em; }
 .live-explainer-head > span { font-weight: 600; }
@@ -524,7 +515,6 @@ body.in-lab .home-screen { display: none; }
   .live-explainer-action { font-size: 10px; }
   .live-explainer-message { padding: 7px 8px; font-size: 13px; }
   .info-card p { font-size: 14px; }
-  .meaning-note { font-size: 14px; }
   .action-note { font-size: 13px; }
   .layer-card-copy b { font-size: 11px; }
   .frontier-item { min-height: 0; padding: 11px 11px 28px; }

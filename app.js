@@ -178,11 +178,9 @@
     for (const [k, id] of Object.entries(ids)) { const el = $("#" + id); if (el) el.textContent = s[k] || 0; }
   }
 
-  function setOutcome(status, title, text, visual) {
-    $("#resultState").textContent = status;
-    $("#outcomeTitle").textContent = title;
-    $("#outcomeText").textContent = text;
-    $(".result-caption").textContent = visual || status;
+  function setOutcome(_status, _title, text, _visual) {
+    const explainer = $("#liveExplainer");
+    if (!explainer.hidden && text) $("#liveExplainText").textContent = text;
   }
 
   const TRACKED_ACHIEVEMENTS = new Set(["helix", "copy", "edit", "protein", "transport"]);
@@ -264,7 +262,6 @@
   function switchLayer(layer) {
     if (state.tour?.running && !state.tour.autoSwitch) stopTour();
     AudioFX.transition();
-    $("#layerMeaning").textContent = "";
     state.layer = Number(layer);
     state.parts = {};
     state.uncoil = state.layer === 1 ? 0 : 1;
@@ -434,7 +431,7 @@
     $("#liveExplainText").textContent = spec.caption;
     const explainer = $("#liveExplainer");
     explainer.hidden = false;
-    explainer.dataset.side = "right";
+    explainer.dataset.position = "below";
     explainer.classList.remove("is-updating");
     void explainer.offsetWidth;
     explainer.classList.add("is-updating");
@@ -542,7 +539,6 @@
       $("#cameraLabel").hidden = true;
       state.cameraTarget = { x: 500, y: 280, zoom: state.layer === 1 ? 1.2 : 1 };
       showOutcomeForState();
-      $("#layerMeaning").textContent = layerData[state.layer]?.meaning || "";
       AudioFX.success();
       updateActionLabel();
       return;
@@ -615,7 +611,6 @@
     AudioFX.complete();
     showToast("五层旅程完成：从一段 DNA，到细胞外的蛋白质 🎉");
     setOutcome("旅程完成", "从 DNA 到蛋白质", "五层路径演示完毕：解旋—编辑—转录—翻译—转运。从 2020 年诺奖到 2023 年首款 CRISPR 疗法上市、再到 2025 年体内编辑进入 III 期临床——基因编辑正加速改变医学、农业与合成生物学。", "5 / 5");
-    $("#layerMeaning").textContent = "一段 DNA 的信息，经过复制、编辑、转录、翻译与运输，最终变成执行功能的蛋白质——这就是生命运作的方式。";
     if (routeState.active) { setTimeout(() => runRouteStep(2), 2200); }
     else setTimeout(showJourney, 1100);
   }
@@ -1484,14 +1479,16 @@
     const anchorY = (H / 2 + (focusY - state.camera.y) * state.camera.zoom) * rect.height / H;
     const panelWidth = explainer.offsetWidth;
     const panelHeight = explainer.offsetHeight;
-    const gap = 18;
+    const gap = 36;
     const pad = 8;
-    const rightRoom = rect.width - pad - anchorX - gap;
-    const leftRoom = anchorX - gap - pad;
-    const side = rightRoom >= panelWidth || rightRoom >= leftRoom ? "right" : "left";
-    const left = side === "right" ? anchorX + gap : anchorX - gap - panelWidth;
-    const top = anchorY - panelHeight / 2;
-    explainer.dataset.side = side;
+    const belowTop = anchorY + gap;
+    const aboveTop = anchorY - gap - panelHeight;
+    const fitsBelow = belowTop + panelHeight <= rect.height - pad;
+    const fitsAbove = aboveTop >= pad;
+    const position = fitsBelow || !fitsAbove ? "below" : "above";
+    const left = anchorX - panelWidth / 2;
+    const top = position === "below" ? belowTop : aboveTop;
+    explainer.dataset.position = position;
     explainer.style.left = `${Math.round(Math.max(pad, Math.min(rect.width - panelWidth - pad, left)))}px`;
     explainer.style.top = `${Math.round(Math.max(pad, Math.min(rect.height - panelHeight - pad, top)))}px`;
   }
