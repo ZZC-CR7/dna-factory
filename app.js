@@ -429,7 +429,11 @@
     $("#cameraLabel").hidden = false;
     $("#liveExplainTool").textContent = `当前道具 · ${stepToolNames[key] || "分子工具"}`;
     $("#liveExplainText").textContent = spec.caption;
-    $("#liveExplainer").hidden = false;
+    const explainer = $("#liveExplainer");
+    explainer.hidden = false;
+    explainer.classList.remove("is-updating");
+    void explainer.offsetWidth;
+    explainer.classList.add("is-updating");
     $("#motionLabel").textContent = spec.title;
     $("#motionProgress").hidden = false;
     $("#motionFill").style.width = "0%";
