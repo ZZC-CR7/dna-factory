@@ -77,6 +77,7 @@
     golgi: ["高尔基体", "进一步加工、分类和包装蛋白", "#b7a2e4", "▤"],
     membrane: ["细胞膜", "分泌蛋白可到达的细胞边界", "#91d0ae", "│"]
   };
+  const engineeredTools = new Set(["cas9", "donor", "baseEdit", "primeEdit", "activator", "repressor", "marker"]);
 
   const descriptions = {
     A: ["含氮碱基 · 腺嘌呤", "A 与 T 互补配对，在 DNA 双链中通过两条氢键连接。"],
@@ -204,8 +205,11 @@
     const data = layerData[state.layer];
     list.innerHTML = data.toolIds.map(id => {
       const [title, desc, color, icon] = toolData[id];
-      return `<button class="tool-card ${id === state.selectedTool ? "selected" : ""}" data-tool="${id}" type="button" aria-pressed="${id === state.selectedTool}">
-        <span class="tool-symbol" style="--tool-color:${color}">${icon}</span><span class="tool-copy"><b>${title}</b><small>${desc}</small></span><span class="tool-grip">⠿</span>
+      const engineered = engineeredTools.has(id);
+      const origin = engineered ? "engineering" : "cellular";
+      const originLabel = engineered ? "人工工程" : "细胞原生";
+      return `<button class="tool-card ${id === state.selectedTool ? "selected" : ""}" data-tool="${id}" data-origin="${origin}" type="button" aria-pressed="${id === state.selectedTool}">
+        <span class="tool-symbol" style="--tool-color:${color}">${icon}</span><span class="tool-copy"><b>${title}</b><small>${desc}</small><span class="tool-origin tool-origin--${origin}"><i></i>${originLabel}</span></span><span class="tool-grip">⠿</span>
       </button>`;
     }).join("");
     $("#toolCount").textContent = String(data.toolIds.length).padStart(2, "0");
@@ -414,6 +418,7 @@
     assemble: "核糖体", translate: "tRNA · 核糖体", fold: "分子伴侣",
     exportMessage: "核孔复合体", targetER: "信号肽 · 粗面内质网", transport: "运输囊泡 · 高尔基体"
   };
+  const engineeredSteps = new Set(["bind", "cut", "hdr", "activate", "repress", "mark", "baseEdit", "primeEdit"]);
 
   function sequenceForLayer(layer) {
     return ({ 1: ["fork", "copy", "seal"], 2: ["bind", "cut", "nhej"], 3: ["transcribe", "splice", "export"], 4: ["assemble", "translate", "fold"], 5: ["exportMessage", "targetER", "transport"] })[layer] || [];
@@ -427,7 +432,8 @@
     state.cameraTarget = { x: spec.focus[0], y: spec.focus[1], zoom: spec.focus[2] };
     $("#cameraLabelText").textContent = spec.title;
     $("#cameraLabel").hidden = false;
-    $("#liveExplainTool").textContent = `当前道具 · ${stepToolNames[key] || "分子工具"}`;
+    const originLabel = engineeredSteps.has(key) ? "人工工程工具" : "细胞原生机制";
+    $("#liveExplainTool").textContent = `${originLabel} · ${stepToolNames[key] || "分子工具"}`;
     $("#liveExplainText").textContent = spec.caption;
     const explainer = $("#liveExplainer");
     explainer.hidden = false;
@@ -1441,7 +1447,6 @@
     state.camera.y += (state.cameraTarget.y - state.camera.y) * .09;
     state.camera.zoom += (state.cameraTarget.zoom - state.camera.zoom) * .09;
     state.zoom = state.camera.zoom;
-    positionLiveExplainer();
     state.uncoil += (1 - state.uncoil) * .045;
     ctx.save();
     ctx.translate(W/2, H/2); ctx.scale(state.camera.zoom, state.camera.zoom); ctx.translate(-state.camera.x, -state.camera.y);
@@ -1452,6 +1457,7 @@
     else drawLayerFiveAnimated(ctx,t);
     ctx.restore();
     if (state.inset) drawInset(ctx, state.inset);
+    positionLiveExplainer();
     const p = state.parts;
     const stageState = state.layer === 1 ? p.sealed ? "repaired" : p.opened ? "bound" : "idle"
       : state.layer === 2 ? p.hdr || p.nhej ? "repaired" : p.cut ? "cut" : p.bound ? "bound" : "idle"
@@ -1475,22 +1481,79 @@
     const rect = canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
     const [focusX, focusY] = spec.focus;
-    const anchorX = (W / 2 + (focusX - state.camera.x) * state.camera.zoom) * rect.width / W;
-    const anchorY = (H / 2 + (focusY - state.camera.y) * state.camera.zoom) * rect.height / H;
+    const toScreen = (x, y) => ({
+      x: (W / 2 + (x - state.camera.x) * state.camera.zoom) * rect.width / W,
+      y: (H / 2 + (y - state.camera.y) * state.camera.zoom) * rect.height / H
+    });
+    const anchor = toScreen(focusX, focusY);
     const panelWidth = explainer.offsetWidth;
     const panelHeight = explainer.offsetHeight;
-    const gap = 36;
-    const pad = 8;
-    const belowTop = anchorY + gap;
-    const aboveTop = anchorY - gap - panelHeight;
-    const fitsBelow = belowTop + panelHeight <= rect.height - pad;
-    const fitsAbove = aboveTop >= pad;
-    const position = fitsBelow || !fitsAbove ? "below" : "above";
-    const left = anchorX - panelWidth / 2;
-    const top = position === "below" ? belowTop : aboveTop;
-    explainer.dataset.position = position;
-    explainer.style.left = `${Math.round(Math.max(pad, Math.min(rect.width - panelWidth - pad, left)))}px`;
-    explainer.style.top = `${Math.round(Math.max(pad, Math.min(rect.height - panelHeight - pad, top)))}px`;
+    const gap = 26;
+    const pad = 9;
+    const centerLeft = anchor.x - panelWidth / 2;
+    const centerTop = anchor.y - panelHeight / 2;
+    const candidates = [
+      { position: "below", left: centerLeft, top: anchor.y + gap },
+      { position: "right", left: anchor.x + gap, top: centerTop },
+      { position: "left", left: anchor.x - gap - panelWidth, top: centerTop },
+      { position: "above", left: centerLeft, top: anchor.y - gap - panelHeight },
+      { position: "below-right", left: anchor.x + gap * .72, top: anchor.y + gap * .72 },
+      { position: "below-left", left: anchor.x - gap * .72 - panelWidth, top: anchor.y + gap * .72 },
+      { position: "above-right", left: anchor.x + gap * .72, top: anchor.y - gap * .72 - panelHeight },
+      { position: "above-left", left: anchor.x - gap * .72 - panelWidth, top: anchor.y - gap * .72 - panelHeight }
+    ];
+    const scaleX = rect.width / W;
+    const scaleY = rect.height / H;
+    const hitCircles = state.hits.map(hit => {
+      const point = toScreen(hit.x, hit.y);
+      return { x: point.x, y: point.y, r: hit.r * state.camera.zoom * Math.max(scaleX, scaleY) + 7 };
+    });
+    hitCircles.push({ x: anchor.x, y: anchor.y, r: Math.max(20, 24 * state.camera.zoom * Math.max(scaleX, scaleY)) });
+    const protectedRects = [".canvas-topline", "#cameraLabel", "#motionProgress", "#tourBanner", "#canvasInstruction", "#canvasStatus", "#zoomBadge"]
+      .map(selector => $(selector))
+      .filter(element => element && !element.hidden)
+      .map(element => {
+        const box = element.getBoundingClientRect();
+        return { left: box.left - rect.left, top: box.top - rect.top, right: box.right - rect.left, bottom: box.bottom - rect.top };
+      });
+    if (state.inset) protectedRects.push({ left: 30 * scaleX, top: (H - 198) * scaleY, right: 282 * scaleX, bottom: (H - 20) * scaleY });
+    const scored = candidates.flatMap(candidate => {
+      const left = candidate.left, top = candidate.top;
+      const right = left + panelWidth, bottom = top + panelHeight;
+      if (left < pad || top < pad || right > rect.width - pad || bottom > rect.height - pad) return [];
+      let score = 0;
+      for (const circle of hitCircles) {
+        const dx = Math.max(left - circle.x, 0, circle.x - right);
+        const dy = Math.max(top - circle.y, 0, circle.y - bottom);
+        const penetration = circle.r - Math.hypot(dx, dy);
+        if (penetration > 0) score += 1000 + penetration * 12;
+      }
+      for (const box of protectedRects) {
+        const overlapX = Math.max(0, Math.min(right, box.right) - Math.max(left, box.left));
+        const overlapY = Math.max(0, Math.min(bottom, box.bottom) - Math.max(top, box.top));
+        if (overlapX && overlapY) score += 1600 + overlapX * overlapY / 12;
+      }
+      const dx = Math.max(left - anchor.x, 0, anchor.x - right);
+      const dy = Math.max(top - anchor.y, 0, anchor.y - bottom);
+      score += Math.hypot(dx, dy) * .22;
+      return [{ ...candidate, left, top, score }];
+    });
+    if (!scored.length) {
+      const left = Math.max(pad, Math.min(rect.width - panelWidth - pad, centerLeft));
+      const belowTop = anchor.y + gap;
+      const fitsBelow = belowTop + panelHeight <= rect.height - pad;
+      const top = fitsBelow ? belowTop : anchor.y - gap - panelHeight;
+      explainer.dataset.position = fitsBelow ? "below" : "above";
+      explainer.style.left = `${Math.round(left)}px`;
+      explainer.style.top = `${Math.round(Math.max(pad, Math.min(rect.height - panelHeight - pad, top)))}px`;
+      return;
+    }
+    scored.sort((a, b) => a.score - b.score);
+    const current = scored.find(candidate => candidate.position === explainer.dataset.position);
+    const best = current && current.score <= scored[0].score + 180 ? current : scored[0];
+    explainer.dataset.position = best.position;
+    explainer.style.left = `${Math.round(best.left)}px`;
+    explainer.style.top = `${Math.round(best.top)}px`;
   }
 
   function drawDraggedTool(c, tool, point) {
