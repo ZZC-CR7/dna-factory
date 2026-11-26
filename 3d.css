@@ -69,3 +69,43 @@ button { touch-action: manipulation; }
   .d3-steps { bottom: 118px; gap: 5px; }
   .d3-steps button { padding: 5px 9px; font-size: 10px; }
 }
+
+/* 三维模型左侧固定展示五层内容，不增加新的模型操作 */
+:root { --d3-rail-space: 316px; --d3-center-offset: 158px; }
+#d3canvas { position: absolute; top: 0; left: var(--d3-rail-space); width: calc(100% - var(--d3-rail-space)); height: 100%; }
+.d3-layer-rail { position: absolute; z-index: 2; top: 70px; bottom: 16px; left: 14px; width: 284px; overflow-y: auto; padding: 17px 14px 13px; border: 1px solid rgba(127,201,213,.24); border-radius: 15px; background: linear-gradient(155deg, rgba(11,25,37,.88), rgba(7,16,26,.78)); box-shadow: 0 18px 44px rgba(0,0,0,.2); backdrop-filter: blur(12px); scrollbar-width: thin; scrollbar-color: rgba(127,201,213,.28) transparent; }
+.d3-layer-heading { padding: 0 3px 13px; border-bottom: 1px solid var(--line); }
+.d3-layer-heading h1 { margin: 7px 0 4px; color: #e1edf2; font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+.d3-layer-heading p { margin: 0; color: #9aadb9; font-size: 11px; line-height: 1.6; }
+.d3-layer-list { display: grid; gap: 7px; padding-top: 11px; }
+.d3-layer-item { display: grid; grid-template-columns: 29px minmax(0,1fr); align-items: start; gap: 9px; padding: 10px 8px; border: 1px solid rgba(177,200,216,.1); border-radius: 10px; background: rgba(255,255,255,.025); }
+.d3-layer-item > span { display: grid; place-items: center; width: 27px; height: 27px; border: 1px solid rgba(127,201,213,.28); border-radius: 50%; color: var(--cyan); font: 10px ui-monospace, SFMono-Regular, Consolas, monospace; }
+.d3-layer-item h2 { margin: 1px 0 4px; color: #d5e3e9; font-size: 12px; font-weight: 600; line-height: 1.45; }
+.d3-layer-item p { margin: 0; color: #9babb6; font-size: 10.5px; line-height: 1.65; }
+.d3-legend { left: calc(var(--d3-rail-space) + 14px); }
+.d3-hint, .d3-steps, .d3-repair { left: calc(50% + var(--d3-center-offset)); }
+.d3-info { left: calc(50% + var(--d3-center-offset)); width: min(560px, calc(100% - var(--d3-rail-space) - 28px)); }
+
+@media (max-width: 900px) and (min-width: 641px) {
+  :root { --d3-rail-space: 286px; --d3-center-offset: 143px; }
+  .d3-layer-rail { width: 254px; padding: 14px 11px; }
+  .d3-layer-item { gap: 7px; padding: 8px 6px; }
+  .d3-layer-item p { font-size: 10px; }
+}
+@media (max-width: 640px) {
+  :root { --d3-rail-space: 0px; --d3-center-offset: 0px; }
+  #d3canvas { top: 201px; left: 0; width: 100%; height: calc(100% - 201px); }
+  .d3-layer-rail { top: 59px; bottom: auto; left: 9px; right: 9px; width: auto; height: 132px; overflow: hidden; padding: 8px 9px; border-radius: 12px; }
+  .d3-layer-heading { display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: 0 9px; padding: 0 2px 7px; }
+  .d3-layer-heading .kicker { font-size: 8px; }
+  .d3-layer-heading h1 { margin: 0; font-size: 15px; }
+  .d3-layer-heading p { grid-column: 1 / -1; margin-top: 2px; font-size: 9px; }
+  .d3-layer-list { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(160px, 44vw); gap: 7px; overflow-x: auto; padding: 7px 1px 2px; scrollbar-width: thin; scrollbar-color: rgba(127,201,213,.28) transparent; }
+  .d3-layer-item { min-height: 78px; gap: 6px; padding: 7px 6px; }
+  .d3-layer-item > span { width: 22px; height: 22px; font-size: 8px; }
+  .d3-layer-item h2 { font-size: 10px; }
+  .d3-layer-item p { font-size: 9px; line-height: 1.5; }
+  .d3-legend { display: none; }
+  .d3-hint, .d3-steps, .d3-repair { left: 50%; }
+  .d3-info { left: 50%; width: calc(100% - 20px); }
+}

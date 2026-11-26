@@ -611,28 +611,47 @@
   /* ─────────────── 应用速览（17 卡片） ─────────────── */
   const CARDS = [
     { cat: "medical", badge: "已获批", bc: "b-ok", year: "2023–2024", org: "Vertex × CRISPR Therapeutics", title: "Casgevy", tags: ["体外编辑", "血液病"], text: "编辑患者造血干细胞、重新激活胎儿血红蛋白 HbF，治疗镰刀型细胞贫血与 β 地中海贫血——全球首款获批的 CRISPR 疗法。" },
-    { cat: "medical", badge: "临床 III 期", bc: "b-iii", year: "2025", org: "Intellia", title: "NTLA-2002", tags: ["体内编辑", "罕见病"], text: "脂质纳米颗粒把 Cas9 直接送入体内，敲低激肽释放酶，治疗遗传性血管性水肿；2025 年 1 月全球 III 期启动。" },
-    { cat: "medical", badge: "临床 III 期", bc: "b-iii", year: "2025", org: "Intellia", title: "nex-z", tags: ["体内编辑", "淀粉样变性"], text: "体内编辑 TTR 基因，治疗转甲状腺素蛋白淀粉样变性（ATTR），注册性 III 期研究推进中。" },
+    { cat: "medical", badge: "FDA 优先审评", bc: "b-iii", year: "2025–2027", org: "Intellia", title: "NTLA-2002", tags: ["体内编辑", "罕见病"], text: "脂质纳米颗粒将 CRISPR 系统送入肝细胞，敲低 KLKB1，治疗遗传性血管性水肿。III 期 HAELO 结果积极；FDA 已受理上市申请并授予优先审评，目标决策日期为 2027 年 3 月。" },
+    { cat: "medical", badge: "III 期入组完成", bc: "b-iii", year: "2026", org: "Intellia", title: "nex-z", tags: ["体内编辑", "淀粉样变性"], text: "一次性体内编辑肝脏 TTR，治疗遗传性 ATTR 多发性神经病。MAGNITUDE-2 于 2026 年 11 月完成入组，临床终点仍待评估。" },
     { cat: "medical", badge: "临床 I/II 期", bc: "b-ii", year: "2023–2024", org: "锐正基因", title: "ART001", tags: ["体内编辑", "国产突破"], text: "中国首个进入人体的体内基因编辑药物（治疗 ATTR），2024 年 8 月成为首个获美国 FDA 临床试验许可的中国同类产品。" },
-    { cat: "medical", badge: "临床 I/II 期", bc: "b-ii", year: "2024", org: "Beam Therapeutics", title: "BEAM-101", tags: ["碱基编辑", "血液病"], text: "碱基编辑器在造血干细胞中做 A→G 单碱基替换、激活 HbF 治疗镰刀型贫血；2024 年公布的全部 7 例患者 HbF 均升至 60% 以上。" },
-    { cat: "medical", badge: "临床 I 期", bc: "b-i", year: "2026", org: "Lilly", title: "VERVE-102", tags: ["碱基编辑", "心血管"], text: "一次性体内碱基编辑关闭肝脏 PCSK9：单次输注后 LDL-C 最多降低 62%、维持 18 个月，计划年内进入 II 期。" },
+    { cat: "medical", badge: "临床 I/II 期", bc: "b-ii", year: "2024–2026", org: "Beam Therapeutics", title: "BEAM-101", tags: ["碱基编辑", "血液病"], text: "BEACON 研究使用碱基编辑改造造血干细胞以提升胎儿血红蛋白。2026 年 NEJM 发表 31 例研究数据，后续监管申报仍在推进。" },
+    { cat: "medical", badge: "临床研究", bc: "b-i", year: "2025–", org: "Verve Therapeutics", title: "VERVE-102", tags: ["碱基编辑", "心血管"], text: "一次性体内碱基编辑关闭肝脏 PCSK9。Heart-2 早期数据中，最高剂量组平均 LDL-C 降幅为 53%，最大值为 69%；候选疗法仍处于临床研发阶段。" },
     { cat: "medical", badge: "临床 I/II 期", bc: "b-ii", year: "2025", org: "Prime Medicine", title: "PM359", tags: ["先导编辑", "免疫缺陷"], text: "先导编辑首次进入人体：单次输注修复慢性肉芽肿病的致病突变，首例患者 30 天内中性粒细胞功能恢复 66%。" },
-    { cat: "cell", badge: "前沿临床", bc: "b-new", year: "2024–2025", org: "西京医院 等", title: "基因编辑猪器官移植", tags: ["异种移植", "器官短缺"], text: "多基因编辑猪的肝、肾移植给人体：世界首例猪肝移植（Nature 2025 发表）、亚洲首例猪肾移植活人存活超 200 天。" },
-    { cat: "cell", badge: "前沿研究", bc: "b-new", year: "2025", org: "北大魏文胜团队 等", title: "通用型「现货」CAR-T", tags: ["细胞治疗", "癌症免疫"], text: "CRISPR 改造健康供体 T 细胞（糖盾护体策略），做出可量产、可即用的现货细胞药；早期临床中细胞在体内持续超过 6 个月。" },
+    { cat: "cell", badge: "前沿研究", bc: "b-new", year: "2025", org: "西京医院 等", title: "基因编辑猪器官移植", tags: ["异种移植", "器官短缺"], text: "Nature 报道了基因编辑猪肝在脑死亡受者中的移植研究；猪肾异种移植也已进入活体临床探索。疗效持续性、免疫排斥与感染风险仍需长期评估。" },
+    { cat: "cell", badge: "前沿研究", bc: "b-new", year: "2025", org: "北大魏文胜团队 等", title: "通用型「现货」CAR-T", tags: ["细胞治疗", "癌症免疫"], text: "CRISPR 筛选发现 SPPL3 基因敲除可形成“糖盾”，降低同种异体免疫攻击，为通用型 CAR-T 提供新策略；目前仍属于研究阶段。" },
     { cat: "protein", badge: "诺奖级平台", bc: "b-ok", year: "2024", org: "Baker / DeepMind", title: "AI 蛋白质设计", tags: ["蛋白质工程", "AI"], text: "2024 年诺贝尔化学奖：蛋白质设计 + AlphaFold2 结构预测——可设计全新酶、疫苗与蛋白药物。" },
-    { cat: "protein", badge: "已产业化", bc: "b-ok", year: "2010s–今", org: "产业界", title: "细胞工厂 · 合成生物学", tags: ["生物制造", "药物生产"], text: "CRISPR 改良酵母、大肠杆菌等微生物，量产胰岛素前体、抗体片段与青蒿素前体——工程菌成为「活的工厂」。" },
-    { cat: "protein", badge: "已产业化", bc: "b-ok", year: "2018 后", org: "产业界", title: "工业酶定向改造", tags: ["酶工程", "绿色制造"], text: "定向进化（2018 年诺奖）与 CRISPR 高通量筛选结合，改造洗涤剂、生物燃料与绿色化工所需的工业酶。" },
+    { cat: "protein", badge: "工程化应用", bc: "b-ok", year: "2010s–今", org: "合成生物学研究与产业界", title: "细胞工厂 · 合成生物学", tags: ["生物制造", "药物生产"], text: "合成生物学重构酵母代谢路径，使其发酵生产青蒿素前体；工程细胞工厂也用于制造多类化学品与药物原料。" },
+    { cat: "protein", badge: "工程化应用", bc: "b-ok", year: "2018 后", org: "产业界", title: "工业酶定向改造", tags: ["酶工程", "绿色制造"], text: "定向进化通过突变与筛选迭代优化酶功能，可用于药物、食品、洗涤剂和绿色化学；也可与高通量筛选结合改造生产菌株。" },
     { cat: "agri", badge: "获批推进", bc: "b-ok", year: "2024.12–", org: "农业农村部", title: "中国基因编辑作物", tags: ["粮食安全", "抗病优质"], text: "大豆、小麦、玉米、水稻等基因编辑作物陆续获得安全证书——不转入外源基因的精准育种进入快车道。" },
-    { cat: "agri", badge: "已上市", bc: "b-ok", year: "2019–2021", org: "美国 / 日本", title: "编辑食品走上餐桌", tags: ["食品", "营养"], text: "高油酸大豆（全球首款基因编辑食品）、GABA 番茄、增肌真鲷、抗褐变马铃薯——全球已有 70 余种基因编辑农产品。" },
+    { cat: "agri", badge: "已上市 / 已通报", bc: "b-ok", year: "2019–", org: "美国 / 日本", title: "编辑食品走上餐桌", tags: ["食品", "营养"], text: "美国 FDA 完成高油酸大豆的食品安全咨询；日本公布高 GABA 番茄等基因编辑食品通报信息。不同地区的监管路径和上市品种各有差异。" },
     { cat: "agri", badge: "已获批（美/加）", bc: "b-ok", year: "2025–2026", org: "Genus × PIC/首农", title: "抗蓝耳病猪", tags: ["动物育种", "疫病防控"], text: "编辑 CD163 基因使猪天然抵抗蓝耳病毒：2025 年美国 FDA 批准、2026 年加拿大批准，中国安全评价试验推进中。" },
-    { cat: "ethics", badge: "伦理边界", bc: "b-warn", year: "2021–", org: "中国刑法修正案（十一）", title: "生殖系编辑的红线", tags: ["法规", "生殖伦理"], text: "非法植入基因编辑、克隆胚胎已入刑；全球共识：临床禁止对人类胚胎做可遗传的基因编辑。" },
-    { cat: "ethics", badge: "争议前沿", bc: "b-warn", year: "研究中", org: "多国实验室", title: "基因驱动", tags: ["生态", "公共卫生"], text: "让编辑基因在种群中自我扩散，可压制蚊媒传播的疟疾；生态风险仍在评估，仅限严格封闭实验。" }
+    { cat: "ethics", badge: "伦理边界", bc: "b-warn", year: "2021–", org: "中国刑法修正案（十一）", title: "生殖系编辑的红线", tags: ["法规", "生殖伦理"], text: "中国刑法对非法植入基因编辑或克隆的人类胚胎规定了刑事责任；可遗传的人类基因组编辑涉及重大安全与伦理问题，需接受严格治理。" },
+    { cat: "ethics", badge: "争议前沿", bc: "b-warn", year: "研究中", org: "多国研究机构", title: "基因驱动", tags: ["生态", "公共卫生"], text: "基因驱动可使遗传元件在种群中超孟德尔传播，研究目标包括控制媒介蚊虫；潜在生态影响要求分阶段研究、风险评估与公众参与。" }
   ];
+  const CARD_SOURCES = {
+    "Casgevy": "https://www.fda.gov/vaccines-blood-biologics/casgevy",
+    "NTLA-2002": "https://ir.intelliatx.com/node/12886",
+    "nex-z": "https://ir.intelliatx.com/news-releases/news-release-details/intellia-therapeutics-completes-enrollment-phase-3-magnitude-2",
+    "ART001": "https://accuredit.com/46/64",
+    "BEAM-101": "https://investors.beamtx.com/news-releases/news-release-details/beam-therapeutics-announces-publication-beacon-phase-12-data",
+    "VERVE-102": "https://www.vervetx.com/our-programs/verve-102",
+    "PM359": "https://investors.primemedicine.com/news-releases/news-release-details/prime-medicine-announces-breakthrough-clinical-data-showing",
+    "基因编辑猪器官移植": "https://doi.org/10.1038/s41586-025-08799-1",
+    "通用型「现货」CAR-T": "https://pubmed.ncbi.nlm.nih.gov/40845838/",
+    "AI 蛋白质设计": "https://www.nobelprize.org/prizes/chemistry/2024/summary/",
+    "细胞工厂 · 合成生物学": "https://www.nature.com/articles/nature12051",
+    "工业酶定向改造": "https://www.nobelprize.org/prizes/chemistry/2018/arnold/biographical/",
+    "中国基因编辑作物": "https://www.agri.cn/sc/scdt/202501/t20250115_8706243.htm",
+    "编辑食品走上餐桌": "https://www.fda.gov/food/food-new-plant-varieties/programs-food-new-plant-varieties",
+    "抗蓝耳病猪": "https://www.canada.ca/en/health-canada/news/2026/01/canada-approves-pigs-resistant-to-porcine-reproductive-and-respiratory-syndrome-viruses-for-use-in-food-and-feed.html",
+    "生殖系编辑的红线": "https://www.loc.gov/item/global-legal-monitor/2021-02-26/china-multiple-areas-of-criminal-law-changing-under-new-amendment/",
+    "基因驱动": "https://www.nationalacademies.org/projects/DELS-BLS-15-06/publication/23405"
+  };
   let cardCat = "all";
   function renderCards() {
     const items = CARDS.filter(a => cardCat === "all" || a.cat === cardCat);
     $("#appsList").innerHTML = items.map(a =>
-      '<article class="app-card"><div class="app-head"><span class="app-badge ' + a.bc + '">' + a.badge + '</span><span class="app-year">' + a.year + '</span></div><h3>' + a.title + '</h3><p class="app-org">' + a.org + '</p><p class="app-text">' + a.text + '</p><div class="app-tags">' + a.tags.map(t => "<i>" + t + "</i>").join("") + '</div></article>'
+      '<a class="app-card" href="' + CARD_SOURCES[a.title] + '" target="_blank" rel="noopener noreferrer" aria-label="' + a.title + '，打开论文或官方资料"><div class="app-head"><span class="app-badge ' + a.bc + '">' + a.badge + '</span><span class="app-year">' + a.year + '</span></div><h3>' + a.title + '</h3><p class="app-org">' + a.org + '</p><p class="app-text">' + a.text + '</p><div class="app-tags">' + a.tags.map(t => "<i>" + t + "</i>").join("") + '</div><span class="app-source-link">查看论文 / 官方资料 <b>↗</b></span></a>'
     ).join("");
   }
   $("#appsTabs").addEventListener("click", (e) => {

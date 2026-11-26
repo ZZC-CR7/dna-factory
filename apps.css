@@ -74,8 +74,9 @@ button { font: inherit; touch-action: manipulation; }
 .apps-tabs button { flex: 0 0 auto; padding: 7px 14px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--muted); background: transparent; cursor: pointer; font-size: 11px; transition: .2s; }
 .apps-tabs button.active { color: #0b1520; background: var(--cyan); border-color: var(--cyan); font-weight: 600; }
 .apps-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; padding: 14px 0 8px; }
-.app-card { padding: 14px 16px 13px; border: 1px solid var(--line); border-radius: 13px; background: linear-gradient(150deg, rgba(21,35,48,.86), rgba(13,24,34,.72)); transition: .2s; }
-.app-card:hover { transform: translateY(-2px); border-color: rgba(127,201,213,.4); }
+.app-card { display: flex; flex-direction: column; padding: 14px 16px 13px; border: 1px solid var(--line); border-radius: 13px; color: inherit; text-decoration: none; background: linear-gradient(150deg, rgba(21,35,48,.86), rgba(13,24,34,.72)); transition: transform .2s, border-color .2s, background .2s; }
+.app-card:hover { transform: translateY(-2px); border-color: rgba(127,201,213,.5); background: linear-gradient(150deg, rgba(24,42,56,.96), rgba(13,27,38,.84)); }
+.app-card:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
 .app-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .app-badge { padding: 3px 8px; border-radius: 5px; font-size: 9px; letter-spacing: .06em; }
 .b-ok { color: #a9e3bd; background: rgba(145,208,174,.13); }
@@ -90,6 +91,8 @@ button { font: inherit; touch-action: manipulation; }
 .app-text { margin: 0; color: #94a9b5; font-size: 11.5px; line-height: 1.75; }
 .app-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
 .app-tags i { padding: 3px 8px; border: 1px solid var(--line); border-radius: 999px; color: #7d929f; font-size: 9px; font-style: normal; }
+.app-source-link { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; padding-top: 9px; border-top: 1px solid rgba(177,200,216,.1); color: #91cbd3; font-size: 10px; letter-spacing: .03em; }
+.app-source-link b { color: var(--amber); font-size: 13px; font-weight: 500; }
 
 /* ── 底部导航 ── */
 .bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; display: flex; padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0)); border-top: 1px solid var(--line); background: rgba(7,17,26,.92); backdrop-filter: blur(10px); }

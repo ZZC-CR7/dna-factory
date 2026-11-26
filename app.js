@@ -286,6 +286,7 @@
     $("#zoomBadge").hidden = state.layer !== 1;
     $("#cameraLabel").hidden = true;
     $("#motionProgress").hidden = true;
+    $("#liveExplainer").hidden = true;
     $("#calloutText").textContent = d.note;
     $("#actionNote").querySelector("span:last-child").textContent = d.note;
     const legends = {
@@ -330,6 +331,7 @@
     state.cameraTarget = { x: 500, y: 280, zoom: state.layer === 1 ? 1.2 : 1 };
     $("#cameraLabel").hidden = true;
     $("#motionProgress").hidden = true;
+    $("#liveExplainer").hidden = true;
     state.selectedPart = null;
     if (state.layer === 1) { $("#instructionTool").textContent = "解旋酶"; }
     if (state.layer === 2) { $("#instructionTool").textContent = "Cas9 · sgRNA"; }
@@ -405,6 +407,16 @@
     transport: { title: "内质网—高尔基体—细胞膜连续运输", caption: "蛋白依次经内质网加工、高尔基体糖基化与分拣，由囊泡运至细胞膜；SNARE 介导膜融合，经胞吐释放。", focus: [670, 285, 1.55], duration: 9200 }
   };
 
+  const stepToolNames = {
+    fork: "解旋酶", copy: "DNA 聚合酶", seal: "DNA 连接酶",
+    bind: "Cas9 · 向导 RNA", cut: "Cas9 · 向导 RNA", nhej: "NHEJ 修复通路", hdr: "供体 DNA · HDR 修复",
+    activate: "dCas9 · VP64", repress: "dCas9 · KRAB", mark: "dCas9 · 荧光标记",
+    baseEdit: "碱基编辑器 · ABE", primeEdit: "先导编辑器 · PE",
+    transcribe: "RNA 聚合酶", splice: "剪接体", export: "核孔复合体",
+    assemble: "核糖体", translate: "tRNA · 核糖体", fold: "分子伴侣",
+    exportMessage: "核孔复合体", targetER: "信号肽 · 粗面内质网", transport: "运输囊泡 · 高尔基体"
+  };
+
   function sequenceForLayer(layer) {
     return ({ 1: ["fork", "copy", "seal"], 2: ["bind", "cut", "nhej"], 3: ["transcribe", "splice", "export"], 4: ["assemble", "translate", "fold"], 5: ["exportMessage", "targetER", "transport"] })[layer] || [];
   }
@@ -416,6 +428,9 @@
     state.cameraTarget = { x: spec.focus[0], y: spec.focus[1], zoom: spec.focus[2] };
     $("#cameraLabelText").textContent = spec.title;
     $("#cameraLabel").hidden = false;
+    $("#liveExplainTool").textContent = `当前道具 · ${stepToolNames[key] || "分子工具"}`;
+    $("#liveExplainText").textContent = spec.caption;
+    $("#liveExplainer").hidden = false;
     $("#calloutText").textContent = spec.caption;
     $("#motionLabel").textContent = spec.title;
     $("#motionProgress").hidden = false;
