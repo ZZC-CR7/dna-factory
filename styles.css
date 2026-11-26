@@ -490,21 +490,22 @@ body.in-lab .home-screen { display: none; }
 .frontier-item i { font-size: 9px; }
 
 /* 与分子视野同屏的同步聊天式步骤解说 */
-.live-explainer { position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr); grid-template-rows: auto auto auto; align-items: start; gap: 6px 10px; width: 100%; margin-top: 10px; padding: 8px 0; color: #e4edf2; }
+.live-explainer { position: absolute; z-index: 5; display: grid; grid-template-columns: 34px minmax(0, 1fr); grid-template-rows: auto auto auto; align-items: start; gap: 5px 8px; width: min(320px, 42%); margin: 0; padding: 10px; border: 1px solid rgba(127,201,213,.34); border-radius: 12px; color: #e4edf2; background: rgba(7,17,27,.94); box-shadow: 0 12px 34px rgba(0,0,0,.3); backdrop-filter: blur(12px); pointer-events: none; }
 .live-explainer[hidden] { display: none; }
-.live-explainer-avatar { grid-column: 1; grid-row: 1 / span 3; width: 34px; height: 34px; margin-top: 2px; display: grid; place-items: center; border: 1px solid rgba(127,201,213,.38); border-radius: 50%; color: #a9e0e5; background: radial-gradient(circle at 35% 30%, rgba(127,201,213,.3), rgba(17,39,52,.95) 72%); box-shadow: 0 0 18px rgba(127,201,213,.12); font: 600 8px ui-monospace, Consolas, monospace; letter-spacing: .04em; }
+.live-explainer::before { position: absolute; top: 50%; left: -8px; content: ""; border: 8px solid transparent; border-left: 0; border-right-color: rgba(7,17,27,.96); transform: translateY(-50%); }
+.live-explainer[data-side="left"]::before { right: -8px; left: auto; border: 8px solid transparent; border-right: 0; border-left-color: rgba(7,17,27,.96); }
+.live-explainer-avatar { grid-column: 1; grid-row: 1 / span 3; width: 32px; height: 32px; margin-top: 2px; display: grid; place-items: center; border: 1px solid rgba(127,201,213,.38); border-radius: 50%; color: #a9e0e5; background: radial-gradient(circle at 35% 30%, rgba(127,201,213,.3), rgba(17,39,52,.95) 72%); box-shadow: 0 0 18px rgba(127,201,213,.12); font: 600 8px ui-monospace, Consolas, monospace; letter-spacing: .04em; }
 .live-explainer-head { grid-column: 2; grid-row: 1; display: flex; align-items: center; justify-content: flex-start; gap: 10px; color: #d2dfe5; font-size: 14px; letter-spacing: .04em; }
 .live-explainer-head > span { font-weight: 600; }
 .live-explainer-head i { display: inline-flex; align-items: center; gap: 5px; color: #abc2c1; font-size: 11px; font-style: normal; }
 .live-explainer-head i b { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px rgba(145,208,174,.65); }
 .live-explainer-action { grid-column: 2; grid-row: 2; display: table; max-width: 100%; margin: 0; padding: 4px 9px; border: 1px solid rgba(127,201,213,.22); border-radius: 999px; color: #a9e0e5; background: rgba(127,201,213,.09); font-size: 12px; line-height: 1.4; }
-.live-explainer-message { position: relative; grid-column: 2; grid-row: 3; margin: 0; padding: 11px 15px; border: 1px solid rgba(127,201,213,.2); border-radius: 5px 14px 14px 14px; color: #f0f5f7; background: linear-gradient(110deg, rgba(27,48,62,.96), rgba(22,40,53,.94)); box-shadow: 0 7px 20px rgba(0,0,0,.14); font-size: 16px; line-height: 1.65; }
-.live-explainer-message::before { position: absolute; top: 10px; left: -6px; width: 10px; height: 10px; content: ""; border-left: 1px solid rgba(127,201,213,.2); border-bottom: 1px solid rgba(127,201,213,.2); background: #1b3040; transform: rotate(45deg); }
+.live-explainer-message { grid-column: 2; grid-row: 3; margin: 0; padding: 9px 11px; border: 1px solid rgba(127,201,213,.2); border-radius: 5px 12px 12px 12px; color: #f0f5f7; background: linear-gradient(110deg, rgba(27,48,62,.96), rgba(22,40,53,.94)); font-size: 15px; line-height: 1.55; }
 .live-explainer.is-updating .live-explainer-message { animation: explainerMessageIn .24s ease-out; }
 @keyframes explainerMessageIn { from { opacity: .35; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (max-width: 1120px) {
-  .live-explainer { gap: 6px 9px; }
+  .live-explainer { width: min(300px, 44%); gap: 5px 7px; }
 }
 @media (max-width: 760px) {
   .module-intro h1 { font-size: 23px; }
@@ -516,9 +517,12 @@ body.in-lab .home-screen { display: none; }
   .stage-heading h2 { font-size: 22px; }
   .stage-legend span { font-size: 8px; }
   .canvas-instruction { font-size: 12px; }
-  .live-explainer { grid-template-columns: 34px minmax(0,1fr); gap: 6px 8px; }
-  .live-explainer-avatar { width: 30px; height: 30px; font-size: 7px; }
-  .live-explainer-message { font-size: 15px; }
+  .live-explainer { width: min(260px, 42%); grid-template-columns: 28px minmax(0,1fr); gap: 5px 6px; padding: 8px; }
+  .live-explainer-avatar { width: 26px; height: 26px; font-size: 7px; }
+  .live-explainer-head { font-size: 12px; gap: 6px; }
+  .live-explainer-head i { font-size: 9px; }
+  .live-explainer-action { font-size: 10px; }
+  .live-explainer-message { padding: 7px 8px; font-size: 13px; }
   .info-card p { font-size: 14px; }
   .meaning-note { font-size: 14px; }
   .action-note { font-size: 13px; }

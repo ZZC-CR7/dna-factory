@@ -287,6 +287,7 @@
     $("#cameraLabel").hidden = true;
     $("#motionProgress").hidden = true;
     $("#liveExplainer").hidden = true;
+    state.liveExplainKey = null;
     $("#actionNote").querySelector("span:last-child").textContent = d.note;
     const legends = {
       1: [["legend-dna", "亲代 DNA"], ["legend-guide", "新生链"], ["legend-pam", "复制叉"]],
@@ -331,6 +332,7 @@
     $("#cameraLabel").hidden = true;
     $("#motionProgress").hidden = true;
     $("#liveExplainer").hidden = true;
+    state.liveExplainKey = null;
     state.selectedPart = null;
     if (state.layer === 1) { $("#instructionTool").textContent = "解旋酶"; }
     if (state.layer === 2) { $("#instructionTool").textContent = "Cas9 · sgRNA"; }
@@ -422,6 +424,7 @@
 
   function beginStep(key, now) {
     const spec = stepSpecs[key], p = state.parts;
+    state.liveExplainKey = key;
     AudioFX.step();
     state.motion = { keys: state.motion.keys, index: state.motion.index, full: state.motion.full, stepStart: now, key };
     state.cameraTarget = { x: spec.focus[0], y: spec.focus[1], zoom: spec.focus[2] };
@@ -431,6 +434,7 @@
     $("#liveExplainText").textContent = spec.caption;
     const explainer = $("#liveExplainer");
     explainer.hidden = false;
+    explainer.dataset.side = "right";
     explainer.classList.remove("is-updating");
     void explainer.offsetWidth;
     explainer.classList.add("is-updating");
@@ -1442,6 +1446,7 @@
     state.camera.y += (state.cameraTarget.y - state.camera.y) * .09;
     state.camera.zoom += (state.cameraTarget.zoom - state.camera.zoom) * .09;
     state.zoom = state.camera.zoom;
+    positionLiveExplainer();
     state.uncoil += (1 - state.uncoil) * .045;
     ctx.save();
     ctx.translate(W/2, H/2); ctx.scale(state.camera.zoom, state.camera.zoom); ctx.translate(-state.camera.x, -state.camera.y);
@@ -1464,6 +1469,31 @@
     $("#cameraLabel").hidden = !state.motion;
     $("#canvasInstruction").hidden = !!state.motion;
     if (state.dragging?.over) drawDraggedTool(ctx, state.dragging.tool, state.dragging.point);
+  }
+
+  function positionLiveExplainer() {
+    const explainer = $("#liveExplainer");
+    const key = state.motion?.key || state.liveExplainKey;
+    if (explainer.hidden || !key) return;
+    const spec = stepSpecs[key];
+    if (!spec) return;
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const [focusX, focusY] = spec.focus;
+    const anchorX = (W / 2 + (focusX - state.camera.x) * state.camera.zoom) * rect.width / W;
+    const anchorY = (H / 2 + (focusY - state.camera.y) * state.camera.zoom) * rect.height / H;
+    const panelWidth = explainer.offsetWidth;
+    const panelHeight = explainer.offsetHeight;
+    const gap = 18;
+    const pad = 8;
+    const rightRoom = rect.width - pad - anchorX - gap;
+    const leftRoom = anchorX - gap - pad;
+    const side = rightRoom >= panelWidth || rightRoom >= leftRoom ? "right" : "left";
+    const left = side === "right" ? anchorX + gap : anchorX - gap - panelWidth;
+    const top = anchorY - panelHeight / 2;
+    explainer.dataset.side = side;
+    explainer.style.left = `${Math.round(Math.max(pad, Math.min(rect.width - panelWidth - pad, left)))}px`;
+    explainer.style.top = `${Math.round(Math.max(pad, Math.min(rect.height - panelHeight - pad, top)))}px`;
   }
 
   function drawDraggedTool(c, tool, point) {
