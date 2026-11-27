@@ -6,11 +6,13 @@
   <meta name="theme-color" content="#0b1822">
   <title>AI 蛋白质工厂 · 互动分子实验室</title>
   <meta name="description" content="在三维教学车间定制一批荧光示踪蛋白，操作设计、生产、分离、质检与交付工位。">
-  <link rel="stylesheet" href="apps.css?v=plant-1">
+  <link rel="stylesheet" href="apps.css?v=process-2">
+  <link rel="stylesheet" href="factory-guide.css?v=process-2">
   <script defer src="three.min.js"></script>
-  <script defer src="factory-machines.js"></script>
-  <script defer src="factory-view.js"></script>
-  <script defer src="apps.js?v=plant-1"></script>
+  <script defer src="factory-machines.js?v=process-2"></script>
+  <script defer src="factory-view.js?v=process-2"></script>
+  <script defer src="factory-guide.js?v=process-2"></script>
+  <script defer src="apps.js?v=process-2"></script>
 </head>
 <body>
   <a class="skip-link" href="#stationTitle">跳至工位操作</a>
@@ -48,6 +50,12 @@
         </div>
         <div class="viewport-wrap">
           <div id="factoryView" aria-label="蛋白质工厂互动视野"></div>
+        </div>
+        <div id="processGuide"></div>
+        <div class="inspection-tools">
+          <label for="inspectRange" id="inspectLabel">拖动预览本机工序</label>
+          <input id="inspectRange" type="range" min="0" max="100" value="0" aria-labelledby="inspectLabel">
+          <button type="button" id="pauseProcess" hidden>暂停观察</button>
         </div>
         <div class="view-help">选择工位查看设备 <span aria-hidden="true">·</span> 拖动旋转 <span aria-hidden="true">·</span> 滚轮或双指缩放</div>
         <nav id="stationNav" aria-label="选择产线工位"></nav>

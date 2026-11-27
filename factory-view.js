@@ -10,6 +10,81 @@
   ];
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
+  // 观察点用设备底座的局部坐标登记，镜头转动时引线仍指向同一部件。
+  const observationPoints = [
+    [
+      ["候选结构", .83, 2.45, .12],
+      ["模型比较屏", -.73, 2.42, -.37],
+      ["工单签发", -.68, 1.64, .37]
+    ], [
+      ["物料入口", -1.20, 2.55, .40],
+      ["搅拌叶", -.26, 1.81, .15],
+      ["罐内目标蛋白", -.15, 1.94, .35],
+      ["出料口", 1.47, 1.06, .72]
+    ], [
+      ["进样口", -.42, 2.79, .03],
+      ["柱内组分带", .24, 2.12, .15],
+      ["目标收集杯", -.25, .90, .98],
+      ["送检样品", 1.45, 1.58, .79]
+    ], [
+      ["参比光路", -.34, 1.97, -.12],
+      ["样品池", 0, 1.85, -.1],
+      ["荧光接收窗", .38, 2.32, -.57],
+      ["读数屏", .75, 2.70, -.56]
+    ], [
+      ["空瓶定位", -1.32, 1.75, 0],
+      ["分装头", -.02, 2.20, .03],
+      ["封装样品", 1.32, 1.85, 0]
+    ]
+  ];
+
+  function createObservationMarker(layer) {
+    const marker = document.createElement("div");
+    marker.setAttribute("aria-hidden", "true");
+    Object.assign(marker.style, { position:"absolute", inset:"0", pointerEvents:"none", visibility:"hidden" });
+    const tag = document.createElement("span");
+    const line = document.createElement("i");
+    const ring = document.createElement("i");
+    const positioned = { position:"absolute", top:"0", left:"0" };
+    Object.assign(tag.style, positioned, {
+      padding:"4px 8px", color:"#fff", background:"rgba(14,30,39,.95)",
+      border:"1px solid #eef6f8", borderRadius:"4px", font:"600 13px/19px system-ui,sans-serif",
+      whiteSpace:"nowrap", boxShadow:"0 1px 4px #16232e80"
+    });
+    Object.assign(line.style, positioned, {
+      height:"1.5px", background:"#fff", transformOrigin:"0 50%", boxShadow:"0 1px 2px #10222d"
+    });
+    Object.assign(ring.style, positioned, {
+      width:"10px", height:"10px", border:"2px solid white", borderRadius:"50%",
+      boxSizing:"border-box", boxShadow:"0 0 0 1px #263e48, inset 0 0 0 1px #263e48"
+    });
+    marker.append(line, ring, tag);
+    layer.append(marker);
+    let previous = null, cardWidth = 0, cardHeight = 0, side = 1;
+    function place(observation, x, y, width, height) {
+      if (observation !== previous) {
+        previous = observation;
+        tag.textContent = observation[0];
+        cardWidth = tag.offsetWidth;
+        cardHeight = tag.offsetHeight;
+        side = x < width / 2 ? -1 : 1;
+        if (side < 0 && x < cardWidth + 39) side = 1;
+        else if (side > 0 && width - x < cardWidth + 39) side = -1;
+      }
+      const gap = Math.min(85, width * .092);
+      const left = clamp(side < 0 ? x - gap - cardWidth : x + gap, 5, width - 5 - cardWidth);
+      const top = clamp(y - 36 - cardHeight, 6, height - cardHeight - 6);
+      const dx = clamp(x, left, left + cardWidth) - x;
+      const dy = clamp(y, top, top + cardHeight) - y;
+      line.style.width = Math.hypot(dx, dy) + "px";
+      line.style.transform = "translate(" + x + "px," + y + "px) rotate(" + Math.atan2(dy, dx) + "rad)";
+      tag.style.transform = "translate(" + Math.round(left) + "px," + Math.round(top) + "px)";
+      ring.style.transform = "translate(" + (x-5) + "px," + (y-5) + "px)";
+      marker.style.visibility = "visible";
+    }
+    return { place, hide() { marker.style.visibility = "hidden"; previous = null; } };
+  }
+
   // 材质共用一张车间环境光贴图，抛光机身可以映出明亮的灯带。
   function lightingEnvironment(T, renderer) {
     const tile = document.createElement("canvas");
@@ -214,7 +289,7 @@
     }
     const edgeG=new T.BufferGeometry();
     edgeG.setAttribute("position",new T.Float32BufferAttribute(corners,3));
-    const focus=new T.LineSegments(edgeG,new T.LineBasicMaterial({color:0x9ff9ed}));
+    const focus=new T.LineSegments(edgeG,new T.LineBasicMaterial({color:0xf2f8fc}));
     scene.add(focus);focus.visible=false;
     // r128 接收线性材质颜色，车间与设备的配色表以屏幕 sRGB 编写。
     const palette = new Set();
@@ -242,7 +317,9 @@
       const backRow = i > 0 && i < 4;
       return {btn,world:new T.Vector3(b.x,backRow ? 3.95 : .23,b.z+(backRow ? 0 : 1.66)),w:0,h:0};
     });
+    const observationMarker = createObservationMarker(layer);
     let width=0,height=0,selected=-1,stage=-1,progress=0,variant="cyan",model="bright",returnToSeparator=false,frame=0,last=0,disposed=false;
+    let separator = "fast", transfer = true;
     const automatic=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const center=new T.Vector3(0,.7,0), aim=center.clone();
     let yaw=-.19,pitch=.65,distance=28,goalYaw=yaw,goalPitch=pitch,goalDist=distance;
@@ -281,12 +358,12 @@
       }
     }
     const observer=new ResizeObserver(resize);observer.observe(host);resize();
-    function positionLabels() {
+    function positionLabels(markProcess) {
       const placed=[];
       const ox=Math.max(5,Math.min(12,width*.02));
       for(const [i,item] of labels.entries()){
         const el=item.btn;
-        if(selected!==-1&&i!==selected){el.style.visibility="hidden";continue;}
+        if(markProcess || (selected!==-1&&i!==selected)){el.style.visibility="hidden";continue;}
         world.copy(item.world).project(camera);
         if(world.z>1||world.z< -1||Math.abs(world.x)>1.01||Math.abs(world.y)>1.02){el.style.visibility="hidden";continue;}
         const w=item.w,h=item.h, anchorX=(world.x+1)*width/2,anchorY=(-world.y+1)*height/2;
@@ -336,10 +413,28 @@
     canvas.addEventListener("pointerdown",down);canvas.addEventListener("pointermove",move);
     canvas.addEventListener("pointerup",end);canvas.addEventListener("pointercancel",end);
     canvas.addEventListener("wheel",wheel,{passive:false});
-    function setProcess(index,fraction,color,candidate,returnBatch=false){
+    function setProcess(index,fraction,color,candidate,returnBatch=false,separationPath="fast",transferPhase=true){
       stage=Number.isInteger(index)&&bays[index]?index:-1;
       progress=clamp(Number(fraction)||0,0,1);variant=color==="amber"?"amber":"cyan";
       model=candidate==="clean"?"clean":"bright";returnToSeparator=returnBatch;
+      separator = separationPath;
+      transfer = transferPhase;
+    }
+    function updateObservation() {
+      if (selected < 0 || selected !== stage || progress <= 0 || typeof transfer === "number") {
+        observationMarker.hide();
+        return false;
+      }
+      const targets = observationPoints[stage];
+      const target = targets[Math.min(targets.length - 1, Math.floor(progress * targets.length))];
+      const station = machines.stations[stage];
+      world.set(target[1], target[2], target[3]).add(station.position).project(camera);
+      if (world.z < -1 || world.z > 1 || Math.abs(world.x) > .98 || Math.abs(world.y) > .98) {
+        observationMarker.hide();
+        return false;
+      }
+      observationMarker.place(target, (world.x + 1)*width/2, (1-world.y)*height/2, width, height);
+      return true;
     }
     function draw(now){
       if(disposed)return;
@@ -355,15 +450,17 @@
       const focusIndex=selected>=0?selected:stage;
       focus.visible=focusIndex>=0;
       if(focus.visible)focus.position.set(bays[focusIndex].x,.211,bays[focusIndex].z);
-      const travel=stage>=0&&stage<4?clamp((progress-.62)/.38,0,1):0;
-      dot.visible=travel>0&&travel<1;
+      const exitPhase = stage === 0 ? 2/3 : .75;
+      const travel = typeof transfer === "number" ? clamp(transfer, 0, 1)
+        : transfer ? clamp((progress-exitPhase)/(1-exitPhase),0,1) : 0;
+      dot.visible=stage>=0&&stage<4&&travel>0&&travel<1;
       if(dot.visible){
         const reverse = stage === 3 && returnToSeparator;
         routes[reverse ? 2 : stage].getPoint(reverse ? 1-travel : travel,dot.position);dot.position.y+=.11;
-        traceMaterial.color.setHex(stage===0?0x95e9ff:variant==="amber"?0xffbb59:0x8dffe1);
+        traceMaterial.color.setHex(stage===0?0xd4eaff:variant==="amber"?0xffbb59:0x75e6d8).convertSRGBToLinear();
       }
-      machines.update(stage,progress,now/1000,variant,model);
-      positionLabels();renderer.render(scene,camera);
+      machines.update(stage,progress,progress * 10,variant,model,separator);
+      positionLabels(updateObservation());renderer.render(scene,camera);
     }
     frame=requestAnimationFrame(draw);
     function dispose(){

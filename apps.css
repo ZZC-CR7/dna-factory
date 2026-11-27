@@ -74,6 +74,11 @@ button:disabled { cursor: default; }
 #factoryView canvas { display: block; }
 .view-help { padding: 8px clamp(13px, 1.5vw, 23px); border-top: 1px solid #293e48; color: #b1c1c5; font-size: 13px; line-height: 1.45; background: #10202a; }
 .view-help span { color: #607b85; margin-inline: 5px; }
+.inspection-tools { display:flex; align-items:center; flex-wrap:wrap; gap:8px 15px; padding:8px clamp(12px,2vw,24px); background:#132730; }
+.inspection-tools label { color:#cfdddf; font-size:14px; }
+.inspection-tools input { flex:1; min-width:70px; accent-color:var(--mint); cursor:pointer; }
+.inspection-tools input:disabled { cursor:default; }
+.inspection-tools button { border:1px solid #5e837f; border-radius:5px; background:#1c393f; color:#d6fff3; padding:5px 12px; font-size:14px; }
 #stationNav { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: stretch; gap: 1px; border-top: 1px solid var(--line); background: var(--line); }
 #stationNav button {
   display: flex; flex-wrap: wrap; gap: 4px 7px; align-content: center; justify-content: center; align-items: baseline;

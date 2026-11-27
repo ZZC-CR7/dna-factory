@@ -4,11 +4,11 @@
   const byId = id => document.getElementById(id);
   const stationNames = ["AI 设计", "细胞生产", "分离纯化", "光学质检", "包装交付"];
   const stations = [
-    ["定制示踪蛋白", "展陈实验室需要一批荧光示踪样品。指定观察通道，再从两种预设的 AI 候选方案中选一个投产。", "确认设计并投产", 2500],
-    ["反应器内的细胞生产", "生产订单送入反应器。观察罐体里的细胞如何积累目标蛋白，再将含有目标蛋白与杂质的混合物交给下一站。", "启动生产批次", 4600],
-    ["从混合物中分离目标蛋白", "选择分离方式。快速分离节省工位时间，精细分离能移除更多杂质。处理后的样品将送往质检台。", "执行分离", 3400],
-    ["判读样品并决定去向", "对照订单核对颜色和纯度。合格批次可以放行，未达标的样品需要返回分离工位。", "提交质检决定", 2300],
-    ["贴签、封装与交付", "包装线为通过质检的样品贴上批号和颜色标签。完成交付后可查看这批样品的设计选择、分离记录和检验结果。", "封装并交付", 3200]
+    ["定制示踪蛋白", "为展陈实验室选定荧光通道，对比两个预设候选模型，再签发生产工单。", "确认设计并投产", 7200],
+    ["反应器内的细胞生产", "透过罐壁观察细胞、桨叶和目标蛋白。留意物料送出时，目标组分仍与杂质混在一起。", "启动生产批次", 12000],
+    ["从混合物中分离目标蛋白", "跟随两种带形标记穿过分离柱，比较它们进入哪一个收集容器。", "执行分离", 11200],
+    ["判读样品并决定去向", "先观察参比和样品的光学响应，再将通道结果与独立的模拟纯度记录一起对照订单。", "启动光学检测", 12000],
+    ["贴签、封装与交付", "跟随同一只样品瓶，观察它怎样就位、分装和封口，再查看本批次记录。", "封装并交付", 7200]
   ];
   const variants = {
     cyan: { name: "青色荧光", channel: "青色通道", code: "C" },
@@ -23,15 +23,23 @@
   const status = byId("statusText");
   const report = byId("resultPanel");
   const demo = byId("demoButton");
+  const guide = window.createProcessGuide(byId("processGuide"), previewAt);
+  const range = byId("inspectRange");
+  const pauseButton = byId("pauseProcess");
   let batchCount = 0;
   let batch, view, runner = 0, demoTimer = 0, automatic = false;
   let active = 0, inspected = 0, progress = 0, running = false, wide = true;
+  let paused = false, transferring = false, previewFraction = null;
+  let duration = 0, startedAt = 0;
 
   function freshBatch() {
     return { id: "PF-" + String(++batchCount).padStart(3, "0"), variant: "cyan", model: "bright",
-      separator: "fast", verdict: null, purity: null, separations: [], inspections: [] };
+      separator: "fast", verdict: null, purity: null, measured: false, separations: [], inspections: [] };
   }
-  function text(id, value) { byId(id).textContent = value; }
+  function text(id, value) {
+    const node = byId(id);
+    if (node.textContent !== value) node.textContent = value;
+  }
   function option(field, value, name, hint) {
     return '<button type="button" class="choice" data-field="' + field + '" data-value="' + value +
       '" aria-pressed="' + (batch[field] === value) + '"' + (running ? " disabled" : "") +
@@ -50,19 +58,45 @@
     if (i === 0) return group("订单颜色", option("variant","cyan","青色","观察青色通道") + option("variant","amber","琥珀色","观察琥珀色通道")) +
       group("预设候选模型", option("model","bright","高亮型","信号较强，背景较高") + option("model","clean","低背景型","信号适中，背景较低"));
     if (i === 1) return readout("投产订单", batchTag()) + readout("候选模型", models[batch.model]) +
-      '<p class="control-note">对应原理演示的转录、翻译与折叠。罐体颜色用来追踪本批物料。</p>';
+      '<p class="control-note">对应原理演示中的转录、翻译和折叠。</p>';
     if (i === 2) return group("分离路径", option("separator","fast","快速分离","较短流程") + option("separator","fine","精细分离","增加分离时间")) +
       readout("订单验收标准", "示意纯度 ≥ 90%") + (batch.inspections.length ? readout("上次检测", batch.purity + "% · 已退回") : "");
-    if (i === 3) return readout("光学通道", variants[batch.variant].channel + "匹配") +
-      readout("样品纯度 / 订单要求", batch.purity + "% / ≥ 90%") +
+    if (i === 3 && !batch.measured) return readout("订单通道", variants[batch.variant].channel) +
+      readout("待核对项目", "样品荧光 · 模拟纯度") + readout("订单纯度要求", "≥ 90%");
+    if (i === 3) return readout("样品荧光", variants[batch.variant].channel + "匹配") +
+      readout("独立模拟纯度 / 订单要求", batch.purity + "% / ≥ 90%") +
       group("质检决定", option("verdict","release","放行","送往包装线") + option("verdict","rework","退回","返回分离工位"));
     return readout("待封装样品", batchTag()) + readout("质检放行", batch.purity + "% · 通道匹配");
   }
   function refreshMeter(value) {
-    const fraction = active === 5 ? 1 : (active + value) / stations.length;
+    const work = active === 3 ? (batch.measured ? .8 + (transferring ? .2 * value : 0) : value * .8) : value;
+    const fraction = active === 5 ? 1 : (active + work) / stations.length;
     byId("progressFill").style.width = (100 * fraction) + "%";
-    const label = active === 5 ? "5 / 5 · 已交付" : (active + 1) + " / 5 · " + (running ? Math.round(100 * value) + "%" : "待操作");
+    const label = active === 5 ? "5 / 5 · 已交付" : (active + 1) + " / 5 · " + (paused ? "已暂停" : running ? Math.round(100 * work) + "%" : active === 3 && batch.measured ? "待判读" : "待操作");
     if (byId("progressLabel").textContent !== label) text("progressLabel", label);
+  }
+  function machineProgress() {
+    return active === 3 && batch.measured ? 1 : progress;
+  }
+  function showProcess() {
+    const previewing = previewFraction !== null;
+    const onBatch = inspected === active;
+    const viewedProgress = previewing ? previewFraction : onBatch ? machineProgress() : inspected < active ? 1 : 0;
+    const phase = previewing ? "preview" : onBatch && batch.measured && active === 3 ? "measured" :
+      onBatch && running ? "run" : inspected < active ? "done" : "idle";
+    guide.update({station:inspected, progress:viewedProgress, running:running && onBatch, paused, seekable:!running, variant:batch.variant,
+      model:batch.model, separator:batch.separator, phase, purity:batch.purity});
+    const percent = String(Math.round(100 * viewedProgress));
+    if (range.value !== percent) range.value = percent;
+    range.disabled = running;
+    pauseButton.hidden = !running;
+    text("pauseProcess", paused ? "继续运行" : "暂停观察");
+    text("inspectLabel", running ? "设备工序进度" : previewing ? "单机预览 · 拖动查看" : "拖动预览本机工序");
+  }
+  function syncView() {
+    const returnBatch = transferring && batch.verdict === "rework";
+    const transfer = active === 3 ? (transferring ? progress : false) : running;
+    view.setProcess(Math.min(active,4), machineProgress(), batch.variant, batch.model, returnBatch, batch.separator, transfer);
   }
   function syncNav() {
     Array.from(nav.children).forEach((button, i) => {
@@ -83,11 +117,15 @@
       readout("本批进度", active === 5 ? "已交付" : stationNames[active]);
     action.disabled = running;
     action.textContent = active === 5 ? "查看批次交付记录" : running ? "设备运行中…" : atStation ? stations[active][2] : "返回当前生产工位";
+    if (atStation && active === 3 && batch.measured && !running) action.textContent = "提交质检决定";
     demo.textContent = automatic ? "接管演示" : "自动演示";
     demo.setAttribute("aria-pressed", String(automatic));
     refreshMeter(progress);
+    showProcess();
   }
   function focusStation(i) {
+    previewFraction = null;
+    syncView();
     inspected = i;
     wide = false;
     view.setStation(i);
@@ -131,15 +169,16 @@
   try { view = window.createFactoryView(host, visit); }
   catch (error) { console.warn("3D 视野不可用", error); view = useMap(); }
   function setHome() {
+    previewFraction = null;
+    syncView();
     wide = true; inspected = Math.min(4, active);
     view.overview(); paintControls();
   }
   function reset() {
     stopDemo();
     cancelAnimationFrame(runner);
-    batch = freshBatch(); active = 0; progress = 0; running = false;
+    batch = freshBatch(); active = 0; progress = 0; running = false; paused = false; transferring = false;
     report.hidden = true; report.replaceChildren();
-    view.setProcess(0, 0, batch.variant, batch.model);
     setHome();
     status.textContent = "请选择订单颜色与候选模型。";
   }
@@ -158,12 +197,23 @@
     running = false;
     const prev = active;
     if (active === 2) {
-      batch.purity = score[batch.model][batch.separator];
+      batch.measured = false;
+      batch.purity = null;
       batch.separations.push(separatorNames[batch.separator]);
       batch.verdict = null;
     }
+    if (active === 3 && !transferring) {
+      batch.measured = true;
+      batch.purity = score[batch.model][batch.separator];
+      syncView();
+      focusStation(3);
+      status.textContent = "检测记录已生成。请对照订单要求，决定放行还是退回。";
+      if (automatic) scheduleDemo();
+      return;
+    }
     if (active === 3) batch.inspections.push(batch.purity + "% " + (isQualified() ? "放行" : "退回"));
     const rework = active === 3 && !isQualified();
+    transferring = false;
     active = rework ? 2 : active + 1;
     if (rework) batch.separator = "fine";
     progress = active === 5 ? 1 : 0;
@@ -172,43 +222,52 @@
       status.textContent = batchTag() + "已交付，批次记录已生成。";
       setHome();
     } else {
-      view.setProcess(active, 0, batch.variant, batch.model);
       focusStation(active);
       status.textContent = rework ? "样品已退回。重新分离后，再比较两次检测结果。" :
-        stationNames[prev] + "已完成。" + (active === 3 ? "请判读本批检测结果。" : "样品已转入" + stationNames[active] + "。");
+        stationNames[prev] + "已完成。" + (active === 3 ? "待检样品已到位，可启动检测。" : "本批已转入" + stationNames[active] + "。");
       if (automatic) scheduleDemo();
     }
   }
   function startStation() {
     if (running || active >= 5) return;
     if (inspected !== active) { focusStation(active); return; }
-    if (active === 3) {
+    if (active === 3 && batch.measured) {
       if (!batch.verdict) { status.textContent = "请先根据检测结果选择放行或退回。"; return; }
       if ((batch.verdict === "release") !== isQualified()) {
         status.textContent = isQualified() ? "本批已符合颜色与纯度要求，可选择放行。" : "本批低于 90% 的订单标准，请选择退回重新分离。";
         return;
       }
+      transferring = true;
     }
     running = true;
+    paused = false;
     progress = 0;
     focusStation(active);
-    status.textContent = ["设计台正在核对候选方案并签发工单。","目标蛋白正在细胞内合成，罐内样品逐步积累。","混合样品正在分流，目标组分进入收集端。","检测结果正在归入批次记录。","样品正在封装并贴上订单标签。"][active];
-    const duration = stations[active][3] + (active === 2 && batch.separator === "fine" ? 1300 : 0);
-    const start = performance.now();
-    function tick(now) {
-      progress = Math.min(1, (now - start) / duration);
-      view.setProcess(active, progress, batch.variant, batch.model, active === 3 && batch.verdict === "rework");
-      refreshMeter(progress);
-      if (progress < 1) runner = requestAnimationFrame(tick);
-      else finishStation();
-    }
+    status.textContent = transferring ? (isQualified() ? "本批放行，样品正在送往包装线。" : "本批退回，样品正在返回分离台。") :
+      ["设计台正在核对候选方案。","反应器已启动，可暂停观察罐内运动。","分离台已接收混合样品。","正在读取参比和样品信号。","包装线正在接收已放行样品。"][active];
+    duration = transferring ? 2600 : stations[active][3] + (active === 2 && batch.separator === "fine" ? 1800 : 0);
+    startedAt = performance.now();
+    runner = requestAnimationFrame(tick);
+  }
+  function tick(now) {
+    if (!running || paused) return;
+    progress = Math.min(1, Math.max(0, (now - startedAt) / duration));
+    syncView();
+    refreshMeter(progress);
+    showProcess();
+    if (progress < 1) runner = requestAnimationFrame(tick);
+    else finishStation();
+  }
+  function resumeProcess() {
+    paused = false;
+    startedAt = performance.now() - progress * duration;
     runner = requestAnimationFrame(tick);
   }
   function scheduleDemo() {
     clearTimeout(demoTimer);
     demoTimer = setTimeout(() => {
       if (!automatic || running || active === 5) return;
-      if (active === 3) batch.verdict = isQualified() ? "release" : "rework";
+      if (active === 3 && batch.measured) batch.verdict = isQualified() ? "release" : "rework";
       focusStation(active); startStation();
     }, 1000);
   }
@@ -223,7 +282,9 @@
     if (!b || running || inspected !== active) return;
     stopDemo();
     batch[b.dataset.field] = b.dataset.value;
-    view.setProcess(active, progress, batch.variant, batch.model);
+    previewFraction = null;
+    syncView();
+    showProcess();
     if (wide) {
       wide = false;
       view.setStation(active);
@@ -243,12 +304,46 @@
   });
   byId("overviewButton").addEventListener("click", () => { stopDemo(); setHome(); });
   byId("resetButton").addEventListener("click", reset);
+  function previewAt(fraction) {
+    if (running) return;
+    stopDemo();
+    previewFraction = Math.max(0, Math.min(1, fraction));
+    if (wide) {
+      wide = false;
+      view.setStation(inspected);
+      text("viewLabel", stationNames[inspected] + " · 近景");
+    }
+    view.setProcess(inspected, previewFraction, batch.variant, batch.model, false, batch.separator, false);
+    showProcess();
+  }
+  range.addEventListener("input", () => previewAt(Number(range.value) / 100));
+  pauseButton.addEventListener("click", () => {
+    if (!running) return;
+    stopDemo();
+    if (paused) resumeProcess();
+    else { cancelAnimationFrame(runner); paused = true; }
+    if (inspected !== active) focusStation(active);
+    refreshMeter(progress);
+    showProcess();
+  });
   demo.addEventListener("click", () => {
     if (automatic) { stopDemo(); status.textContent = running ? "已接管，当前设备完成后可继续手动操作。" : "已接管，可手动操作当前工位。"; return; }
     if (active === 5) reset();
-    automatic = true; focusStation(active);
+    automatic = true;
+    if (paused) resumeProcess();
+    focusStation(active);
     if (!running) scheduleDemo();
   });
   reset();
   if (new URLSearchParams(location.search).get("auto") === "1") demo.click();
 })();
+
+/* 答辩路线：自动演示时显示返回主站入口 */
+try {
+  if (new URLSearchParams(location.search).get("auto") === "1") {
+    const bar = document.createElement("div");
+    bar.style.cssText = "position:fixed;right:14px;top:70px;z-index:60;padding:9px 14px;border:1px solid rgba(232,184,117,.5);border-radius:999px;background:rgba(8,17,27,.9);color:#e8cfa4;font-size:12px;box-shadow:0 8px 24px rgba(0,0,0,.35);";
+    bar.innerHTML = '答辩路线 · 蛋白质工厂演示中 <a href="index.html" style="color:#ffd9a0;margin-left:8px;text-decoration:none;">返回主站 →</a>';
+    document.body.appendChild(bar);
+  }
+} catch (e) {}
