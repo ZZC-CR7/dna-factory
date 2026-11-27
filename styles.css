@@ -442,7 +442,7 @@ body.in-lab .home-screen { display: none; }
 }
 /* ── 答辩套装：作品名片 / 设计说明 / 互动统计 ───────────────────────── */
 .hero-actions { display: flex; align-items: center; gap: 12px; margin-top: 26px; }
-.hero-design { padding: 10px 16px; border: 1px solid rgba(148,184,202,.35); border-radius: 999px; color: #b9cbd6; background: rgba(148,184,202,.06); cursor: pointer; font-size: 11px; letter-spacing: .06em; transition: .2s; }
+.hero-design { padding: 0 16px; height: 43px; display: inline-flex; align-items: center; border: 1px solid rgba(148,184,202,.35); border-radius: 999px; color: #b9cbd6; background: rgba(148,184,202,.06); cursor: pointer; font-size: 11px; letter-spacing: .06em; transition: .2s; }
 .hero-design span { display: inline-block; width: 15px; height: 15px; margin-left: 6px; border: 1px solid currentColor; border-radius: 50%; font-size: 9px; line-height: 13px; }
 .hero-design:hover { border-color: var(--cyan); color: var(--cyan); }
 .stats-card { padding: 13px 14px; }

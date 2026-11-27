@@ -1690,11 +1690,6 @@
   $("#journeyReplay").addEventListener("click", () => { hideJourney(); startTour(); });
   $("#journeyOverlay").addEventListener("click", e => { if (e.target === $("#journeyOverlay")) hideJourney(); });
   $("#designButton").addEventListener("click", () => { $("#designOverlay").hidden = false; });
-  $("#defenseButton").addEventListener("click", startDefenseRoute);
-  $("#heroDefenseButton").addEventListener("click", startDefenseRoute);
-  $("#defensePause").addEventListener("click", () => stopDefenseRoute(false));
-  $("#defenseClose").addEventListener("click", () => stopDefenseRoute(true));
-  $("#defenseClose2").addEventListener("click", () => stopDefenseRoute(true));
   $("#heroDesignButton").addEventListener("click", () => { $("#designOverlay").hidden = false; });
   $("#designClose").addEventListener("click", () => { $("#designOverlay").hidden = true; });
   $("#designOverlay").addEventListener("click", e => { if (e.target === $("#designOverlay")) $("#designOverlay").hidden = true; });

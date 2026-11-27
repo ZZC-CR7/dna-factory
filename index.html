@@ -22,7 +22,6 @@
         <a class="reference-link app-link" href="app.html">AI 蛋白质工厂 <span>↗</span></a>
         <a class="reference-link" href="https://www.bilibili.com/video/BV15x411Z7kf/" target="_blank" rel="noreferrer">参考动画 <span>↗</span></a>
         <button class="icon-button" id="designButton" title="设计说明" aria-label="设计说明">i</button>
-        <button class="icon-button" id="defenseButton" title="答辩模式（自动串联全部亮点）" aria-label="答辩模式">🎤</button>
         <button class="icon-button" id="soundButton" title="音效开关（M）" aria-label="音效开关">♪</button>
         <button class="icon-button" id="tourButton" title="自动演示全部五层" aria-label="自动演示全部五层">▶</button>
         <button class="icon-button" id="fullscreenButton" title="全屏展示（F）" aria-label="全屏展示">⛶</button>
@@ -38,7 +37,7 @@
           <div class="hero-kicker"><span class="pulse-dot"></span> 生命五层探索 · 01—05</div>
           <h1>从一段 DNA，<br><em>看见生命如何运作</em></h1>
           <p>沿着遗传信息的路径逐层探索：解旋、编辑、转录、翻译，再到蛋白质在细胞中的运输。</p>
-          <div class="hero-actions"><button id="enterLayerOne" class="hero-cta" type="button"><span>进入第 1 层</span><b>→</b></button><button id="heroDesignButton" class="hero-design" type="button">设计说明 <span>i</span></button><button id="heroDefenseButton" class="hero-design" type="button">🎤 答辩模式</button></div>
+          <div class="hero-actions"><button id="enterLayerOne" class="hero-cta" type="button"><span>进入第 1 层</span><b>→</b></button><button id="heroDesignButton" class="hero-design" type="button">设计说明 <span>i</span></button></div>
           <div class="hero-footnote"><span>可点击结构查看说明</span><i></i><span>拖拽分子工具完成互动</span></div>
         </div>
         <div class="hero-annotation annotation-top"><span>5′</span><i></i><b>双螺旋结构</b></div>
@@ -164,19 +163,6 @@
       <div class="progress-track"><span class="progress-label">五层路径</span><div class="progress-line"><i id="progressFill"></i></div><span id="progressText">首页</span></div>
       <div class="footer-meta"><span>从基因到蛋白</span><span class="footer-sep">/</span><span>互动演示</span></div>
     </footer>
-  </div>
-  <div class="journey-overlay" id="defenseOverlay" hidden>
-    <div class="journey-modal" role="dialog" aria-modal="true" aria-labelledby="defenseTitle">
-      <button class="journey-close" id="defenseClose" type="button" aria-label="关闭">✕</button>
-      <span class="section-kicker">答辩演示路线</span>
-      <h2 id="defenseTitle">答辩模式 · 一键串联全部亮点</h2>
-      <div class="route-list" id="routeList"></div>
-      <p class="journey-summary" id="routeStatus">按讲解脚本顺序自动演示：概览 → 五层原理 → 前沿 → 3D → 应用；可随时暂停接管。</p>
-      <div class="journey-actions">
-        <button id="defensePause" type="button">⏸ 暂停 / 退出</button>
-        <button id="defenseClose2" type="button">关闭</button>
-      </div>
-    </div>
   </div>
   <div class="design-overlay journey-overlay" id="designOverlay" hidden>
     <div class="journey-modal" role="dialog" aria-modal="true" aria-labelledby="designTitle">
