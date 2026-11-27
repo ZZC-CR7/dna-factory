@@ -96,6 +96,13 @@ body.in-lab .home-screen { display: none; }
 .layer-card-copy small { display: block; margin-top: 6px; overflow: hidden; color: #6d818f; font-size: 7px; white-space: nowrap; text-overflow: ellipsis; }
 .layer-card > i { color: #6c8796; font-size: 12px; font-style: normal; }
 .frontier-overview { padding: 26px 2px 0; }
+.factory-entry { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-top:22px; padding:20px clamp(16px,3vw,34px); border:1px solid #366359; border-radius:12px; color:#e8f6f0; background:linear-gradient(112deg,#152e30,#102529 65%,#1d3933); text-decoration:none; }
+.factory-entry small { color:#9ad9c4; letter-spacing:.08em; }
+.factory-entry h2 { margin:5px 0; font-size:clamp(20px,2vw,27px); }
+.factory-entry p { margin:0; color:#c1d9d4; line-height:1.6; font-size:14px; }
+.factory-entry b { flex:none; color:#a8ecd0; }
+.factory-entry:hover, .factory-entry:focus-visible { border-color:#93dbc1; }
+@media(max-width:640px) { .factory-entry { align-items:flex-start; flex-direction:column; gap:10px; } }
 .frontier-list { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 10px; }
 .frontier-item { position: relative; min-height: 132px; padding: 12px 11px 26px; border: 1px solid var(--line); border-radius: 9px; background: linear-gradient(150deg, rgba(20,33,46,.82), rgba(12,22,31,.66)); overflow: hidden; }
 .frontier-item::before { content: ""; position: absolute; inset: 0 auto auto 0; width: 100%; height: 2px; background: linear-gradient(90deg, rgba(232,184,117,.85), rgba(127,201,213,.25)); }

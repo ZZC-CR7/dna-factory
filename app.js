@@ -627,7 +627,7 @@
 
   // ── 答辩演示路线（按讲解脚本串联全部亮点） ──
   const routeState = { active: false, step: 0 };
-  const routeLabels = ["首页概览 · 作品定位", "五层原理演示", "技术前沿时间线", "3D 分子动画（新页）", "应用场景实验室（新页）"];
+  const routeLabels = ["首页概览 · 作品定位", "五层原理演示", "技术前沿时间线", "3D 分子动画（新页）", "AI 蛋白质工厂（新页）"];
   function renderRoute() {
     const box = $("#routeList");
     box.innerHTML = routeLabels.map((label, i) => {

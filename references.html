@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>前沿文献资料 · 基因解码</title>
+<style>
+:root {
+  color-scheme: dark;
+  --ink: #07101a; --panel: #111d29; --line: rgba(177,200,216,.13);
+  --line-strong: rgba(177,200,216,.24); --text: #e8f0f5; --muted: #8b9baa;
+  --quiet: #647484; --cyan: #7fc9d5; --green: #91d0ae; --amber: #e8b875;
+  --violet: #b7a2e4; --red: #ef8179;
+  font-family: Inter, "Aptos", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+}
+* { box-sizing: border-box; }
+html { min-width: 320px; background: var(--ink); }
+body { margin: 0; color: var(--text); background: radial-gradient(ellipse at 50% -10%, #172736 0, #0b1520 45%, #07101a 82%); min-height: 100vh; padding-bottom: 78px; }
+a { color: inherit; }
+button { font: inherit; touch-action: manipulation; }
+[hidden] { display: none !important; }
+
+/* ── 顶栏 ── */
+.apps-top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 18px; background: rgba(7,17,26,.88); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.apps-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.apps-mark { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid rgba(127,201,213,.42); border-radius: 9px; color: var(--cyan); font-weight: 700; font-size: 15px; transform: rotate(-6deg); }
+.apps-brand b { display: block; color: #dbe7ee; font-size: 13px; letter-spacing: .08em; }
+.apps-brand small { display: block; margin-top: 2px; color: var(--muted); font-size: 9px; letter-spacing: .1em; }
+.apps-back { color: var(--amber); font-size: 11px; text-decoration: none; white-space: nowrap; }
+
+/* ── 外壳 ── */
+.app-shell { max-width: 1060px; margin: 0 auto; padding: 0 18px; }
+.tab-pane { display: none; padding: 22px 0 10px; }
+.tab-pane.active { display: block; }
+.scenes-intro { margin: 4px 0 16px; }
+.scenes-intro h1 { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -.02em; }
+.scenes-intro h1 em { color: var(--cyan); font-style: normal; }
+.scenes-intro p { margin: 10px 0 0; max-width: 620px; color: var(--muted); font-size: 12px; line-height: 1.8; }
+.scenes-intro .hi { color: #ffd9a0; }
+
+/* ── 应用速览 ── */
+.apps-tabs { position: sticky; top: 61px; z-index: 15; display: flex; gap: 6px; padding: 10px 0; overflow-x: auto; background: linear-gradient(180deg, rgba(7,17,26,.95), rgba(7,17,26,.85)); -webkit-overflow-scrolling: touch; }
+.apps-tabs button { flex: 0 0 auto; padding: 7px 14px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--muted); background: transparent; cursor: pointer; font-size: 11px; transition: .2s; }
+.apps-tabs button.active { color: #0b1520; background: var(--cyan); border-color: var(--cyan); font-weight: 600; }
+.apps-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; padding: 14px 0 8px; }
+.app-card { display: flex; flex-direction: column; padding: 14px 16px 13px; border: 1px solid var(--line); border-radius: 13px; color: inherit; text-decoration: none; background: linear-gradient(150deg, rgba(21,35,48,.86), rgba(13,24,34,.72)); transition: transform .2s, border-color .2s, background .2s; }
+.app-card:hover { transform: translateY(-2px); border-color: rgba(127,201,213,.5); background: linear-gradient(150deg, rgba(24,42,56,.96), rgba(13,27,38,.84)); }
+.app-card:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+.app-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.app-badge { padding: 3px 8px; border-radius: 5px; font-size: 9px; letter-spacing: .06em; }
+.b-ok { color: #a9e3bd; background: rgba(145,208,174,.13); }
+.b-iii { color: #9dd6dc; background: rgba(127,201,213,.13); }
+.b-ii { color: #bcdcf2; background: rgba(155,199,232,.12); }
+.b-i { color: #c9b8ea; background: rgba(183,162,228,.13); }
+.b-new { color: #e8cfa4; background: rgba(232,184,117,.12); }
+.b-warn { color: #f0b49a; background: rgba(239,129,121,.12); }
+.app-year { color: var(--quiet); font-size: 9px; }
+.app-card h3 { margin: 11px 0 3px; color: #dbe7ee; font-size: 15px; font-weight: 600; }
+.app-org { margin: 0 0 8px; color: #6d818f; font-size: 10px; }
+.app-text { margin: 0; color: #94a9b5; font-size: 11.5px; line-height: 1.75; }
+.app-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
+.app-tags i { padding: 3px 8px; border: 1px solid var(--line); border-radius: 999px; color: #7d929f; font-size: 9px; font-style: normal; }
+.app-source-link { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; padding-top: 9px; border-top: 1px solid rgba(177,200,216,.1); color: #91cbd3; font-size: 10px; letter-spacing: .03em; }
+.app-source-link b { color: var(--amber); font-size: 13px; font-weight: 500; }
+
+
+@media(max-width:650px){.apps-list{grid-template-columns:minmax(0,1fr)}}
+</style></head><body>
+<header class="apps-top"><a class="apps-back" href="app.html">← AI 蛋白质工厂</a><a class="apps-back" href="index.html">返回原理演示</a></header>
+<main class="app-shell"><div class="scenes-intro"><h1>前沿文献资料</h1><p>按领域查看论文和官方资料。</p></div>
+<nav class="apps-tabs" id="appsTabs" aria-label="应用领域">
+        <button data-cat="all" class="active" type="button">全部</button>
+        <button data-cat="medical" type="button">医学治疗</button>
+        <button data-cat="cell" type="button">细胞工程</button>
+        <button data-cat="protein" type="button">蛋白质工程</button>
+        <button data-cat="agri" type="button">农业与育种</button>
+        <button data-cat="ethics" type="button">伦理与边界</button>
+      </nav>
+<div id="appsList" class="apps-list"></div></main>
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const CARDS = [
+    { cat: "medical", badge: "已获批", bc: "b-ok", year: "2023–2024", org: "Vertex × CRISPR Therapeutics", title: "Casgevy", tags: ["体外编辑", "血液病"], text: "编辑患者造血干细胞、重新激活胎儿血红蛋白 HbF，治疗镰刀型细胞贫血与 β 地中海贫血——全球首款获批的 CRISPR 疗法。" },
+    { cat: "medical", badge: "FDA 优先审评", bc: "b-iii", year: "2025–2027", org: "Intellia", title: "NTLA-2002", tags: ["体内编辑", "罕见病"], text: "脂质纳米颗粒将 CRISPR 系统送入肝细胞，敲低 KLKB1，治疗遗传性血管性水肿。III 期 HAELO 结果积极；FDA 已受理上市申请并授予优先审评，目标决策日期为 2027 年 3 月。" },
+    { cat: "medical", badge: "III 期入组完成", bc: "b-iii", year: "2026", org: "Intellia", title: "nex-z", tags: ["体内编辑", "淀粉样变性"], text: "一次性体内编辑肝脏 TTR，治疗遗传性 ATTR 多发性神经病。MAGNITUDE-2 于 2026 年 11 月完成入组，临床终点仍待评估。" },
+    { cat: "medical", badge: "临床 I/II 期", bc: "b-ii", year: "2023–2024", org: "锐正基因", title: "ART001", tags: ["体内编辑", "国产突破"], text: "中国首个进入人体的体内基因编辑药物（治疗 ATTR），2024 年 8 月成为首个获美国 FDA 临床试验许可的中国同类产品。" },
+    { cat: "medical", badge: "临床 I/II 期", bc: "b-ii", year: "2024–2026", org: "Beam Therapeutics", title: "BEAM-101", tags: ["碱基编辑", "血液病"], text: "BEACON 研究使用碱基编辑改造造血干细胞以提升胎儿血红蛋白。2026 年 NEJM 发表 31 例研究数据，后续监管申报仍在推进。" },
+    { cat: "medical", badge: "临床研究", bc: "b-i", year: "2025–", org: "Verve Therapeutics", title: "VERVE-102", tags: ["碱基编辑", "心血管"], text: "一次性体内碱基编辑关闭肝脏 PCSK9。Heart-2 早期数据中，最高剂量组平均 LDL-C 降幅为 53%，最大值为 69%；候选疗法仍处于临床研发阶段。" },
+    { cat: "medical", badge: "临床 I/II 期", bc: "b-ii", year: "2025", org: "Prime Medicine", title: "PM359", tags: ["先导编辑", "免疫缺陷"], text: "先导编辑首次进入人体：单次输注修复慢性肉芽肿病的致病突变，首例患者 30 天内中性粒细胞功能恢复 66%。" },
+    { cat: "cell", badge: "前沿研究", bc: "b-new", year: "2025", org: "西京医院 等", title: "基因编辑猪器官移植", tags: ["异种移植", "器官短缺"], text: "Nature 报道了基因编辑猪肝在脑死亡受者中的移植研究；猪肾异种移植也已进入活体临床探索。疗效持续性、免疫排斥与感染风险仍需长期评估。" },
+    { cat: "cell", badge: "前沿研究", bc: "b-new", year: "2025", org: "北大魏文胜团队 等", title: "通用型「现货」CAR-T", tags: ["细胞治疗", "癌症免疫"], text: "CRISPR 筛选发现 SPPL3 基因敲除可形成“糖盾”，降低同种异体免疫攻击，为通用型 CAR-T 提供新策略；目前仍属于研究阶段。" },
+    { cat: "protein", badge: "诺奖级平台", bc: "b-ok", year: "2024", org: "Baker / DeepMind", title: "AI 蛋白质设计", tags: ["蛋白质工程", "AI"], text: "2024 年诺贝尔化学奖：蛋白质设计 + AlphaFold2 结构预测——可设计全新酶、疫苗与蛋白药物。" },
+    { cat: "protein", badge: "工程化应用", bc: "b-ok", year: "2010s–今", org: "合成生物学研究与产业界", title: "细胞工厂 · 合成生物学", tags: ["生物制造", "药物生产"], text: "合成生物学重构酵母代谢路径，使其发酵生产青蒿素前体；工程细胞工厂也用于制造多类化学品与药物原料。" },
+    { cat: "protein", badge: "工程化应用", bc: "b-ok", year: "2018 后", org: "产业界", title: "工业酶定向改造", tags: ["酶工程", "绿色制造"], text: "定向进化通过突变与筛选迭代优化酶功能，可用于药物、食品、洗涤剂和绿色化学；也可与高通量筛选结合改造生产菌株。" },
+    { cat: "agri", badge: "获批推进", bc: "b-ok", year: "2024.12–", org: "农业农村部", title: "中国基因编辑作物", tags: ["粮食安全", "抗病优质"], text: "大豆、小麦、玉米、水稻等基因编辑作物陆续获得安全证书——不转入外源基因的精准育种进入快车道。" },
+    { cat: "agri", badge: "已上市 / 已通报", bc: "b-ok", year: "2019–", org: "美国 / 日本", title: "编辑食品走上餐桌", tags: ["食品", "营养"], text: "美国 FDA 完成高油酸大豆的食品安全咨询；日本公布高 GABA 番茄等基因编辑食品通报信息。不同地区的监管路径和上市品种各有差异。" },
+    { cat: "agri", badge: "已获批（美/加）", bc: "b-ok", year: "2025–2026", org: "Genus × PIC/首农", title: "抗蓝耳病猪", tags: ["动物育种", "疫病防控"], text: "编辑 CD163 基因使猪天然抵抗蓝耳病毒：2025 年美国 FDA 批准、2026 年加拿大批准，中国安全评价试验推进中。" },
+    { cat: "ethics", badge: "伦理边界", bc: "b-warn", year: "2021–", org: "中国刑法修正案（十一）", title: "生殖系编辑的红线", tags: ["法规", "生殖伦理"], text: "中国刑法对非法植入基因编辑或克隆的人类胚胎规定了刑事责任；可遗传的人类基因组编辑涉及重大安全与伦理问题，需接受严格治理。" },
+    { cat: "ethics", badge: "争议前沿", bc: "b-warn", year: "研究中", org: "多国研究机构", title: "基因驱动", tags: ["生态", "公共卫生"], text: "基因驱动可使遗传元件在种群中超孟德尔传播，研究目标包括控制媒介蚊虫；潜在生态影响要求分阶段研究、风险评估与公众参与。" }
+  ];
+  const CARD_SOURCES = {
+    "Casgevy": "https://www.fda.gov/vaccines-blood-biologics/casgevy",
+    "NTLA-2002": "https://ir.intelliatx.com/node/12886",
+    "nex-z": "https://ir.intelliatx.com/news-releases/news-release-details/intellia-therapeutics-completes-enrollment-phase-3-magnitude-2",
+    "ART001": "https://accuredit.com/46/64",
+    "BEAM-101": "https://investors.beamtx.com/news-releases/news-release-details/beam-therapeutics-announces-publication-beacon-phase-12-data",
+    "VERVE-102": "https://www.vervetx.com/our-programs/verve-102",
+    "PM359": "https://investors.primemedicine.com/news-releases/news-release-details/prime-medicine-announces-breakthrough-clinical-data-showing",
+    "基因编辑猪器官移植": "https://doi.org/10.1038/s41586-025-08799-1",
+    "通用型「现货」CAR-T": "https://pubmed.ncbi.nlm.nih.gov/40845838/",
+    "AI 蛋白质设计": "https://www.nobelprize.org/prizes/chemistry/2024/summary/",
+    "细胞工厂 · 合成生物学": "https://www.nature.com/articles/nature12051",
+    "工业酶定向改造": "https://www.nobelprize.org/prizes/chemistry/2018/arnold/biographical/",
+    "中国基因编辑作物": "https://www.agri.cn/sc/scdt/202501/t20250115_8706243.htm",
+    "编辑食品走上餐桌": "https://www.fda.gov/food/food-new-plant-varieties/programs-food-new-plant-varieties",
+    "抗蓝耳病猪": "https://www.canada.ca/en/health-canada/news/2026/01/canada-approves-pigs-resistant-to-porcine-reproductive-and-respiratory-syndrome-viruses-for-use-in-food-and-feed.html",
+    "生殖系编辑的红线": "https://www.loc.gov/item/global-legal-monitor/2021-02-26/china-multiple-areas-of-criminal-law-changing-under-new-amendment/",
+    "基因驱动": "https://www.nationalacademies.org/projects/DELS-BLS-15-06/publication/23405"
+  };
+  let cardCat = "all";
+  function renderCards() {
+    const items = CARDS.filter(a => cardCat === "all" || a.cat === cardCat);
+    $("#appsList").innerHTML = items.map(a =>
+      '<a class="app-card" href="' + CARD_SOURCES[a.title] + '" target="_blank" rel="noopener noreferrer" aria-label="' + a.title + '，打开论文或官方资料"><div class="app-head"><span class="app-badge ' + a.bc + '">' + a.badge + '</span><span class="app-year">' + a.year + '</span></div><h3>' + a.title + '</h3><p class="app-org">' + a.org + '</p><p class="app-text">' + a.text + '</p><div class="app-tags">' + a.tags.map(t => "<i>" + t + "</i>").join("") + '</div><span class="app-source-link">查看论文 / 官方资料 <b>↗</b></span></a>'
+    ).join("");
+  }
+  $("#appsTabs").addEventListener("click", (e) => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    cardCat = btn.dataset.cat;
+    document.querySelectorAll("#appsTabs button").forEach(b => b.classList.toggle("active", b === btn));
+    renderCards();
+  });
+
+
+  renderCards();
+})();
+</script></body></html>

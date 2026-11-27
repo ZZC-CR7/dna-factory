@@ -3,78 +3,81 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#07111c">
-  <title>基因编辑 · 应用场景实验室</title>
+  <meta name="theme-color" content="#0b1822">
+  <title>AI 蛋白质工厂 · 互动分子实验室</title>
+  <meta name="description" content="在三维教学车间定制一批荧光示踪蛋白，操作设计、生产、分离、质检与交付工位。">
   <link rel="stylesheet" href="apps.css">
+  <script defer src="three.min.js"></script>
+  <script defer src="factory-machines.js"></script>
+  <script defer src="factory-view.js"></script>
+  <script defer src="apps.js"></script>
 </head>
 <body>
-  <header class="apps-top">
-    <a class="apps-brand" href="index.html"><span class="apps-mark">M</span><span><b>分子实验室</b><small>应用场景 · 工程场景数字化</small></span></a>
-    <a class="apps-back" href="index.html">← 返回原理演示</a>
+  <a class="skip-link" href="#stationTitle">跳至工位操作</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html" aria-label="基因解码首页">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>基因解码</span>
+      </a>
+      <span class="breadcrumb">互动分子实验室 <i aria-hidden="true">/</i> 工程应用</span>
+      <a class="back-link" href="index.html"><span aria-hidden="true">←</span> 返回原理演示</a>
+    </div>
   </header>
 
-  <main class="app-shell">
-    <!-- Tab 1：互动场景 -->
-    <section class="tab-pane active" id="tabScenes">
-      <div class="scenes-intro">
-        <h1>四个前沿场景，<em>动手看过程</em></h1>
-        <p>把真实工程流程做成可操作的动画场景：选择场景，点击画布中<span class="hi">发光的目标</span>推进步骤，或一键自动播放。</p>
+  <main>
+    <header class="page-heading">
+      <div class="intro">
+        <h1><span>AI</span> 蛋白质工厂</h1>
+        <p>定制一批荧光示踪蛋白，沿着生产线完成设计、制备和交付。</p>
       </div>
-      <div class="scene-picker" id="scenePicker"></div>
+      <div class="mode-actions">
+        <button id="demoButton" type="button" class="demo-button">自动演示</button>
+        <button id="resetButton" type="button" class="reset-button">重新开单</button>
+      </div>
+    </header>
 
-      <section class="scene-card" id="sceneCard">
-        <div class="scene-head">
-          <div><span class="section-kicker" id="sceneKicker">场景 01 / 04</span><h2 id="sceneTitle">红细胞贫血的基因疗法</h2></div>
-          <span class="scene-source" id="sceneSource"></span>
+    <div class="console-layout">
+      <section class="line-panel" aria-label="互动产线">
+        <div class="panel-bar">
+          <h2><i class="view-icon" aria-hidden="true"></i> 三维产线</h2>
+          <div class="view-actions">
+            <span id="viewLabel">全厂视野</span>
+            <button id="overviewButton" type="button">查看全景</button>
+          </div>
         </div>
-        <div class="canvas-wrap">
-          <canvas id="sceneCanvas" aria-label="可交互的应用场景动画"></canvas>
-          <div class="scene-hint" id="sceneHint">点击发光目标，推进步骤</div>
+        <div class="viewport-wrap">
+          <div id="factoryView" aria-label="蛋白质工厂互动视野"></div>
         </div>
-        <div class="scene-controls">
-          <button id="btnPrev" type="button">‹ 上一步</button>
-          <div class="scene-dots" id="sceneDots"></div>
-          <button id="btnPlay" type="button">▶ 自动播放</button>
-          <button id="btnNext" type="button">下一步 ›</button>
-        </div>
+        <div class="view-help">选择工位查看设备 <span aria-hidden="true">·</span> 拖动旋转 <span aria-hidden="true">·</span> 滚轮或双指缩放</div>
+        <nav id="stationNav" aria-label="选择产线工位"></nav>
       </section>
 
-      <section class="scene-info">
-        <div class="scene-info-head"><span class="section-kicker">步骤说明</span><b id="stepIndex">第 1 / 6 步</b></div>
-        <h3 id="stepTitle"></h3>
-        <p id="stepText"></p>
-        <p class="step-plain" id="stepPlain"></p>
-        <p class="scene-meaning" id="stepMeaning"></p>
+      <section class="control-panel" aria-labelledby="stationTitle">
+        <div class="batch-head">
+          <div class="batch-meta"><span class="batch-caption">生产批次</span><b id="batchLabel">待开单</b></div>
+          <div class="progress-meta"><span>批次进度</span><b id="progressLabel">0 / 5</b></div>
+          <div class="progress-track" aria-hidden="true"><div id="progressFill"></div></div>
+        </div>
+        <div class="station-content">
+          <div class="station-step" id="stationIndex">工位 01 / 05</div>
+          <h2 id="stationTitle" tabindex="-1">AI 设计台</h2>
+          <p id="stationDescription">选择订单所需的荧光颜色，查看候选模型。</p>
+          <div id="stationControl"></div>
+        </div>
+        <div class="action-block">
+          <button type="button" id="actionButton">确认订单</button>
+          <p id="statusText" role="status" aria-live="polite" aria-atomic="true"></p>
+        </div>
       </section>
-    </section>
+    </div>
 
-    <!-- Tab 2：应用速览 -->
-    <section class="tab-pane" id="tabCards">
-      <div class="scenes-intro">
-        <h1>应用速览 · <em>17 项前沿进展</em></h1>
-        <p>2020 年诺奖之后，基因编辑在各领域的落地与突破（依据公开资料整理，2023–2026）。</p>
-      </div>
-      <nav class="apps-tabs" id="appsTabs" aria-label="应用领域">
-        <button data-cat="all" class="active" type="button">全部</button>
-        <button data-cat="medical" type="button">医学治疗</button>
-        <button data-cat="cell" type="button">细胞工程</button>
-        <button data-cat="protein" type="button">蛋白质工程</button>
-        <button data-cat="agri" type="button">农业与育种</button>
-        <button data-cat="ethics" type="button">伦理与边界</button>
-      </nav>
-      <div class="apps-list" id="appsList"></div>
-    </section>
+    <section id="resultPanel" class="report" aria-label="本批次交付记录" hidden></section>
+    <noscript><p class="noscript">请启用浏览器的 JavaScript 以操作产线。</p></noscript>
   </main>
-
-  <nav class="bottom-nav" id="bottomNav" aria-label="主导航">
-    <button data-tab="tabScenes" class="active" type="button"><b>🧪</b><span>互动场景</span></button>
-    <button data-tab="tabCards" type="button"><b>📋</b><span>应用速览</span></button>
-    <a href="index.html"><b>🧬</b><span>原理演示</span></a>
-  </nav>
-
-  <footer class="apps-foot">
-    <p>场景为教学示意，依据公开监管批准、临床数据与学术论文整理（2023–2026）；医疗信息仅供科普，不构成诊疗建议。</p>
+  <footer>
+    <span>本场景采用教学示意模型和模拟质检数据。</span>
+    <a href="references.html">前沿文献资料 <span aria-hidden="true">↗</span></a>
   </footer>
-  <script src="apps.js"></script>
 </body>
 </html>
