@@ -69,7 +69,7 @@ body.in-lab .home-screen { display: none; }
 .hero-copy h1 { margin: 22px 0 14px; color: #eaf2f6; font-size: clamp(28px, 3.1vw, 46px); line-height: 1.32; letter-spacing: -.045em; font-weight: 540; }
 .hero-copy h1 em { color: #92d4d6; font-style: normal; font-weight: 480; }
 .hero-copy p { max-width: 380px; margin: 0; color: #95a8b5; font-size: 12px; line-height: 1.9; }
-.hero-cta { margin-top: 24px; min-width: 175px; height: 43px; padding: 0 15px; display: inline-flex; align-items: center; justify-content: space-between; gap: 32px; border: 1px solid rgba(127,201,213,.52); border-radius: 8px; color: #e1f0f2; background: linear-gradient(100deg, rgba(91,174,185,.28), rgba(36,84,102,.34)); font-size: 11px; cursor: pointer; transition: .2s; }
+.hero-cta { min-width: 175px; height: 43px; padding: 0 15px; display: inline-flex; align-items: center; justify-content: space-between; gap: 32px; border: 1px solid rgba(127,201,213,.52); border-radius: 8px; color: #e1f0f2; background: linear-gradient(100deg, rgba(91,174,185,.28), rgba(36,84,102,.34)); font-size: 11px; cursor: pointer; transition: .2s; }
 .hero-cta:hover { border-color: var(--cyan); background: rgba(127,201,213,.18); box-shadow: 0 0 28px rgba(127,201,213,.14); transform: translateY(-1px); }
 .hero-cta b { color: var(--cyan); font-size: 17px; font-weight: 400; }
 .hero-footnote { margin-top: 21px; display: flex; align-items: center; gap: 10px; color: #6f8492; font-size: 8px; }
